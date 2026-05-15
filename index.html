@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tilf Habesha — Measured by you. Made in Ethiopia.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Afacad:wght@400;500;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- TIBEB TOP ACCENT -->
+<div class="nav-tibeb"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="showPage('home')">
+      <span class="logo-main">Tilf Habesha</span>
+      <span class="logo-sub">ትልፍ ሀበሻ · Ethiopian Artisan Wear</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#" onclick="showPage('home'); scrollTo('dresses')">Collections</a></li>
+      <li><a href="#" onclick="showPage('home'); scrollTo('how')">How It Works</a></li>
+      <li><a href="#" onclick="showPage('supplier-page')">Artisans</a></li>
+      <li><a href="#" onclick="showPage('home'); scrollTo('track')">Track Order</a></li>
+      <li><a href="#" class="nav-cta" onclick="showPage('home'); scrollTo('become')">Become a Supplier</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════════ HOME PAGE ══════════════ -->
+<div id="home" class="page active">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-pattern"></div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-eyebrow fade-up">Ethiopian Artisan Marketplace</div>
+        <h1 class="hero-title fade-up-2">
+          Traditional dress,<br>
+          <em>your exact fit.</em>
+        </h1>
+        <p class="hero-tagline fade-up-3">"Measured by you. Made in Ethiopia."</p>
+        <p class="hero-desc fade-up-3">
+          Order custom-stitched Habesha dresses directly from master artisans in Addis Ababa, Gondar, and beyond. Every stitch made to your measurements. Pay only 15% to begin.
+        </p>
+        <div class="hero-actions fade-up-4">
+          <a href="#" class="btn-primary" onclick="showPage('home'); scrollTo('dresses')">
+            ✦ Browse Collections
+          </a>
+          <a href="#" class="btn-ghost" onclick="showPage('home'); scrollTo('how')">
+            How It Works
+          </a>
+        </div>
+        <div class="hero-stats fade-up-4">
+          <div>
+            <div class="stat-num gold-shimmer">240+</div>
+            <div class="stat-label">Artisans</div>
+          </div>
+          <div>
+            <div class="stat-num gold-shimmer">4,800+</div>
+            <div class="stat-label">Dresses Made</div>
+          </div>
+          <div>
+            <div class="stat-num gold-shimmer">38</div>
+            <div class="stat-label">Countries Served</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual fade-up-3">
+        <div class="hero-dress-grid">
+          <div class="hero-card" onclick="showPage('product')">
+            <div class="dress-placeholder d1">
+              <svg viewBox="0 0 120 200" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 20 C40 20 35 25 30 35 L10 80 L25 85 L20 180 L100 180 L95 85 L110 80 L90 35 C85 25 80 20 80 20 C75 30 65 35 60 35 C55 35 45 30 40 20Z" fill="rgba(245,240,232,0.15)" stroke="rgba(201,168,76,0.6)" stroke-width="1.5"/>
+                <path d="M35 165 L85 165" stroke="rgba(201,168,76,0.8)" stroke-width="2"/>
+                <path d="M30 158 L90 158" stroke="rgba(184,92,58,0.6)" stroke-width="1.5"/>
+                <path d="M30 151 L90 151" stroke="rgba(201,168,76,0.5)" stroke-width="1"/>
+                <circle cx="60" cy="22" r="8" fill="rgba(245,240,232,0.2)" stroke="rgba(201,168,76,0.5)" stroke-width="1.5"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+            <div class="dress-overlay">
+              <div class="dress-overlay-name">Adey Abeba Habesha</div>
+              <div class="dress-overlay-price">$285 · Supplier: Marta G.</div>
+            </div>
+          </div>
+          <div class="hero-card" onclick="showPage('product')">
+            <div class="dress-placeholder d2">
+              <svg viewBox="0 0 120 160" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M38 15 C38 15 33 22 28 32 L8 72 L22 77 L18 148 L102 148 L98 77 L112 72 L92 32 C87 22 82 15 82 15 C77 25 68 30 60 30 C52 30 43 25 38 15Z" fill="rgba(201,168,76,0.1)" stroke="rgba(201,168,76,0.5)" stroke-width="1.5"/>
+                <rect x="28" y="132" width="64" height="10" fill="rgba(201,168,76,0.2)" rx="1"/>
+                <rect x="28" y="122" width="64" height="6" fill="rgba(184,92,58,0.2)" rx="1"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+            <div class="dress-overlay">
+              <div class="dress-overlay-name">Tibeb Qemis</div>
+              <div class="dress-overlay-price">$340 · Supplier: Selamawit T.</div>
+            </div>
+          </div>
+          <div class="hero-card" onclick="showPage('product')">
+            <div class="dress-placeholder d3">
+              <svg viewBox="0 0 120 160" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M40 18 C40 18 34 24 29 34 L9 74 L23 79 L19 148 L101 148 L97 79 L111 74 L91 34 C86 24 80 18 80 18 C75 28 67 33 60 33 C53 33 45 28 40 18Z" fill="rgba(90,122,94,0.15)" stroke="rgba(90,122,94,0.6)" stroke-width="1.5"/>
+                <path d="M32 138 L88 138 M30 130 L90 130 M30 122 L90 122" stroke="rgba(201,168,76,0.6)" stroke-width="1.5"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+            <div class="dress-overlay">
+              <div class="dress-overlay-name">Yefekede Libs</div>
+              <div class="dress-overlay-price">$190 · Supplier: Tigist A.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tibeb-border"></div>
+  </section>
+
+  <!-- DRESS GRID -->
+  <section class="section dresses-section" id="dresses">
+    <div class="section-inner">
+      <div class="dresses-header">
+        <div>
+          <div class="section-label">Collections</div>
+          <h2 class="section-title">Handcrafted for <em>every occasion</em></h2>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active">All</button>
+          <button class="filter-btn">Wedding</button>
+          <button class="filter-btn">Timkat</button>
+          <button class="filter-btn">Everyday</button>
+          <button class="filter-btn">Netela</button>
+        </div>
+      </div>
+      <div class="dress-grid">
+        <!-- Card 1 -->
+        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
+          <div class="dress-card-img-wrap">
+            <div class="dress-swatch swatch-habesha-white">
+              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(245,240,232,0.4)" stroke="rgba(180,160,120,0.8)" stroke-width="2"/>
+                <rect x="14" y="148" width="72" height="10" fill="rgba(201,168,76,0.35)" rx="1"/>
+                <rect x="14" y="138" width="72" height="6" fill="rgba(184,92,58,0.3)" rx="1"/>
+                <rect x="14" y="130" width="72" height="4" fill="rgba(201,168,76,0.25)" rx="1"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+            <div class="dress-card-badge">New</div>
+          </div>
+          <div class="dress-card-body">
+            <div class="dress-card-name">Adey Abeba Habesha Kemis</div>
+            <div class="dress-card-supplier"><span class="supplier-dot"></span> Marta Gebremichael · Addis Ababa</div>
+            <div class="dress-card-footer">
+              <div class="dress-price">$285 <span>USD</span></div>
+              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 18–22 days</div>
+            </div>
+          </div>
+        </a>
+        <!-- Card 2 -->
+        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
+          <div class="dress-card-img-wrap">
+            <div class="dress-swatch swatch-blue">
+              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(100,140,200,0.25)" stroke="rgba(200,220,255,0.5)" stroke-width="2"/>
+                <rect x="14" y="148" width="72" height="10" fill="rgba(201,168,76,0.5)" rx="1"/>
+                <rect x="14" y="138" width="72" height="6" fill="rgba(255,255,255,0.2)" rx="1"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+          </div>
+          <div class="dress-card-body">
+            <div class="dress-card-name">Meskel Tibeb Kemis</div>
+            <div class="dress-card-supplier"><span class="supplier-dot"></span> Selamawit Tadesse · Gondar</div>
+            <div class="dress-card-footer">
+              <div class="dress-price">$340 <span>USD</span></div>
+              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 21–25 days</div>
+            </div>
+          </div>
+        </a>
+        <!-- Card 3 -->
+        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
+          <div class="dress-card-img-wrap">
+            <div class="dress-swatch swatch-red">
+              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(200,80,60,0.2)" stroke="rgba(255,180,160,0.5)" stroke-width="2"/>
+                <path d="M14 150 L86 150 M14 142 L86 142 M14 134 L86 134" stroke="rgba(201,168,76,0.7)" stroke-width="2"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+            <div class="dress-card-badge" style="background:var(--gold-dim);">Popular</div>
+          </div>
+          <div class="dress-card-body">
+            <div class="dress-card-name">Enqutatash Celebration Dress</div>
+            <div class="dress-card-supplier"><span class="supplier-dot"></span> Hiwot Alemu · Bahir Dar</div>
+            <div class="dress-card-footer">
+              <div class="dress-price">$420 <span>USD</span></div>
+              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 25–30 days</div>
+            </div>
+          </div>
+        </a>
+        <!-- Card 4 -->
+        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
+          <div class="dress-card-img-wrap">
+            <div class="dress-swatch swatch-green">
+              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(60,120,70,0.25)" stroke="rgba(150,220,160,0.5)" stroke-width="2"/>
+                <rect x="14" y="145" width="72" height="14" fill="rgba(201,168,76,0.3)" rx="1"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+          </div>
+          <div class="dress-card-body">
+            <div class="dress-card-name">Yezare Libs Everyday Kemis</div>
+            <div class="dress-card-supplier"><span class="supplier-dot"></span> Tigist Ayele · Addis Ababa</div>
+            <div class="dress-card-footer">
+              <div class="dress-price">$190 <span>USD</span></div>
+              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 14–18 days</div>
+            </div>
+          </div>
+        </a>
+        <!-- Card 5 -->
+        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
+          <div class="dress-card-img-wrap">
+            <div class="dress-swatch swatch-maroon">
+              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(180,40,100,0.2)" stroke="rgba(255,180,220,0.5)" stroke-width="2"/>
+                <path d="M20 158 Q50 150 80 158" stroke="rgba(201,168,76,0.8)" stroke-width="3" fill="none"/>
+                <path d="M20 148 Q50 140 80 148" stroke="rgba(201,168,76,0.5)" stroke-width="2" fill="none"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+          </div>
+          <div class="dress-card-body">
+            <div class="dress-card-name">Timkat Wedding Kemis</div>
+            <div class="dress-card-supplier"><span class="supplier-dot"></span> Azeb Worku · Lalibela</div>
+            <div class="dress-card-footer">
+              <div class="dress-price">$510 <span>USD</span></div>
+              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 30–35 days</div>
+            </div>
+          </div>
+        </a>
+        <!-- Card 6 -->
+        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
+          <div class="dress-card-img-wrap">
+            <div class="dress-swatch swatch-gold-dress">
+              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(201,168,76,0.2)" stroke="rgba(232,201,126,0.7)" stroke-width="2"/>
+                <rect x="14" y="148" width="72" height="10" fill="rgba(201,168,76,0.4)" rx="1"/>
+                <rect x="14" y="136" width="72" height="8" fill="rgba(184,92,58,0.35)" rx="1"/>
+                <rect x="14" y="126" width="72" height="6" fill="rgba(201,168,76,0.3)" rx="1"/>
+              </svg>
+              <div class="tibeb-strip"></div>
+            </div>
+            <div class="dress-card-badge">New</div>
+          </div>
+          <div class="dress-card-body">
+            <div class="dress-card-name">Gena Festival Kemis</div>
+            <div class="dress-card-supplier"><span class="supplier-dot"></span> Meron Haile · Addis Ababa</div>
+            <div class="dress-card-footer">
+              <div class="dress-price">$380 <span>USD</span></div>
+              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 20–24 days</div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section how-section" id="how">
+    <div class="tibeb-border"></div>
+    <div style="padding: 7rem 2rem;">
+    <div class="section-inner">
+      <div class="section-label" style="color:var(--gold)">The Process</div>
+      <h2 class="section-title" style="color:var(--cream)">Ordering is as simple as <em>measuring yourself</em></h2>
+      <p class="section-sub" style="color:rgba(245,240,232,0.55)">No guessing, no returns, no standard sizes. Your dress is made to match your exact body.</p>
+      <div class="steps-grid">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-title">Choose a Dress</div>
+          <div class="step-desc">Browse our collection of Habesha styles from certified artisans across Ethiopia.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-title">Enter Your Measurements</div>
+          <div class="step-desc">Input shoulder, bust, waist, and length in centimeters. We guide you through it.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-title">Pay <span class="deposit-highlight">15% Deposit</span></div>
+          <div class="step-desc">Secure your order with a small deposit. The artisan starts stitching immediately.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-title">Track Progress</div>
+          <div class="step-desc">Follow your order from cutting to stitching to final quality check in real time.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-title">Pay Balance & Ship</div>
+          <div class="step-desc">Pay the remaining 85% when your dress is complete. Shipped worldwide with care.</div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="tibeb-border"></div>
+  </section>
+
+  <!-- WHY DIFFERENT -->
+  <section class="section diff-section">
+    <div class="section-inner">
+      <div class="section-label">Why Tilf Habesha</div>
+      <h2 class="section-title">This is not<br><em>your average shop</em></h2>
+      <div class="diff-grid">
+        <div class="diff-card">
+          <div class="diff-icon">📐</div>
+          <div class="diff-title">Your Exact Measurements</div>
+          <div class="diff-text">Every dress is cut and stitched to the millimetre of your body. No standard sizes, no guesswork. A fit that feels made for you — because it is.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">🧵</div>
+          <div class="diff-title">Directly From the Artisan</div>
+          <div class="diff-text">No middlemen. You connect directly with a verified Ethiopian tailor. Your money goes to the hands that made it.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">🏛️</div>
+          <div class="diff-title">Authentic Cultural Craftsmanship</div>
+          <div class="diff-text">Every tibeb pattern, every netela thread, every hem follows the living tradition passed through generations of Ethiopian artisans.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">💳</div>
+          <div class="diff-title">Pay Only 15% to Start</div>
+          <div class="diff-text">We believe in trust. A small deposit begins your order. The balance only comes due when your dress is finished and ready to ship.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">🌍</div>
+          <div class="diff-title">Built for the Diaspora</div>
+          <div class="diff-text">Whether you're in Washington, London, or Stockholm — your cultural dress is two weeks and a few measurements away.</div>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">🔎</div>
+          <div class="diff-title">Full Order Transparency</div>
+          <div class="diff-text">Watch your dress come to life. Real-time progress updates from cutting to stitching to shipping. You're never left wondering.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACK ORDER -->
+  <section class="section track-section" id="track">
+    <div style="padding: 7rem 2rem; text-align:center;">
+    <div class="section-inner" style="max-width:700px">
+      <div class="section-label" style="justify-content:center">Order Tracking</div>
+      <h2 class="section-title" style="color:var(--cream);text-align:center">Track your <em>order</em></h2>
+      <p class="section-sub" style="margin:0 auto 0;text-align:center;">Enter your order ID to see real-time progress from the artisan's workshop to your door.</p>
+      <div class="track-form">
+        <div class="track-input-row">
+          <input type="text" class="track-input" placeholder="e.g. TH-2024-08341" id="trackInput">
+          <button class="track-btn" onclick="showTracking()">Track →</button>
+        </div>
+        <div class="order-progress" id="trackResult" style="display:none">
+          <div style="font-size:0.75rem;color:rgba(245,240,232,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem;">Order TH-2024-08341 · Adey Abeba Habesha Kemis</div>
+          <div class="progress-steps">
+            <div class="progress-step p-done">
+              <div class="progress-step-circle">✓</div>
+              <div class="progress-step-label">Deposit<br>Paid</div>
+            </div>
+            <div class="progress-line done"></div>
+            <div class="progress-step p-done">
+              <div class="progress-step-circle">✓</div>
+              <div class="progress-step-label">Fabric<br>Cut</div>
+            </div>
+            <div class="progress-line done"></div>
+            <div class="progress-step p-active">
+              <div class="progress-step-circle">✦</div>
+              <div class="progress-step-label">Stitching<br>in Progress</div>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step p-pending">
+              <div class="progress-step-circle">4</div>
+              <div class="progress-step-label">Quality<br>Check</div>
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step p-pending">
+              <div class="progress-step-circle">5</div>
+              <div class="progress-step-label">Ready to<br>Ship</div>
+            </div>
+          </div>
+          <div style="margin-top:1.5rem;font-size:0.82rem;color:rgba(201,168,76,0.7);">
+            ✦ Estimated completion: <strong style="color:var(--gold-light)">Dec 18, 2024</strong> · Artisan: Marta Gebremichael
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+<div id="productsGrid" class="cloth-grid"></div>
+
+<!-- ══════════════ PRODUCT PAGE ══════════════ -->
+<div id="product" class="page" style="padding-top:68px;">
+  <div class="product-inner">
+
+    <div class="product-images">
+      <div class="product-main-img">
+        <img id="mainProductImg"
+             style="width:100%;border-radius:8px;aspect-ratio:3/4;object-fit:cover;">
+      </div>
+      <div class="product-thumb-row" id="thumbRow"></div>
+    </div>
+
+    <div class="product-details">
+      <h2 id="pName"></h2>
+      <p id="pPrice"></p>
+      <p id="pDelivery"></p>
+
+      <h3>Enter Your Measurements (cm)</h3>
+      <input id="shoulder" placeholder="Shoulder">
+      <input id="bust" placeholder="Bust">
+      <input id="waist" placeholder="Waist">
+      <input id="stw" placeholder="Shoulder to Waist">
+      <input id="address" placeholder="Delivery Address">
+
+      <button onclick="submitOrder()">Place Order (15% Deposit)</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<div id="footer-wrap">
+  <div class="tibeb-border"></div>
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand-name">Tilf Habesha</div>
+          <div class="footer-brand-tag">"Measured by you. Made in Ethiopia."</div>
+          <p class="footer-desc">A supplier-first marketplace connecting the Ethiopian diaspora with master artisans. Every dress is custom-stitched to your exact measurements.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Collections</div>
+          <ul class="footer-links">
+            <li><a href="#">Wedding Kemis</a></li>
+            <li><a href="#">Timkat Dress</a></li>
+            <li><a href="#">Everyday Habesha</a></li>
+            <li><a href="#">Netela Collection</a></li>
+            <li><a href="#">Children's Kemis</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Become a Supplier</a></li>
+            <li><a href="#">How It Works</a></li>
+            <li><a href="#">Track My Order</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Support</div>
+          <ul class="footer-links">
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Sizing Guide</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">Returns Policy</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2024 Tilf Habesha. All rights reserved. Built with pride for the diaspora.</div>
+        <div class="footer-amharic">ትልፍ ሀበሻ · ኢትዮጵያ</div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+<!-- ══════════════ ORDER SUCCESS MODAL ══════════════ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Order Confirmed!</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Your dress is being made</div>
+      <p class="success-sub">Marta Gebremichael has received your measurements and will begin stitching your Adey Abeba Habesha Kemis right away.</p>
+      <div class="order-id-box">
+        <div class="order-id-label">Your Order ID</div>
+        <div class="order-id-num">TH-2024-08341</div>
+      </div>
+      <p class="success-sub" style="font-size:0.82rem;">
+        You'll receive email updates as your dress progresses. The remaining balance of <strong>$242.25</strong> will be requested when your dress passes quality check and is ready to ship.
+      </p>
+      <button class="btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center;" onclick="closeModal();showPage('home');scrollTo('track')">
+        Track My Order →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="assets/js/firebase.js"></script>
+<script type="module" src="assets/js/shop.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
