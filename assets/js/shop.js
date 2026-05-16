@@ -1,23 +1,29 @@
 import {
-  getDocs, collection, doc, getDoc, addDoc
+  collection, getDocs, doc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from "./firebase.js";
 
 const grid = document.getElementById("productsGrid");
 
-// LOAD PRODUCTS
-export async function loadProducts() {
-  const snap = await getDocs(collection(db, "products"));
+async function loadProducts(){
+  const snap = await getDocs(collection(db,"products"));
   grid.innerHTML = "";
 
-  snap.forEach(d => {
+  snap.forEach(d=>{
     const p = d.data();
 
     grid.innerHTML += `
-      <div class="cloth-card" onclick="openProduct('${d.id}')">
-        <img src="${p.images[0]}" />
-        <h3>${p.name}</h3>
-        <p>${p.price} ETB • ${p.deliveryDays} days</p>
+      <div class="dress-card fade-up" onclick="openProduct('${d.id}')">
+        <div class="dress-card-img-wrap">
+          <img src="${p.images[0]}" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:6px;">
+        </div>
+        <div class="dress-card-body">
+          <div class="dress-card-name">${p.name}</div>
+          <div class="dress-card-footer">
+            <div class="dress-price">$${p.priceUSD}</div>
+            <div class="dress-delivery">◷ ${p.deliveryDays} days</div>
+          </div>
+        </div>
       </div>
     `;
   });
@@ -25,44 +31,18 @@ export async function loadProducts() {
 
 window.openProduct = async function(id){
   showPage('product');
-
-  const snap = await getDoc(doc(db, "products", id));
+  const snap = await getDoc(doc(db,"products",id));
   const p = snap.data();
-  window.currentProductId = id;
 
-  document.getElementById("mainProductImg").src = p.images[0];
+  document.querySelector(".product-name").innerHTML =
+    p.name.replace(" ", "<br><em>") + "</em>";
 
-  const thumbRow = document.getElementById("thumbRow");
-  thumbRow.innerHTML = "";
-  p.images.forEach(img => {
-    thumbRow.innerHTML += `
-      <img src="${img}" class="product-thumb"
-      onclick="mainProductImg.src='${img}'">
-    `;
-  });
+  document.querySelector(".product-price-main").innerText =
+    "$" + p.priceUSD;
 
-  document.getElementById("pName").innerText = p.name;
-  document.getElementById("pPrice").innerText = p.price + " ETB";
-  document.getElementById("pDelivery").innerText =
-    "Minimum delivery: " + p.deliveryDays + " days";
-};
-
-// ORDER
-window.submitOrder = async function () {
-  const order = {
-    productId: window.currentProductId,
-    shoulder: shoulder.value,
-    bust: bust.value,
-    waist: waist.value,
-    shoulderToWaist: stw.value,
-    address: address.value,
-    status: "stitching",
-    depositPaid: true,
-    createdAt: new Date()
-  };
-
-  await addDoc(collection(db, "orders"), order);
-  alert("Order placed! We will start stitching.");
+  const main = document.querySelector(".product-main-img");
+  main.innerHTML = `<img src="${p.images[0]}"
+     style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;">`;
 };
 
 loadProducts();
