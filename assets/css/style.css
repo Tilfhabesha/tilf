@@ -468,30 +468,50 @@ nav {
 .how-section {
   background: var(--indigo);
   color: var(--cream);
+  padding-top:140px;
+  padding-bottom:140px;
 }
 .how-section .section-title { color: var(--cream); }
 .how-section .section-sub { color: rgba(245,240,232,0.6); }
-.steps-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0; margin-top: 4rem; position: relative;
+.steps-grid{
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+  gap:40px;
+  margin-top:70px;
 }
-.steps-grid::before {
-  content: '';
-  position: absolute; top: 3rem; left: 10%; right: 10%; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold), var(--gold-dim), transparent);
+
+.steps-grid::before{
+  content:"";
+  position:absolute;
+  top:28px;
+  left:6%;
+  right:6%;
+  height:2px;
+  background:linear-gradient(90deg,var(--gold),rgba(201,168,76,0.2));
+  z-index:0;
 }
-.step-item {
-  text-align: center; padding: 0 1.5rem;
-  position: relative;
+
+.step-item{
+  position:relative;
+  z-index:2;
+  max-width:200px;
+  text-align:center;
 }
-.step-num {
-  width: 60px; height: 60px;
-  border: 1px solid var(--gold-dim); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem; font-weight: 600; color: var(--gold-light);
-  background: var(--indigo); position: relative; z-index: 1;
+
+.step-num{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:var(--gold);
+  color:#1a1a1a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  margin:0 auto 18px;
+  box-shadow:0 0 0 6px rgba(201,168,76,0.15);
+  font-size:20px;
 }
 .step-icon { font-size: 1.3rem; }
 .step-title {
@@ -748,33 +768,46 @@ nav {
 .s-stat-value.gold { color: var(--gold-dim); }
 
 /* ─── DIFFERENCE SECTION ─── */
-.diff-section { background: var(--ivory); }
-.diff-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem; margin-top: 4rem;
+.diff-section { background: var(--ivory);
+              padding:160px 10vw;
 }
-.diff-card {
-  background: var(--white); border: 1px solid rgba(201,168,76,0.12);
-  border-radius: 8px; padding: 2.5rem 2rem;
-  position: relative; overflow: hidden;
-  transition: all 0.3s;
+.diff-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:30px;
+  margin-top:60px;
 }
-.diff-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--gold), var(--terracotta));
-  transform: scaleX(0); transition: transform 0.3s; transform-origin: left;
-}
-.diff-card:hover::before { transform: scaleX(1); }
-.diff-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-.diff-icon {
-  font-size: 2rem; margin-bottom: 1.25rem;
-}
-.diff-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;
-}
-.diff-text { font-size: 0.9rem; color: var(--text-mid); line-height: 1.7; }
 
+.diff-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(201,168,76,0.15);
+  padding:40px 28px;
+  border-radius:14px;
+  transition:all .35s ease;
+  backdrop-filter: blur(6px);
+}
+
+.diff-card:hover{
+  transform:translateY(-8px);
+  border-color:rgba(201,168,76,0.5);
+  box-shadow:0 25px 60px rgba(0,0,0,0.45);
+}
+
+.diff-icon{
+  font-size:28px;
+  margin-bottom:18px;
+}
+
+.diff-title{
+  font-size:20px;
+  margin-bottom:12px;
+  color:var(--gold);
+}
+
+.diff-text{
+  color:rgba(245,240,232,0.7);
+  line-height:1.6;
+}
 /* ─── TRACK ORDER ─── */
 .track-section { background: var(--indigo); }
 .track-section .section-title { color: var(--cream); }
@@ -998,9 +1031,29 @@ footer {
   .supplier-body { grid-template-columns: 1fr; gap: 2.5rem; }
   .become-inner { grid-template-columns: 1fr; }
   .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
-  .steps-grid { grid-template-columns: 1fr 1fr; }
-  .steps-grid::before { display: none; }
+  .steps-grid{
+    flex-direction:column;
+    gap:60px;
+  }
+  .steps-grid::before{
+    top:0;
+    bottom:0;
+    left:28px;
+    width:2px;
+    height:auto;
+  }
+  .step-item{
+    text-align:left;
+    padding-left:70px;
+  }
+  .step-num{
+    position:absolute;
+    left:0;
+  }
   .measure-grid { grid-template-columns: 1fr; }
+  .diff-grid{
+    grid-template-columns:1fr;
+  }
 }
 
 /* ─── PAGE SECTIONS TOGGLE ─── */
