@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tilf Habesha Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:Arial;padding:30px;max-width:800px;margin:auto}
+    input,textarea{width:100%;padding:10px;margin:8px 0}
+    button{padding:12px 20px;background:black;color:white;border:none}
+    img{width:120px;margin:5px;border-radius:6px}
+  </style>
+</head>
+<body>
+
+<h2>Add / Edit Product</h2>
+
+<input id="name" placeholder="Dress name">
+<input id="price" placeholder="Price">
+<input id="delivery" placeholder="Delivery days">
+<input type="file" id="images" multiple>
+
+<div id="preview"></div>
+
+<button onclick="uploadProduct()">Save Product</button>
+
+<script type="module">
+import { db } from "./assets/js/firebase.js";
+import {
+  collection, addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const cloudName = "YOUR_CLOUD_NAME";
+const uploadPreset = "YOUR_UPLOAD_PRESET";
+
+let uploadedImages = [];
+
+images.onchange = async function(e){
+  preview.innerHTML = "";
+  uploadedImages = [];
+
+  for (let file of e.target.files){
+    const url = await uploadToCloudinary(file);
+    uploadedImages.push(url);
+    preview.innerHTML += `<img src="${url}">`;
+  }
+};
+
+async function uploadToCloudinary(file){
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", uploadPreset);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    { method: "POST", body: fd }
+  );
+
+  const data = await res.json();
+  return data.secure_url;
+}
+
+window.uploadProduct = async function(){
+  const product = {
+    name: name.value,
+    price: Number(price.value),
+    deliveryDays: Number(delivery.value),
+    images: uploadedImages
+  };
+
+  await addDoc(collection(db, "products"), product);
+  alert("Product Added!");
+};
+</script>
+
+</body>
+</html>
