@@ -64,3 +64,15 @@ function addToCart(id){
   localStorage.setItem("cart", JSON.stringify(cart));
   alert("Added to cart");
 }
+let wishlist = JSON.parse(localStorage.getItem("wish")) || [];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function addWish(id){
+  wishlist.push(id);
+  localStorage.setItem("wish", JSON.stringify(wishlist));
+}
+
+function addCart(id){
+  cart.push(id);
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
