@@ -1,8 +1,34 @@
 import {
-  collection, getDocs, doc, getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  collection, getDocs, doc, getDoc, query, limit} 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from "./firebase.js";
 
+
+async function loadHero(){
+  const q = query(collection(db,"products"), limit(3));
+  const snap = await getDocs(q);
+
+  const hero = document.getElementById("heroGrid");
+  hero.innerHTML = "";
+
+  snap.forEach(d=>{
+    const p = d.data();
+
+    hero.innerHTML += `
+      <div class="hero-card" onclick="openProduct('${d.id}')">
+        <img src="${p.images[0]}">
+        <div class="dress-overlay">
+          <div class="dress-overlay-name">${p.name}</div>
+          <div class="dress-overlay-price">
+            $${p.priceUSD} · ${p.description}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+loadHero();
 const grid = document.getElementById("productsGrid");
 
 async function loadProducts(){
