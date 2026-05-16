@@ -4,36 +4,58 @@
   <title>Tilf Habesha Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <style>
-    body{font-family:Arial;padding:30px;max-width:800px;margin:auto}
-    input,textarea{width:100%;padding:10px;margin:8px 0}
-    button{padding:12px 20px;background:black;color:white;border:none}
+    body{font-family:Arial;padding:30px;max-width:900px;margin:auto}
+    input,textarea,select{width:100%;padding:10px;margin:8px 0}
+    button{padding:12px 20px;background:black;color:white;border:none;margin-top:10px}
     img{width:120px;margin:5px;border-radius:6px}
+    #preview{display:flex;flex-wrap:wrap}
   </style>
 </head>
 <body>
 
 <h2>Add / Edit Product</h2>
 
-<input id="name" placeholder="Dress name">
+<input id="title" placeholder="Product title">
+<input id="slug" placeholder="slug (red-tibeb-kemis)">
 <input id="price" placeholder="Price">
-<input id="delivery" placeholder="Delivery days">
-<input type="file" id="images" multiple>
+<input id="discountPrice" placeholder="Discount price (optional)">
+<input id="fabric" placeholder="Fabric (Cotton Tibeb)">
+<textarea id="description" placeholder="Product cultural story"></textarea>
 
+<select id="categorySelect">
+  <option value="all">All</option>
+  <option value="wedding">Wedding</option>
+  <option value="womens">Womens</option>
+  <option value="mens">Mens</option>
+  <option value="holiday">Holiday</option>
+  <option value="everyday">Everyday</option>
+  <option value="netela">Netela</option>
+  <option value="other">Other (type below)</option>
+</select>
+
+<input id="otherCategory" placeholder="If other, type category id">
+
+<label><input type="checkbox" id="featured"> Featured product</label>
+<label><input type="checkbox" id="measurementsRequired"> Requires measurements</label>
+
+<input type="file" id="images" multiple>
 <div id="preview"></div>
 
-<button onclick="uploadProduct()">Save Product</button>
+<button onclick="saveProduct()">Save Product</button>
 
 <script type="module">
-import { db } from "./assets/js/firebase.js";
+import { db } from "./assets/jsfirebase.js";
 import {
-  collection, addDoc
+  collection, addDoc, updateDoc, doc, getDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const cloudName = "YOUR_CLOUD_NAME";
-const uploadPreset = "YOUR_UPLOAD_PRESET";
+const cloudName = "dcc3dpccu";
+const uploadPreset = "dcc3dpccu";
 
 let uploadedImages = [];
+let editingId = null;
 
+// IMAGE UPLOAD + PREVIEW
 images.onchange = async function(e){
   preview.innerHTML = "";
   uploadedImages = [];
@@ -59,17 +81,63 @@ async function uploadToCloudinary(file){
   return data.secure_url;
 }
 
-window.uploadProduct = async function(){
+// SAVE OR UPDATE
+window.saveProduct = async function(){
+
+  let categoryId = categorySelect.value;
+  if(categoryId === "other"){
+    categoryId = otherCategory.value.trim();
+  }
+
   const product = {
-    name: name.value,
+    title: title.value,
+    slug: slug.value,
     price: Number(price.value),
-    deliveryDays: Number(delivery.value),
-    images: uploadedImages
+    discountPrice: Number(discountPrice.value) || null,
+    fabric: fabric.value,
+    description: description.value,
+    categoryId: categoryId,
+    images: uploadedImages,
+    featured: featured.checked,
+    measurementsRequired: measurementsRequired.checked,
+    inStock: true,
+    createdAt: serverTimestamp()
   };
 
-  await addDoc(collection(db, "products"), product);
-  alert("Product Added!");
+  if(editingId){
+    await updateDoc(doc(db, "products", editingId), product);
+    alert("Product Updated!");
+  }else{
+    await addDoc(collection(db, "products"), product);
+    alert("Product Added!");
+  }
+
+  location.reload();
 };
+
+// LOAD FOR EDITING
+const params = new URLSearchParams(window.location.search);
+const id = params.get("edit");
+
+if(id){
+  editingId = id;
+  const snap = await getDoc(doc(db,"products",id));
+  const data = snap.data();
+
+  title.value = data.title;
+  slug.value = data.slug;
+  price.value = data.price;
+  discountPrice.value = data.discountPrice;
+  fabric.value = data.fabric;
+  description.value = data.description;
+  featured.checked = data.featured;
+  measurementsRequired.checked = data.measurementsRequired;
+
+  uploadedImages = data.images || [];
+  uploadedImages.forEach(url=>{
+    preview.innerHTML += `<img src="${url}">`;
+  });
+}
 </script>
 
 </body>
