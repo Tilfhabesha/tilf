@@ -27,7 +27,7 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Afacad', sans-serif;
-  background-image:url('../images/tibeb-bg.png');
+  background-image:url('https://res.cloudinary.com/dcc3dpccu/image/upload/v1778939087/Clipped_image_20260515_180424_nh6x49.png');
   background-size:400px;
   background-attachment:fixed;
   background: var(--ivory);
