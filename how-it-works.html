@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works · Tilf Habesha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Afacad:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="assets/css/style.css" rel="stylesheet">
+<style>
+/* Extra styles for this standalone page */
+.hiw-hero {
+  background: var(--indigo);
+  padding: 10rem 2rem 6rem;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hiw-hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 30% 40%, rgba(201,168,76,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 80% 70%, rgba(184,92,58,0.08) 0%, transparent 50%);
+}
+.hiw-hero-pattern {
+  position: absolute; inset: 0; opacity: 0.03;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(201,168,76,0.8) 39px, rgba(201,168,76,0.8) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(201,168,76,0.8) 39px, rgba(201,168,76,0.8) 40px);
+}
+.hiw-hero-content { position: relative; max-width: 720px; margin: 0 auto; }
+.hiw-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem;
+}
+.hiw-hero-eyebrow::before,.hiw-hero-eyebrow::after {
+  content: ''; display: block; width: 24px; height: 1px; background: var(--gold);
+}
+.hiw-hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-weight: 300; line-height: 1.05; color: var(--cream); margin-bottom: 1rem;
+}
+.hiw-hero-title em { font-style: italic; color: var(--gold-light); }
+.hiw-hero-sub {
+  font-size: 1.05rem; color: rgba(245,240,232,0.58); line-height: 1.75; max-width: 540px; margin: 0 auto;
+}
+
+/* Steps detail */
+.hiw-steps { padding: 7rem 2rem; background: var(--ivory); }
+.hiw-steps-inner { max-width: 900px; margin: 0 auto; }
+.hiw-step {
+  display: grid; grid-template-columns: 80px 1fr; gap: 2.5rem;
+  padding: 3.5rem 0; border-bottom: 1px solid rgba(201,168,76,0.12);
+  position: relative;
+}
+.hiw-step:last-child { border-bottom: none; }
+.hiw-step-left { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.hiw-step-num-big {
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 1.5px solid var(--gold-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 600; color: var(--gold-light);
+  background: var(--white);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.12);
+}
+.hiw-step-line {
+  flex: 1; width: 1px; background: rgba(201,168,76,0.2); min-height: 40px;
+}
+.hiw-step:last-child .hiw-step-line { display: none; }
+
+.hiw-step-content { padding-top: 0.85rem; }
+.hiw-step-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem;
+}
+.hiw-step-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 400; color: var(--text-dark); margin-bottom: 1rem;
+}
+.hiw-step-title em { font-style: italic; color: var(--gold-dim); }
+.hiw-step-text {
+  color: var(--text-mid); line-height: 1.8; font-size: 0.95rem; margin-bottom: 1.25rem;
+}
+.hiw-step-tip {
+  background: rgba(90,122,94,0.07); border-left: 3px solid var(--sage);
+  padding: 0.85rem 1.1rem; border-radius: 0 5px 5px 0;
+  font-size: 0.85rem; color: var(--sage); line-height: 1.65;
+}
+.hiw-step-tip strong { color: var(--sage); }
+
+/* Deposit callout */
+.deposit-callout {
+  background: var(--indigo); border-radius: 12px; padding: 4rem 3rem;
+  text-align: center; margin: 5rem 0;
+  position: relative; overflow: hidden;
+}
+.deposit-callout::before {
+  content: '15%'; position: absolute;
+  font-family: 'Cormorant Garamond', serif; font-size: 18rem; font-weight: 600;
+  color: rgba(201,168,76,0.04); top: 50%; left: 50%;
+  transform: translate(-50%,-50%); white-space: nowrap;
+}
+.deposit-callout-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; color: var(--cream);
+  margin-bottom: 0.75rem;
+}
+.deposit-callout-title em { color: var(--gold-light); font-style: italic; }
+.deposit-callout-sub { color: rgba(245,240,232,0.55); max-width: 480px; margin: 0 auto 2rem; line-height: 1.75; }
+
+/* FAQ */
+.hiw-faq { padding: 5rem 2rem 7rem; background: var(--white); }
+.hiw-faq-inner { max-width: 740px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid rgba(201,168,76,0.15); padding: 1.5rem 0;
+}
+.faq-q {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem; font-weight: 600; color: var(--text-dark);
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+}
+.faq-toggle { color: var(--gold); font-size: 1.2rem; flex-shrink: 0; transition: transform 0.3s; }
+.faq-item.open .faq-toggle { transform: rotate(45deg); }
+.faq-a {
+  font-size: 0.92rem; color: var(--text-mid); line-height: 1.8;
+  max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.3s;
+}
+.faq-item.open .faq-a { max-height: 300px; padding-top: 0.85rem; }
+
+/* Measurement guide */
+.measure-visual {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem; margin: 2rem 0;
+}
+.measure-point {
+  background: var(--white); border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px; padding: 1.25rem;
+  text-align: center; transition: all 0.2s;
+}
+.measure-point:hover { border-color: var(--gold); box-shadow: var(--shadow); }
+.measure-point-icon { font-size: 1.75rem; margin-bottom: 0.65rem; }
+.measure-point-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem;
+}
+.measure-point-desc { font-size: 0.78rem; color: var(--text-light); line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .hiw-step { grid-template-columns: 1fr; }
+  .hiw-step-left { flex-direction: row; }
+  .hiw-step-line { width: 40px; height: 1px; }
+  .deposit-callout { padding: 3rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="nav-tibeb"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="tilfhabesha.html" class="logo">
+      <span class="logo-main">Tilf Habesha</span>
+      <span class="logo-sub">ጥልፍ ሀበሻ · Ethiopian Artisan Wear</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="tilfhabesha.html">Home</a></li>
+      <li><a href="tilfhabesha.html#dresses">Collections</a></li>
+      <li><a href="tilfhabesha.html#track">Track Order</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="tilfhabesha.html" class="btn-ghost" style="border-color:rgba(201,168,76,0.4);color:var(--gold-light);padding:0.45rem 1.1rem;font-size:0.8rem;">
+        ← Back to Shop
+      </a>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hiw-hero">
+  <div class="hiw-hero-bg"></div>
+  <div class="hiw-hero-pattern"></div>
+  <div class="tibeb-border-thin" style="position:absolute;top:0;left:0;right:0;"></div>
+  <div class="hiw-hero-content fade-up">
+    <div class="hiw-hero-eyebrow">Our Process</div>
+    <h1 class="hiw-hero-title">From your <em>measurements</em><br>to your door</h1>
+    <p class="hiw-hero-sub">
+      Tilf Habesha is not a fashion retailer. It is a digital ordering system for traditional Ethiopian tailoring — connecting you directly with the hands that make your dress.
+    </p>
+  </div>
+  <div class="tibeb-border" style="position:absolute;bottom:0;left:0;right:0;"></div>
+</section>
+
+<!-- DETAILED STEPS -->
+<section class="hiw-steps">
+  <div class="hiw-steps-inner">
+
+    <div style="text-align:center;margin-bottom:4rem;">
+      <div class="section-label" style="justify-content:center;">Step by Step</div>
+      <h2 class="section-title" style="text-align:center;">Five steps from <em>browse to doorstep</em></h2>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="hiw-step">
+      <div class="hiw-step-left">
+        <div class="hiw-step-num-big">1</div>
+        <div class="hiw-step-line"></div>
+      </div>
+      <div class="hiw-step-content">
+        <div class="hiw-step-label">Step One</div>
+        <h3 class="hiw-step-title">Browse & <em>Choose Your Dress</em></h3>
+        <p class="hiw-step-text">
+          Explore our curated collection of Habesha styles from certified artisans across Ethiopia. Each listing shows the artisan's name, city, rating, delivery time, and price — so you know exactly who is making your dress before you order.
+        </p>
+        <p class="hiw-step-text">
+          Use category filters to find Wedding Kemis, Holiday dresses, Netela, everyday wear, or men's traditional Habesha. Every product tells you the fabric, tibeb style, and minimum stitching days.
+        </p>
+        <div class="hiw-step-tip">
+          💡 <strong>Tip:</strong> Save your favourites with the ♡ button. You can return to them anytime from your Wishlist — even across devices when you're signed in.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="hiw-step">
+      <div class="hiw-step-left">
+        <div class="hiw-step-num-big">2</div>
+        <div class="hiw-step-line"></div>
+      </div>
+      <div class="hiw-step-content">
+        <div class="hiw-step-label">Step Two</div>
+        <h3 class="hiw-step-title">Enter Your <em>Exact Measurements</em></h3>
+        <p class="hiw-step-text">
+          Unlike standard sizing, every Tilf Habesha dress is cut specifically for your body. On the product page you'll enter five measurements in centimeters. Use a soft measuring tape and have someone help you for accuracy.
+        </p>
+        <div class="measure-visual">
+          <div class="measure-point">
+            <div class="measure-point-icon">🫱</div>
+            <div class="measure-point-name">Shoulder Width</div>
+            <div class="measure-point-desc">Across the back from shoulder point to shoulder point</div>
+          </div>
+          <div class="measure-point">
+            <div class="measure-point-icon">📏</div>
+            <div class="measure-point-name">Bust / Chest</div>
+            <div class="measure-point-desc">Around the fullest part of your chest, arms relaxed</div>
+          </div>
+          <div class="measure-point">
+            <div class="measure-point-icon">🔄</div>
+            <div class="measure-point-name">Waist</div>
+            <div class="measure-point-desc">Around your natural waist, the narrowest point</div>
+          </div>
+          <div class="measure-point">
+            <div class="measure-point-icon">↕️</div>
+            <div class="measure-point-name">Shoulder to Waist</div>
+            <div class="measure-point-desc">Straight down from shoulder point to waist</div>
+          </div>
+          <div class="measure-point">
+            <div class="measure-point-icon">📐</div>
+            <div class="measure-point-name">Dress Length</div>
+            <div class="measure-point-desc">From shoulder to where you want the hem to fall</div>
+          </div>
+        </div>
+        <div class="hiw-step-tip">
+          💡 <strong>Tip:</strong> When in doubt, measure twice. Your artisan will also ask for clarification if something looks unusual — they want your dress to fit perfectly too.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="hiw-step">
+      <div class="hiw-step-left">
+        <div class="hiw-step-num-big">3</div>
+        <div class="hiw-step-line"></div>
+      </div>
+      <div class="hiw-step-content">
+        <div class="hiw-step-label">Step Three</div>
+        <h3 class="hiw-step-title">Pay Your <em>15% Deposit</em></h3>
+        <p class="hiw-step-text">
+          We don't ask you to pay the full amount upfront. A 15% deposit secures your order and signals to the artisan that they can begin cutting and stitching your fabric. This model protects you and compensates the artisan fairly for starting work.
+        </p>
+
+        <div class="deposit-callout">
+          <div class="deposit-callout-title">Only <em>15%</em> to start.</div>
+          <p class="deposit-callout-sub">On a $300 dress, you pay just $45 today. The remaining $255 is only charged when your dress is complete, quality-checked, and ready to ship.</p>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:6px;padding:1rem 1.5rem;text-align:center;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold-light);">15%</div>
+              <div style="font-size:0.72rem;color:rgba(245,240,232,0.45);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">Pay today</div>
+            </div>
+            <div style="display:flex;align-items:center;color:rgba(245,240,232,0.25);font-size:1.5rem;">→</div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:6px;padding:1rem 1.5rem;text-align:center;">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold-light);">85%</div>
+              <div style="font-size:0.72rem;color:rgba(245,240,232,0.45);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem;">Pay when done</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="hiw-step-text">
+          We accept Visa, Mastercard, Apple Pay, and Google Pay through our secure payment gateway.
+        </p>
+        <div class="hiw-step-tip">
+          💡 <strong>Note:</strong> If for any reason the artisan cannot fulfill your order, your deposit is fully refunded — no questions asked.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="hiw-step">
+      <div class="hiw-step-left">
+        <div class="hiw-step-num-big">4</div>
+        <div class="hiw-step-line"></div>
+      </div>
+      <div class="hiw-step-content">
+        <div class="hiw-step-label">Step Four</div>
+        <h3 class="hiw-step-title">Track Your Order <em>Live</em></h3>
+        <p class="hiw-step-text">
+          Once your deposit is paid, your artisan begins work. You receive your order ID immediately, and can track every stage of your dress's journey using it. Progress updates include:
+        </p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin:1.25rem 0 1.5rem;">
+          <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;background:rgba(201,168,76,0.06);border-radius:6px;border:1px solid rgba(201,168,76,0.12);">
+            <span style="color:var(--gold);font-size:1.1rem;">✓</span>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;">Deposit Confirmed</div>
+              <div style="font-size:0.78rem;color:var(--text-light);">Your order is in the queue</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;background:rgba(201,168,76,0.06);border-radius:6px;border:1px solid rgba(201,168,76,0.12);">
+            <span style="color:var(--gold);font-size:1.1rem;">✓</span>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;">Fabric Cut</div>
+              <div style="font-size:0.78rem;color:var(--text-light);">Your cloth has been measured and cut to your specs</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;background:rgba(201,168,76,0.06);border-radius:6px;border:1px solid rgba(201,168,76,0.12);">
+            <span style="color:var(--terracotta);font-size:1.1rem;">✦</span>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;">Stitching in Progress</div>
+              <div style="font-size:0.78rem;color:var(--text-light);">Your dress is being assembled by hand</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;background:rgba(201,168,76,0.04);border-radius:6px;border:1px dashed rgba(201,168,76,0.1);">
+            <span style="color:var(--text-light);font-size:1.1rem;">○</span>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;color:var(--text-light);">Quality Check</div>
+              <div style="font-size:0.78rem;color:var(--text-light);">Final inspection before shipping</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem 1rem;background:rgba(201,168,76,0.04);border-radius:6px;border:1px dashed rgba(201,168,76,0.1);">
+            <span style="color:var(--text-light);font-size:1.1rem;">○</span>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;color:var(--text-light);">Ready to Ship</div>
+              <div style="font-size:0.78rem;color:var(--text-light);">Balance payment requested, then shipped</div>
+            </div>
+          </div>
+        </div>
+        <div class="hiw-step-tip">
+          💡 <strong>Tip:</strong> Use your order ID on the <a href="tilfhabesha.html#track" style="color:var(--sage);">Track My Order</a> page at any time.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="hiw-step">
+      <div class="hiw-step-left">
+        <div class="hiw-step-num-big">5</div>
+      </div>
+      <div class="hiw-step-content">
+        <div class="hiw-step-label">Step Five</div>
+        <h3 class="hiw-step-title">Pay the Balance & <em>Receive Your Dress</em></h3>
+        <p class="hiw-step-text">
+          When your dress passes quality check and is ready to leave the workshop, we notify you to pay the remaining 85%. Once confirmed, your dress is carefully packaged and shipped worldwide via DHL, FedEx, or EMS — your choice.
+        </p>
+        <p class="hiw-step-text">
+          Shipping typically takes 5–10 business days internationally. You'll receive tracking information as soon as your parcel is dispatched from Addis Ababa.
+        </p>
+        <div class="hiw-step-tip">
+          💡 <strong>Diaspora tip:</strong> Many customers in the US, UK, and Europe order 6–8 weeks before a special occasion to be comfortably on time. Artisan stitching time ranges from 14–35 days depending on complexity.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="hiw-faq">
+  <div class="hiw-faq-inner">
+    <div class="section-label" style="justify-content:center;margin-bottom:0.5rem;">Questions</div>
+    <h2 class="section-title" style="text-align:center;margin-bottom:3rem;">Frequently asked <em>questions</em></h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What if my dress doesn't fit? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Because your dress is made to your exact measurements, fit issues are extremely rare. However, if there is a significant deviation from your submitted measurements, we work with the artisan to alter the dress at no extra cost. Please measure carefully and include any special notes on the order form.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How long does the whole process take? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Total time from order to delivery is typically 3–6 weeks. Stitching takes 14–35 days depending on the dress complexity and artisan workload. International shipping adds 5–10 business days. We recommend ordering at least 6 weeks before your event date.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is my deposit refundable? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">If an artisan cannot fulfill your order, your deposit is fully refunded within 5–7 business days. Once stitching has begun (usually within 48–72 hours of payment), deposits are non-refundable as the artisan has already sourced fabric and started work. Orders that are complete but where the 85% balance goes unpaid for more than 14 days will be forfeited.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I customise the design — colours, sleeve length, etc.? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Yes! The Notes to Artisan field on the order form is your space for customisation requests: specific tibeb colours, sleeve length (short, 3/4, full), collar style, or any other preferences. The artisan will confirm availability before starting. Some deep customisations may incur a small additional charge, which the artisan will communicate before proceeding.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do you ship worldwide? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Yes. We ship to all countries via DHL Express, FedEx, or EMS. Shipping costs are calculated at checkout based on your country and package weight. Most diaspora customers are in the United States, United Kingdom, Canada, Germany, Sweden, and Australia — all well-served routes from Addis Ababa.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I become a supplier / artisan? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Skilled tailors and workshops in Ethiopia can apply through the Become a Supplier section on our homepage. We review applications, conduct a quality verification, and onboard accepted artisans with a dedicated profile page. There are no upfront fees — we take a small platform commission only when you earn. Support is available in Amharic and English.</div>
+    </div>
+
+    <div style="text-align:center;margin-top:3.5rem;">
+      <a href="tilfhabesha.html" class="btn-primary">
+        ✦ Start Shopping Now
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div class="tibeb-border"></div>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand-name">Tilf Habesha</div>
+        <div class="footer-brand-tag">"Measured by you. Made in Ethiopia."</div>
+        <p class="footer-desc">Custom Habesha dresses made by Ethiopian artisans and shipped worldwide.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Shop</div>
+        <ul class="footer-links">
+          <li><a href="tilfhabesha.html">All Dresses</a></li>
+          <li><a href="tilfhabesha.html#become">Become a Supplier</a></li>
+          <li><a href="tilfhabesha.html#track">Track Order</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Process</div>
+        <ul class="footer-links">
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">Sizing Guide</a></li>
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">Returns Policy</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <ul class="footer-links">
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Tilf Habesha. All rights reserved.</div>
+      <div class="footer-amharic">ጥልፍ ሀበሻ · ኢትዮጵያ</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+document.getElementById('navHamburger')?.addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('mobile-open');
+});
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = 1; e.target.style.transform = 'translateY(0)'; } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.hiw-step').forEach(el => {
+  el.style.opacity = '0'; el.style.transform = 'translateY(28px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
