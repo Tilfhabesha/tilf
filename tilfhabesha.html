@@ -1,37 +1,63 @@
-ልፍDOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tilf Habesha — Measured by you. Made in Ethiopia.</title>
-<link href="assets/css/style.css" rel="stylesheet"/>
+<meta name="description" content="Order custom-stitched Habesha dresses directly from Ethiopian artisans. Your exact measurements, 15% deposit, worldwide shipping.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Afacad:wght@400;500;600&display=swap" rel="stylesheet">
-
+<link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body>
 
-<!-- TIBEB TOP ACCENT -->   
+<!-- TIBEB TOP ACCENT (fixed) -->
 <div class="nav-tibeb"></div>
 
-<!-- NAV -->
+<!-- ─── NAV ─── -->
 <nav>
   <div class="nav-inner">
     <a href="#" class="logo" onclick="showPage('home')">
       <span class="logo-main">Tilf Habesha</span>
       <span class="logo-sub">ጥልፍ ሀበሻ · Ethiopian Artisan Wear</span>
     </a>
-    <ul class="nav-links">
-      <li><a href="#" onclick="showPage('home'); scrollTo('dresses')">Collections</a></li>
-      <li><a href="#" onclick="showPage('home'); scrollTo('how')">How It Works</a></li>
-      <!--<li><a href="#" onclick="showPage('supplier-page')">Artisans</a></li> -->
-      <li><a href="#" onclick="showPage('home'); scrollTo('track')">Track Order</a></li>
-      <!--<li><a href="#" class="nav-cta" onclick="showPage('home'); scrollTo('become')">Become a Supplier</a></li> -->
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#" onclick="showPage('home'); goScrollTo('dresses')">Collections</a></li>
+      <li><a href="#" onclick="showPage('home'); goScrollTo('how')">How It Works</a></li>
+      <li><a href="how-it-works.html" target="_blank">Our Process</a></li>
+      <li><a href="#" onclick="showPage('home'); goScrollTo('track')">Track Order</a></li>
+      <li><a href="#" onclick="showPage('home'); goScrollTo('become')" class="nav-cta">Become a Supplier</a></li>
     </ul>
+
+    <div class="nav-right">
+      <!-- Wishlist -->
+      <a href="#" class="nav-icon-link" onclick="openWish(); return false;" title="Wishlist">
+        <span>♡</span>
+        <span class="nav-badge" id="wishBadge" style="display:none">0</span>
+      </a>
+      <!-- Cart -->
+      <a href="#" class="nav-icon-link" onclick="openCart(); return false;" title="Cart">
+        <span>🛒</span>
+        <span class="nav-badge" id="cartBadge" style="display:none">0</span>
+      </a>
+      <!-- Auth -->
+      <div id="navAuthArea" style="display:flex;align-items:center;gap:0.65rem;">
+        <a href="#" onclick="openAuthModal('signin')" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
+        <a href="#" onclick="openAuthModal('signup')" class="nav-cta">Join</a>
+      </div>
+      <!-- Hamburger -->
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </nav>
 
-<!-- ══════════════ HOME PAGE ══════════════ -->
+
+<!-- ══════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════ -->
 <div id="home" class="page active">
 
   <!-- HERO -->
@@ -47,25 +73,25 @@
         </h1>
         <p class="hero-tagline fade-up-3">"Measured by you. Made in Ethiopia."</p>
         <p class="hero-desc fade-up-3">
-          Order your custom-stitched Habesha dresses directly from master artisans in Addis Ababa, Every stitch made to your measurements.
+          Order custom-stitched Habesha dresses directly from master artisans.
+          Every stitch made to your centimetre. Pay only 15% to begin.
         </p>
         <div class="hero-actions fade-up-4">
-          <a href="#" class="btn-primary" onclick="showPage('home'); scrollTo('dresses')">
-            ✦ Browse Collections
-          </a>
-          <!-- <a href="#" class="btn-ghost" onclick="showPage('home'); scrollTo('how')">
-            How It Works
-          </a> --> 
+          <a href="#" class="btn-primary" onclick="goScrollTo('dresses')">✦ Browse Collections</a>
+          <a href="how-it-works.html" class="btn-ghost" target="_blank">How It Works ↗</a>
         </div>
-    <div class="filter-bar">
-          <button class="filter-btn active">All</button>
-          <button class="filter-btn">Wedding</button>
-          <button class="filter-btn">Womens</button>
-          <button class="filter-btn">Mens</button>
-          <button class="filter-btn">Holiday</button>
-          <button class="filter-btn">Everyday</button>
-          <button class="filter-btn">Netela</button>
-    </div>
+
+        <!-- Category filter -->
+        <div class="filter-bar fade-up-4">
+          <button class="filter-btn active" data-cat="all">All</button>
+          <button class="filter-btn" data-cat="wedding">Wedding</button>
+          <button class="filter-btn" data-cat="womens">Womens</button>
+          <button class="filter-btn" data-cat="mens">Mens</button>
+          <button class="filter-btn" data-cat="holiday">Holiday</button>
+          <button class="filter-btn" data-cat="everyday">Everyday</button>
+          <button class="filter-btn" data-cat="netela">Netela</button>
+        </div>
+
         <div class="hero-stats fade-up-4">
           <div>
             <div class="stat-num gold-shimmer">140+</div>
@@ -81,9 +107,18 @@
           </div>
         </div>
       </div>
+
       <div class="hero-visual fade-up-3">
-        <div class="hero-slider" id="heroSlider"></div>
+        <!-- Loaded by shop.js -->
+        <div class="hero-slider" id="heroSlider">
+          <div class="hero-card" style="grid-row:span 2;">
+            <div class="skeleton" style="width:100%;min-height:320px;border-radius:8px;"></div>
+          </div>
+          <div class="hero-card"><div class="skeleton" style="width:100%;aspect-ratio:3/4;border-radius:8px;"></div></div>
+          <div class="hero-card"><div class="skeleton" style="width:100%;aspect-ratio:3/4;border-radius:8px;"></div></div>
+        </div>
       </div>
+    </div>
     <div class="tibeb-border"></div>
   </section>
 
@@ -96,231 +131,72 @@
           <h2 class="section-title">Handcrafted for <em>every occasion</em></h2>
         </div>
         <div class="filter-bar">
-          <button class="filter-btn active">All</button>
-          <button class="filter-btn">Wedding</button>
-          <button class="filter-btn">ለእንቁጣጣሽ</button>
-          <button class="filter-btn">ለመስቀል</button>
-          <button class="filter-btn">Netela</button>
+          <button class="filter-btn active" data-cat="all">All</button>
+          <button class="filter-btn" data-cat="wedding">Wedding</button>
+          <button class="filter-btn" data-cat="holiday">ለእንቁጣጣሽ</button>
+          <button class="filter-btn" data-cat="holiday">ለመስቀል</button>
+          <button class="filter-btn" data-cat="netela">Netela</button>
         </div>
       </div>
+      <!-- Populated by shop.js -->
       <div class="dress-grid" id="productsGrid">
-    <!--    <!-- Card 1 
-        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
-          <div class="dress-card-img-wrap">
-            <div class="dress-swatch swatch-habesha-white">
-              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(245,240,232,0.4)" stroke="rgba(180,160,120,0.8)" stroke-width="2"/>
-                <rect x="14" y="148" width="72" height="10" fill="rgba(201,168,76,0.35)" rx="1"/>
-                <rect x="14" y="138" width="72" height="6" fill="rgba(184,92,58,0.3)" rx="1"/>
-                <rect x="14" y="130" width="72" height="4" fill="rgba(201,168,76,0.25)" rx="1"/>
-              </svg>
-              <div class="tibeb-strip"></div>
-            </div>
-            <div class="dress-card-badge">New</div>
-          </div>
-          <div class="dress-card-body">
-            <div class="dress-card-name">Adey Abeba Habesha Kemis</div>
-            <div class="dress-card-supplier"><span class="supplier-dot"></span> Marta Gebremichael · Addis Ababa</div>
-            <div class="dress-card-footer">
-              <div class="dress-price">$285 <span>USD</span></div>
-              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 18–22 days</div>
-            </div>
-          </div>
-        </a>
-        <!-- Card 2
-        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
-          <div class="dress-card-img-wrap">
-            <div class="dress-swatch swatch-blue">
-              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(100,140,200,0.25)" stroke="rgba(200,220,255,0.5)" stroke-width="2"/>
-                <rect x="14" y="148" width="72" height="10" fill="rgba(201,168,76,0.5)" rx="1"/>
-                <rect x="14" y="138" width="72" height="6" fill="rgba(255,255,255,0.2)" rx="1"/>
-              </svg>
-              <div class="tibeb-strip"></div>
-            </div>
-          </div>
-          <div class="dress-card-body">
-            <div class="dress-card-name">Meskel Tibeb Kemis</div>
-            <div class="dress-card-supplier"><span class="supplier-dot"></span> Selamawit Tadesse · Gondar</div>
-            <div class="dress-card-footer">
-              <div class="dress-price">$340 <span>USD</span></div>
-              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 21–25 days</div>
-            </div>
-          </div>
-        </a>
-        <!-- Card 3 
-        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
-          <div class="dress-card-img-wrap">
-            <div class="dress-swatch swatch-red">
-              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(200,80,60,0.2)" stroke="rgba(255,180,160,0.5)" stroke-width="2"/>
-                <path d="M14 150 L86 150 M14 142 L86 142 M14 134 L86 134" stroke="rgba(201,168,76,0.7)" stroke-width="2"/>
-              </svg>
-              <div class="tibeb-strip"></div>
-            </div>
-            <div class="dress-card-badge" style="background:var(--gold-dim);">Popular</div>
-          </div>
-          <div class="dress-card-body">
-            <div class="dress-card-name">Enqutatash Celebration Dress</div>
-            <div class="dress-card-supplier"><span class="supplier-dot"></span> Hiwot Alemu · Bahir Dar</div>
-            <div class="dress-card-footer">
-              <div class="dress-price">$420 <span>USD</span></div>
-              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 25–30 days</div>
-            </div>
-          </div>
-        </a>
-        <!-- Card 4 
-        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
-          <div class="dress-card-img-wrap">
-            <div class="dress-swatch swatch-green">
-              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(60,120,70,0.25)" stroke="rgba(150,220,160,0.5)" stroke-width="2"/>
-                <rect x="14" y="145" width="72" height="14" fill="rgba(201,168,76,0.3)" rx="1"/>
-              </svg>
-              <div class="tibeb-strip"></div>
-            </div>
-          </div>
-          <div class="dress-card-body">
-            <div class="dress-card-name">Yezare Libs Everyday Kemis</div>
-            <div class="dress-card-supplier"><span class="supplier-dot"></span> Tigist Ayele · Addis Ababa</div>
-            <div class="dress-card-footer">
-              <div class="dress-price">$190 <span>USD</span></div>
-              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 14–18 days</div>
-            </div>
-          </div>
-        </a>
-        <!-- Card 5 
-        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
-          <div class="dress-card-img-wrap">
-            <div class="dress-swatch swatch-maroon">
-              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(180,40,100,0.2)" stroke="rgba(255,180,220,0.5)" stroke-width="2"/>
-                <path d="M20 158 Q50 150 80 158" stroke="rgba(201,168,76,0.8)" stroke-width="3" fill="none"/>
-                <path d="M20 148 Q50 140 80 148" stroke="rgba(201,168,76,0.5)" stroke-width="2" fill="none"/>
-              </svg>
-              <div class="tibeb-strip"></div>
-            </div>
-          </div>
-          <div class="dress-card-body">
-            <div class="dress-card-name">Timkat Wedding Kemis</div>
-            <div class="dress-card-supplier"><span class="supplier-dot"></span> Azeb Worku · Lalibela</div>
-            <div class="dress-card-footer">
-              <div class="dress-price">$510 <span>USD</span></div>
-              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 30–35 days</div>
-            </div>
-          </div>
-        </a>
-        <!-- Card 6 
-        <a href="#" class="dress-card" onclick="showPage('product'); return false;">
-          <div class="dress-card-img-wrap">
-            <div class="dress-swatch swatch-gold-dress">
-              <svg viewBox="0 0 100 180" class="dress-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 165 86 165 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(201,168,76,0.2)" stroke="rgba(232,201,126,0.7)" stroke-width="2"/>
-                <rect x="14" y="148" width="72" height="10" fill="rgba(201,168,76,0.4)" rx="1"/>
-                <rect x="14" y="136" width="72" height="8" fill="rgba(184,92,58,0.35)" rx="1"/>
-                <rect x="14" y="126" width="72" height="6" fill="rgba(201,168,76,0.3)" rx="1"/>
-              </svg>
-              <div class="tibeb-strip"></div>
-            </div>
-            <div class="dress-card-badge">New</div>
-          </div>
-          <div class="dress-card-body">
-            <div class="dress-card-name">Gena Festival Kemis</div>
-            <div class="dress-card-supplier"><span class="supplier-dot"></span> Meron Haile · Addis Ababa</div>
-            <div class="dress-card-footer">
-              <div class="dress-price">$380 <span>USD</span></div>
-              <div class="dress-delivery"><span class="dress-delivery-icon">◷</span> 20–24 days</div>
-            </div>
-          </div>
-        </a> -->
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
       </div>
     </div>
   </section>
 
-  
-  
-
-  <!-- HOW IT WORKS -->
-  <section class="section how-section" id="how">
-    <div class="tibeb-border"></div>
-    <div style="padding: 7rem 2rem;">
-    <div class="section-inner">
-      <div class="section-label" style="color:var(--gold)">The Process</div>
-      <h2 class="section-title" style="color:var(--cream)">Ordering is as simple as <em>measuring yourself</em></h2>
-      <p class="section-sub" style="color:rgba(245,240,232,0.55)">No guessing, no returns, no standard sizes. Your dress is made to match your exact body.</p>
-      <div class="steps-grid">
-        <div class="step-item">
-          <div class="step-num">1</div>
-          <div class="step-title">Choose a Dress</div>
-          <div class="step-desc">Browse our collection of Habesha styles from certified artisans across Ethiopia.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">2</div>
-          <div class="step-title">Enter Your Measurements</div>
-          <div class="step-desc">Input shoulder, bust, waist, and length in centimeters. We guide you through it.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">3</div>
-          <div class="step-title">Pay <span class="deposit-highlight">15% Deposit</span></div>
-          <div class="step-desc">Secure your order with a small deposit. The artisan starts stitching immediately.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">4</div>
-          <div class="step-title">Track Progress</div>
-          <div class="step-desc">Follow your order from cutting to stitching to final quality check in real time.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">5</div>
-          <div class="step-title">Pay Balance & Ship</div>
-          <div class="step-desc">Pay the remaining 85% when your dress is complete. Shipped worldwide with care.</div>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="tibeb-border"></div>
-  </section>
-    <!-- MEET THE ARTISANS -->
+  <!-- MEET THE ARTISANS -->
   <section class="section artisans-section">
     <div class="section-inner artisans-inner">
-
       <div class="artisans-text">
         <div class="section-label">The Hands Behind Your Dress</div>
-        <h2 class="section-title">
-        Meet the <em>artisans of Addis Ababa</em>
-        </h2>
+        <h2 class="section-title">Meet the <em>artisans of Addis Ababa</em></h2>
         <p class="section-sub">
-        Every dress on Tilf Habesha is stitched by a verified Ethiopian tailor.
-        Your order goes directly to the person who makes it — not a factory.
-      </p>
+          Every dress on Tilf Habesha is stitched by a verified Ethiopian tailor.
+          Your order goes directly to the person who makes it — not a factory.
+        </p>
       </div>
-
       <div class="artisans-strip">
         <div class="artisan-card">
-          <img src="assets/images/artisans/marta.jpg" alt="Marta Gebremichael">
+          <img src="assets/images/artisans/marta.jpg" alt="Marta Gebremichael"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            loading="lazy">
+          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#1e1850,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">M</div>
           <div class="artisan-info">
             <div class="artisan-name">Marta Gebremichael</div>
             <div class="artisan-city">Addis Ababa · 12 years experience</div>
           </div>
         </div>
-
         <div class="artisan-card">
-          <img src="assets/images/artisans/selamawit.jpg" alt="Selamawit Tadesse">
+          <img src="assets/images/artisans/selamawit.jpg" alt="Selamawit Tadesse"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            loading="lazy">
+          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#2a1a10,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">S</div>
           <div class="artisan-info">
             <div class="artisan-name">Selamawit Tadesse</div>
             <div class="artisan-city">Addis Ababa · Tibeb specialist</div>
           </div>
         </div>
-
         <div class="artisan-card">
-          <img src="assets/images/artisans/tigist.jpg" alt="Tigist Alemu">
+          <img src="assets/images/artisans/tigist.jpg" alt="Tigist Alemu"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            loading="lazy">
+          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#1a2a1a,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">T</div>
           <div class="artisan-info">
             <div class="artisan-name">Tigist Alemu</div>
             <div class="artisan-city">Addis Ababa · Netela expert</div>
           </div>
         </div>
-
         <div class="artisan-card">
-          <img src="assets/images/artisans/hana.jpg" alt="Hana Desta">
+          <img src="assets/images/artisans/hana.jpg" alt="Hana Desta"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            loading="lazy">
+          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#2a0a20,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">H</div>
           <div class="artisan-info">
             <div class="artisan-name">Hana Desta</div>
             <div class="artisan-city">Addis Ababa · Wedding dresses</div>
@@ -329,6 +205,53 @@
       </div>
     </div>
   </section>
+
+  <!-- HOW IT WORKS (summary) -->
+  <section class="section how-section" id="how">
+    <div class="tibeb-border"></div>
+    <div style="padding:7rem 2rem;">
+      <div class="section-inner">
+        <div class="section-label" style="color:var(--gold)">The Process</div>
+        <h2 class="section-title" style="color:var(--cream)">Ordering is as simple as <em>measuring yourself</em></h2>
+        <p class="section-sub" style="color:rgba(245,240,232,0.55)">No guessing, no returns, no standard sizes. Your dress is made to match your exact body.</p>
+        <div class="steps-grid">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-title">Choose a Dress</div>
+            <div class="step-desc">Browse certified artisans across Ethiopia.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-title">Enter Measurements</div>
+            <div class="step-desc">Shoulder, bust, waist, length in cm.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-title">Pay <span class="deposit-highlight">15%</span></div>
+            <div class="step-desc">Deposit secures your order instantly.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-title">Track Live</div>
+            <div class="step-desc">Watch every stage from cut to stitch.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-title">Pay & Ship</div>
+            <div class="step-desc">Balance due when your dress is finished.</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:3rem;">
+          <a href="how-it-works.html" class="btn-ghost" target="_blank"
+            style="border-color:rgba(201,168,76,0.4);">
+            Read the Full Process ↗
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="tibeb-border"></div>
+  </section>
+
   <!-- WHY DIFFERENT -->
   <section class="section diff-section">
     <div class="section-inner">
@@ -338,7 +261,7 @@
         <div class="diff-card">
           <div class="diff-icon">📐</div>
           <div class="diff-title">Your Exact Measurements</div>
-          <div class="diff-text">Every dress is cut and stitched to the millimetre of your body. No standard sizes, no guesswork. A fit that feels made for you — because it is.</div>
+          <div class="diff-text">Every dress is cut and stitched to the millimetre of your body. No standard sizes. A fit that feels made for you — because it is.</div>
         </div>
         <div class="diff-card">
           <div class="diff-icon">🧵</div>
@@ -347,13 +270,13 @@
         </div>
         <div class="diff-card">
           <div class="diff-icon">🏛️</div>
-          <div class="diff-title">Authentic Cultural Craftsmanship</div>
-          <div class="diff-text">Every tibeb pattern, every netela thread, every hem follows the living tradition passed through generations of Ethiopian artisans.</div>
+          <div class="diff-title">Authentic Craftsmanship</div>
+          <div class="diff-text">Every tibeb pattern, every netela thread follows the living tradition passed through generations.</div>
         </div>
         <div class="diff-card">
           <div class="diff-icon">💳</div>
           <div class="diff-title">Pay Only 15% to Start</div>
-          <div class="diff-text">We believe in trust. A small deposit begins your order. The balance only comes due when your dress is finished and ready to ship.</div>
+          <div class="diff-text">We believe in trust. A small deposit begins your order. The balance comes due only when your dress is finished.</div>
         </div>
         <div class="diff-card">
           <div class="diff-icon">🌍</div>
@@ -363,7 +286,7 @@
         <div class="diff-card">
           <div class="diff-icon">🔎</div>
           <div class="diff-title">Full Order Transparency</div>
-          <div class="diff-text">Watch your dress come to life. Real-time progress updates from cutting to stitching to shipping. You're never left wondering.</div>
+          <div class="diff-text">Real-time progress updates from cutting to stitching to shipping. You're never left wondering.</div>
         </div>
       </div>
     </div>
@@ -371,50 +294,35 @@
 
   <!-- TRACK ORDER -->
   <section class="section track-section" id="track">
-    <div style="padding: 7rem 2rem; text-align:center;">
-    <div class="section-inner" style="max-width:700px">
-      <div class="section-label" style="justify-content:center">Order Tracking</div>
-      <h2 class="section-title" style="color:var(--cream);text-align:center">Track your <em>order</em></h2>
-      <p class="section-sub" style="margin:0 auto 0;text-align:center;">Enter your order ID to see real-time progress from the artisan's workshop to your door.</p>
-      <div class="track-form">
-        <div class="track-input-row">
-          <input type="text" class="track-input" placeholder="e.g. TH-2024-08341" id="trackInput">
-          <button class="track-btn" onclick="showTracking()">Track →</button>
-        </div>
-        <div class="order-progress" id="trackResult" style="display:none">
-          <div style="font-size:0.75rem;color:rgba(245,240,232,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem;">Order TH-2024-08341 · Adey Abeba Habesha Kemis</div>
-          <div class="progress-steps">
-            <div class="progress-step p-done">
-              <div class="progress-step-circle">✓</div>
-              <div class="progress-step-label">Deposit<br>Paid</div>
-            </div>
-            <div class="progress-line done"></div>
-            <div class="progress-step p-done">
-              <div class="progress-step-circle">✓</div>
-              <div class="progress-step-label">Fabric<br>Cut</div>
-            </div>
-            <div class="progress-line done"></div>
-            <div class="progress-step p-active">
-              <div class="progress-step-circle">✦</div>
-              <div class="progress-step-label">Stitching<br>in Progress</div>
-            </div>
-            <div class="progress-line"></div>
-            <div class="progress-step p-pending">
-              <div class="progress-step-circle">4</div>
-              <div class="progress-step-label">Quality<br>Check</div>
-            </div>
-            <div class="progress-line"></div>
-            <div class="progress-step p-pending">
-              <div class="progress-step-circle">5</div>
-              <div class="progress-step-label">Ready to<br>Ship</div>
-            </div>
+    <div style="padding:7rem 2rem;text-align:center;">
+      <div class="section-inner" style="max-width:680px;">
+        <div class="section-label" style="justify-content:center">Order Tracking</div>
+        <h2 class="section-title" style="color:var(--cream);text-align:center;">Track your <em>order</em></h2>
+        <p class="section-sub" style="margin:0 auto;text-align:center;">Enter your order ID to see real-time progress from the artisan's workshop to your door.</p>
+        <div class="track-form">
+          <div class="track-input-row">
+            <input type="text" class="track-input" placeholder="e.g. TH-2024-08341" id="trackInput">
+            <button class="track-btn" onclick="showTracking()">Track →</button>
           </div>
-          <div style="margin-top:1.5rem;font-size:0.82rem;color:rgba(201,168,76,0.7);">
-            ✦ Estimated completion: <strong style="color:var(--gold-light)">Dec 18, 2024</strong> · Artisan: Marta Gebremichael
+          <div class="order-progress" id="trackResult" style="display:none">
+            <div style="font-size:0.73rem;color:rgba(245,240,232,0.38);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.5rem;">Order TH-2024-08341 · Adey Abeba Habesha Kemis</div>
+            <div class="progress-steps">
+              <div class="progress-step p-done"><div class="progress-step-circle">✓</div><div class="progress-step-label">Deposit<br>Paid</div></div>
+              <div class="progress-line done"></div>
+              <div class="progress-step p-done"><div class="progress-step-circle">✓</div><div class="progress-step-label">Fabric<br>Cut</div></div>
+              <div class="progress-line done"></div>
+              <div class="progress-step p-active"><div class="progress-step-circle">✦</div><div class="progress-step-label">Stitching<br>in Progress</div></div>
+              <div class="progress-line"></div>
+              <div class="progress-step p-pending"><div class="progress-step-circle">4</div><div class="progress-step-label">Quality<br>Check</div></div>
+              <div class="progress-line"></div>
+              <div class="progress-step p-pending"><div class="progress-step-circle">5</div><div class="progress-step-label">Ready to<br>Ship</div></div>
+            </div>
+            <div style="margin-top:1.25rem;font-size:0.8rem;color:rgba(201,168,76,0.7);">
+              ✦ Estimated completion: <strong style="color:var(--gold-light)">Dec 18, 2024</strong> · Artisan: Marta Gebremichael
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </section>
 
@@ -425,43 +333,29 @@
         <div>
           <div class="section-label">For Artisans</div>
           <h2 class="become-title">Bring your craft to<br>the <em>world</em></h2>
-          <p class="become-text">
-            Are you a skilled tailor or atelier in Ethiopia? Tilf Habesha connects you directly with diaspora customers around the world who are searching for authentic, custom-made traditional clothing.
-          </p>
+          <p class="become-text">Are you a skilled tailor or atelier in Ethiopia? Tilf Habesha connects you directly with diaspora customers around the world searching for authentic, custom-made traditional clothing.</p>
           <ul class="become-perks">
             <li><span class="perk-check">✓</span> No upfront fees — we earn only when you do</li>
-            <li><span class="perk-check">✓</span> You receive deposits immediately upon order confirmation</li>
-            <li><span class="perk-check">✓</span> Your own supplier profile page with your story and photos</li>
+            <li><span class="perk-check">✓</span> Deposits paid immediately upon order confirmation</li>
+            <li><span class="perk-check">✓</span> Your own supplier profile with story and photos</li>
             <li><span class="perk-check">✓</span> Set your own prices, timelines, and specialties</li>
             <li><span class="perk-check">✓</span> Access to a global Ethiopian diaspora customer base</li>
             <li><span class="perk-check">✓</span> Dedicated support in Amharic and English</li>
           </ul>
-          <a href="#" class="btn-primary" style="background:var(--terracotta);box-shadow:0 4px 20px rgba(184,92,58,0.35)">
+          <a href="#" class="btn-primary" style="background:var(--terracotta);box-shadow:0 4px 20px rgba(184,92,58,0.32);">
             Apply as a Supplier →
           </a>
         </div>
         <div class="become-visual">
           <div class="become-stat-grid">
-            <div class="become-stat">
-              <span class="become-stat-num">240+</span>
-              <div class="become-stat-label">Active<br>Artisans</div>
-            </div>
-            <div class="become-stat">
-              <span class="become-stat-num">$2.4M</span>
-              <div class="become-stat-label">Paid to<br>Artisans</div>
-            </div>
-            <div class="become-stat">
-              <span class="become-stat-num">4.9★</span>
-              <div class="become-stat-label">Average<br>Rating</div>
-            </div>
-            <div class="become-stat">
-              <span class="become-stat-num">38</span>
-              <div class="become-stat-label">Countries<br>Reached</div>
-            </div>
+            <div class="become-stat"><span class="become-stat-num">140+</span><div class="become-stat-label">Active<br>Artisans</div></div>
+            <div class="become-stat"><span class="become-stat-num">$2.4M</span><div class="become-stat-label">Paid to<br>Artisans</div></div>
+            <div class="become-stat"><span class="become-stat-num">4.9★</span><div class="become-stat-label">Average<br>Rating</div></div>
+            <div class="become-stat"><span class="become-stat-num">18</span><div class="become-stat-label">Countries<br>Reached</div></div>
           </div>
-          <div style="margin-top:2rem;padding-top:2rem;border-top:1px solid rgba(201,168,76,0.15);text-align:center;">
-            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;color:rgba(245,240,232,0.6);line-height:1.6;">"Tilf Habesha connected me with customers I could never have reached. My orders tripled in the first year."</div>
-            <div style="font-size:0.78rem;color:var(--gold-dim);margin-top:0.75rem;">— Selamawit Tadesse, Master Artisan, Gondar</div>
+          <div style="margin-top:1.75rem;padding-top:1.75rem;border-top:1px solid rgba(201,168,76,0.12);text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.1rem;color:rgba(245,240,232,0.58);line-height:1.7;">"Tilf Habesha connected me with customers I could never have reached. My orders tripled in the first year."</div>
+            <div style="font-size:0.75rem;color:var(--gold-dim);margin-top:0.65rem;">— Selamawit Tadesse, Master Artisan, Addis Ababa</div>
           </div>
         </div>
       </div>
@@ -471,65 +365,64 @@
 </div><!-- end #home -->
 
 
-<!-- ══════════════ PRODUCT PAGE ══════════════ -->
-<div id="product" class="page" style="padding-top:68px;">
+<!-- ══════════════════════════════════════
+     PRODUCT PAGE
+══════════════════════════════════════ -->
+<div id="product" class="page product-page-wrap">
   <div class="tibeb-border-thin"></div>
   <div class="product-inner">
-    <!-- Images -->
+
+    <!-- Left: Images -->
     <div class="product-images">
       <div class="product-main-img">
-        <div class="dress-swatch swatch-habesha-white" style="aspect-ratio:3/4;border-radius:8px;">
-          <svg viewBox="0 0 100 200" class="dress-svg" style="width:50%" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M34 18C34 18 29 24 24 34L4 80 18 85 14 175 86 175 82 85 96 80 76 34C71 24 66 18 66 18 62 27 54 32 50 32 46 32 38 27 34 18Z" fill="rgba(245,240,232,0.4)" stroke="rgba(180,160,120,0.9)" stroke-width="2"/>
-            <rect x="14" y="155" width="72" height="12" fill="rgba(201,168,76,0.45)" rx="1"/>
-            <rect x="14" y="143" width="72" height="8" fill="rgba(184,92,58,0.35)" rx="1"/>
-            <rect x="14" y="133" width="72" height="6" fill="rgba(201,168,76,0.3)" rx="1"/>
-            <circle cx="50" cy="20" r="10" fill="rgba(245,240,232,0.3)" stroke="rgba(180,160,120,0.7)" stroke-width="1.5"/>
-          </svg>
-          <div class="tibeb-strip" style="height:36px;opacity:0.8;"></div>
-        </div>
+        <div class="skeleton" style="width:100%;aspect-ratio:3/4;border-radius:10px;"></div>
       </div>
       <div class="product-thumb-row">
-        <div class="product-thumb active" style="background:linear-gradient(160deg,#f0ece3,#d8d0be);border-radius:4px;"></div>
-        <div class="product-thumb" style="background:linear-gradient(160deg,#1a2a4a,#0f1e3a);border-radius:4px;"></div>
-        <div class="product-thumb" style="background:linear-gradient(160deg,#3a1010,#2a0808);border-radius:4px;"></div>
-        <div class="product-thumb" style="background:linear-gradient(160deg,#1a2010,#0a1a0d);border-radius:4px;"></div>
+        <div class="product-thumb active skeleton" style="aspect-ratio:1;"></div>
+        <div class="product-thumb skeleton" style="aspect-ratio:1;"></div>
+        <div class="product-thumb skeleton" style="aspect-ratio:1;"></div>
+        <div class="product-thumb skeleton" style="aspect-ratio:1;"></div>
       </div>
     </div>
-    <!-- Info -->
+
+    <!-- Right: Info & Form -->
     <div class="product-info">
       <div class="product-breadcrumb">
         <a href="#" onclick="showPage('home')" style="color:var(--gold-dim);text-decoration:none;">Home</a>
         <span class="breadcrumb-sep">›</span>
-        <a href="#" onclick="showPage('home');scrollTo('dresses')" style="color:var(--gold-dim);text-decoration:none;">Collections</a>
+        <a href="#" onclick="showPage('home');goScrollTo('dresses')" style="color:var(--gold-dim);text-decoration:none;">Collections</a>
         <span class="breadcrumb-sep">›</span>
-        Adey Abeba Habesha Kemis
+        <span id="productBreadName">Loading…</span>
       </div>
-      <h1 class="product-name">Adey Abeba<br><em>Habesha Kemis</em></h1>
+
+      <h1 class="product-name">Loading…</h1>
+
       <div class="product-supplier-row">
-        <div class="supplier-avatar">M</div>
+        <div class="supplier-avatar">A</div>
         <div class="supplier-info-small">
-          <div class="supplier-name-small">Marta Gebremichael</div>
+          <div class="supplier-name-small">Artisan</div>
           <div class="supplier-meta-small">
             <span><span class="stars">★★★★★</span> 4.9</span>
-            <span>· 312 dresses made</span>
-            <span>· <a href="#" onclick="showPage('supplier-page')" style="color:var(--gold-dim);">View Profile</a></span>
+            <span>· 100+ dresses made</span>
           </div>
         </div>
       </div>
 
+      <div id="productDescription" style="margin-bottom:1.25rem;"></div>
+
       <div class="product-price-row">
-        <div class="product-price-main">$285</div>
+        <div class="product-price-main">$—</div>
         <div class="product-price-note">USD · Custom stitched<br>to your measurements</div>
       </div>
+
       <div class="deposit-box">
         <div>
-          <div class="deposit-box-amount">$42.75</div>
-          <div style="font-size:0.65rem;color:var(--text-light);letter-spacing:0.05em;text-transform:uppercase;">Deposit (15%)</div>
+          <div class="deposit-box-amount">$—</div>
+          <div style="font-size:0.63rem;color:var(--text-light);letter-spacing:0.05em;text-transform:uppercase;">Deposit (15%)</div>
         </div>
         <div class="deposit-box-label">
-          Pay only <strong>$42.75 now</strong> to start your order.<br>
-          Balance of $242.25 due when your dress is complete and ready to ship.
+          Pay only <strong>a 15% deposit now</strong> to start your order.<br>
+          Balance due when your dress is complete and ready to ship.
         </div>
       </div>
 
@@ -537,47 +430,32 @@
       <div class="form-section-title">Your Measurements</div>
       <div class="measure-guide">
         <span>📏</span>
-        <span>All measurements in <strong>centimeters (cm)</strong>. Need help measuring? <a href="#" style="color:var(--sage);">Watch our guide →</a></span>
+        <span>All measurements in <strong>centimeters (cm)</strong>. Need help? <a href="#" style="color:var(--sage);">Watch guide →</a></span>
       </div>
       <div class="measure-grid">
         <div class="form-group">
           <label>Shoulder Width</label>
-          <div class="input-unit">
-            <input type="number" placeholder="e.g. 38">
-            <span class="unit-label">cm</span>
-          </div>
+          <div class="input-unit"><input type="number" id="mShoulder" placeholder="e.g. 38" min="20" max="80"><span class="unit-label">cm</span></div>
         </div>
         <div class="form-group">
           <label>Bust / Chest</label>
-          <div class="input-unit">
-            <input type="number" placeholder="e.g. 88">
-            <span class="unit-label">cm</span>
-          </div>
+          <div class="input-unit"><input type="number" id="mBust" placeholder="e.g. 88" min="50" max="150"><span class="unit-label">cm</span></div>
         </div>
         <div class="form-group">
           <label>Waist</label>
-          <div class="input-unit">
-            <input type="number" placeholder="e.g. 72">
-            <span class="unit-label">cm</span>
-          </div>
+          <div class="input-unit"><input type="number" id="mWaist" placeholder="e.g. 72" min="40" max="140"><span class="unit-label">cm</span></div>
         </div>
         <div class="form-group">
-          <label>Shoulder to Waist Length</label>
-          <div class="input-unit">
-            <input type="number" placeholder="e.g. 42">
-            <span class="unit-label">cm</span>
-          </div>
+          <label>Shoulder to Waist</label>
+          <div class="input-unit"><input type="number" id="mShoulderWaist" placeholder="e.g. 42" min="20" max="80"><span class="unit-label">cm</span></div>
         </div>
         <div class="form-group" style="grid-column:span 2">
           <label>Dress Length (shoulder to hem)</label>
-          <div class="input-unit">
-            <input type="number" placeholder="e.g. 138">
-            <span class="unit-label">cm</span>
-          </div>
+          <div class="input-unit"><input type="number" id="mLength" placeholder="e.g. 138" min="60" max="200"><span class="unit-label">cm</span></div>
         </div>
-        <div class="form-group">
-          <label>Notes to Artisan</label>
-          <textarea rows="2" placeholder="Any special requests, sleeve preferences, etc." style="resize:vertical;grid-column:span 2"></textarea>
+        <div class="form-group" style="grid-column:span 2">
+          <label>Notes to Artisan (optional)</label>
+          <textarea id="mNotes" rows="2" placeholder="Sleeve preferences, occasion details, etc." style="resize:vertical;"></textarea>
         </div>
       </div>
 
@@ -586,36 +464,36 @@
       <div class="delivery-grid">
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" placeholder="Your full name">
+          <input type="text" id="dName" placeholder="Your full name">
         </div>
         <div class="form-group">
           <label>Country</label>
-          <select>
-            <option>United States</option>
-            <option>United Kingdom</option>
-            <option>Canada</option>
-            <option>Germany</option>
-            <option>Sweden</option>
-            <option>Australia</option>
-            <option>Ethiopia</option>
-            <option>Other</option>
+          <select id="dCountry">
+            <option>United States</option><option>United Kingdom</option>
+            <option>Canada</option><option>Germany</option><option>Sweden</option>
+            <option>Norway</option><option>Australia</option><option>Netherlands</option>
+            <option>France</option><option>Ethiopia</option><option>Other</option>
           </select>
         </div>
         <div class="form-group">
           <label>City</label>
-          <input type="text" placeholder="City">
+          <input type="text" id="dCity" placeholder="City">
         </div>
         <div class="form-group">
           <label>Zip / Postal Code</label>
-          <input type="text" placeholder="Zip code">
+          <input type="text" id="dZip" placeholder="Postal code">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="grid-column:span 2">
           <label>Street Address</label>
-          <input type="text" placeholder="Street, apartment, etc.">
+          <input type="text" id="dStreet" placeholder="Street, apartment, suite, etc.">
         </div>
         <div class="form-group">
           <label>Phone (with country code)</label>
-          <input type="tel" placeholder="+1 555 000 0000">
+          <input type="tel" id="dPhone" placeholder="+1 555 000 0000">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="dEmail" placeholder="your@email.com">
         </div>
       </div>
 
@@ -628,18 +506,18 @@
         <div class="pay-badge pay-google">G Pay</div>
       </div>
       <button class="btn-deposit" onclick="openModal()">
-        <span>💳</span>
-        Pay Deposit · $42.75
+        <span>💳</span> Pay Deposit · $—
       </button>
       <div class="btn-deposit-note">
-        🔒 Secure payment · Your 85% balance is only charged when your dress is finished
+        🔒 Secure payment · Balance only charged when your dress is finished and approved
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════ FOOTER ══════════════ -->
-<div id="footer-wrap">
+
+<!-- ─── FOOTER ─── -->
+<div id="footer-wrap-src" id="footer-wrap">
   <div class="tibeb-border"></div>
   <footer>
     <div class="footer-inner">
@@ -653,10 +531,10 @@
           <div class="footer-col-title">Collections</div>
           <ul class="footer-links">
             <li><a href="#">Wedding Kemis</a></li>
-            <li><a href="#">Timkat Dress</a></li>
+            <li><a href="#">Holiday Dress</a></li>
             <li><a href="#">Everyday Habesha</a></li>
             <li><a href="#">Netela Collection</a></li>
-            <li><a href="#">Children's Kemis</a></li>
+            <li><a href="#">Mens Habesha</a></li>
           </ul>
         </div>
         <div>
@@ -664,7 +542,7 @@
           <ul class="footer-links">
             <li><a href="#">About Us</a></li>
             <li><a href="#">Become a Supplier</a></li>
-            <li><a href="#">How It Works</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
             <li><a href="#">Track My Order</a></li>
             <li><a href="#">Blog</a></li>
           </ul>
@@ -682,16 +560,80 @@
       </div>
       <div class="footer-bottom">
         <div class="footer-copy">© 2024 Tilf Habesha. All rights reserved. Built with pride for the diaspora.</div>
-        <div class="footer-amharic">ትልፍ ሀበሻ · ኢትዮጵያ</div>
+        <div class="footer-amharic">ጥልፍ ሀበሻ · ኢትዮጵያ</div>
       </div>
     </div>
   </footer>
 </div>
 
 
-<!-- ══════════════ ORDER SUCCESS MODAL ══════════════ -->
+<!-- ─── DRAWERS (Cart & Wishlist) ─── -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- Cart Drawer -->
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-tibeb"></div>
+  <div class="drawer-header">
+    <div class="drawer-title">Your Cart 🛒</div>
+    <button class="drawer-close" onclick="closeAllDrawers()">×</button>
+  </div>
+  <div class="drawer-body" id="cartDrawerBody">
+    <div class="drawer-empty">Your cart is empty.<br>Find a dress you love ✦</div>
+  </div>
+  <div class="drawer-footer" id="cartDrawerFooter" style="display:none">
+    <div class="drawer-total">
+      <span class="drawer-total-label">Total</span>
+      <span class="drawer-total-amount" id="cartTotalAmount">$0</span>
+    </div>
+    <div id="cartDepositNote" class="drawer-deposit-note"></div>
+    <button class="btn-deposit" style="margin-top:0.85rem;" onclick="closeAllDrawers(); openModal();">
+      💳 Pay 15% Deposit
+    </button>
+  </div>
+</div>
+
+<!-- Wishlist Drawer -->
+<div class="drawer" id="wishDrawer">
+  <div class="drawer-tibeb"></div>
+  <div class="drawer-header">
+    <div class="drawer-title">Saved Favourites ♡</div>
+    <button class="drawer-close" onclick="closeAllDrawers()">×</button>
+  </div>
+  <div class="drawer-body" id="wishDrawerBody">
+    <div class="drawer-empty">No favourites saved yet ♡</div>
+  </div>
+</div>
+
+
+<!-- ─── AUTH MODAL ─── -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="authModalTitle">Sign In</div>
+      <button class="modal-close" onclick="closeAuthModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0.65rem;">
+        <label>Email Address</label>
+        <input type="email" id="authEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label>Password</label>
+        <input type="password" id="authPass" placeholder="Your password">
+      </div>
+      <button class="btn-deposit" id="authSubmitBtn" onclick="doAuth()">Sign In</button>
+      <div style="text-align:center;margin-top:1rem;">
+        <a href="#" onclick="switchAuthMode()" id="authSwitchLink" style="font-size:0.82rem;color:var(--gold-dim);text-decoration:none;">Don't have an account? Join</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── ORDER SUCCESS MODAL ─── -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
+    <div class="drawer-tibeb"></div>
     <div class="modal-header">
       <div class="modal-title">Order Confirmed!</div>
       <button class="modal-close" onclick="closeModal()">×</button>
@@ -699,22 +641,27 @@
     <div class="modal-body">
       <div class="success-icon">✓</div>
       <div class="success-title">Your dress is being made</div>
-      <p class="success-sub">Marta Gebremichael has received your measurements and will begin stitching your Adey Abeba Habesha Kemis right away.</p>
+      <p class="success-sub">Your artisan has received your measurements and will begin stitching right away.</p>
       <div class="order-id-box">
         <div class="order-id-label">Your Order ID</div>
-        <div class="order-id-num">TH-2024-08341</div>
+        <div class="order-id-num" id="generatedOrderId">TH-2024-XXXXX</div>
       </div>
       <p class="success-sub" style="font-size:0.82rem;">
-        You'll receive email updates as your dress progresses. The remaining balance of <strong>$242.25</strong> will be requested when your dress passes quality check and is ready to ship.
+        You'll receive email updates as your dress progresses. The remaining 85% balance is requested only when your dress passes quality check and is ready to ship.
       </p>
-      <button class="btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center;" onclick="closeModal();showPage('home');scrollTo('track')">
+      <button class="btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center;" onclick="closeModal();showPage('home');goScrollTo('track')">
         Track My Order →
       </button>
     </div>
   </div>
 </div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Scripts -->
 <script type="module" src="assets/js/firebase.js"></script>
+<script type="module" src="assets/js/script.js"></script>
 <script type="module" src="assets/js/shop.js"></script>
-<script src="assets/js/script.js"></script>
 </body>
 </html>
