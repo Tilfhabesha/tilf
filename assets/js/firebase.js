@@ -3,9 +3,9 @@ import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_ID",
+  apiKey: "AIzaSyBXJLMfQ9wLsFstO5oeSzXfRFhHl_ANWUk",
+  authDomain: "tilf-habesha.firebaseapp.com",
+  projectId: "tilf-habesha",
 };
 
 const app = initializeApp(firebaseConfig);
