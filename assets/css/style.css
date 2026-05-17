@@ -275,6 +275,59 @@ nav {
 .hero-card:hover img{
   transform:scale(1.12);
 }
+.hero-slider{
+  display:flex;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  gap:20px;
+  height:420px;              /* same visual height */
+  padding-bottom:10px;
+}
+
+.hero-slide{
+  min-width:85%;
+  flex-shrink:0;
+  height:100%;
+  position:relative;
+  border-radius:18px;
+  overflow:hidden;
+  scroll-snap-align:start;
+  cursor:pointer;
+}
+
+.hero-slide img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .6s ease;
+}
+
+.hero-slide:hover img{
+  transform:scale(1.05);
+}
+
+.hero-overlay{
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  padding:25px;
+  background:linear-gradient(to top, rgba(0,0,0,.65), transparent);
+  color:white;
+}
+
+.hero-title{
+  font-size:22px;
+  font-weight:600;
+}
+
+.hero-price{
+  font-size:15px;
+  opacity:.9;
+}
+
+/* hide scrollbar */
+.hero-slider::-webkit-scrollbar{display:none}
 
 .dress-overlay{
   position:absolute;
