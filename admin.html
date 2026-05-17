@@ -15,31 +15,50 @@
 
 <h2>Add / Edit Product</h2>
 
-<input id="title" placeholder="Product title">
-<input id="slug" placeholder="slug (red-tibeb-kemis)">
-<input id="price" placeholder="Price">
-<input id="discountPrice" placeholder="Discount price (optional)">
-<input id="fabric" placeholder="Fabric (Cotton Tibeb)">
-<textarea id="description" placeholder="Product cultural story"></textarea>
+<label>Product Title</label>
+<input id="title" placeholder="e.g. Red Tibeb Kemis" oninput="makeSlug()">
 
-<select id="categorySelect">
- <div>
-  <label><input type="checkbox" class="catCheck" value="all"> All</label>
-  <label><input type="checkbox" class="catCheck" value="wedding"> Wedding</label>
-  <label><input type="checkbox" class="catCheck" value="womens"> Womens</label>
-  <label><input type="checkbox" class="catCheck" value="mens"> Mens</label>
-  <label><input type="checkbox" class="catCheck" value="holiday"> Holiday</label>
-  <label><input type="checkbox" class="catCheck" value="everyday"> Everyday</label>
-  <label><input type="checkbox" class="catCheck" value="netela"> Netela</label>
-  <label><input type="checkbox" class="catCheck" value="other"> Other</label>
- </div>
+<label>Slug (auto-generated)</label>
+<input id="slug" readonly>
+<small>Example: red-tibeb-kemis</small>
+  
+<label>Price (USD)</label>
+<input id="price" type="number" placeholder="e.g. 320">
+
+<label>Discount Price (optional)</label>
+<input id="discountPrice" type="number" placeholder="e.g. 280">
+  
+<label>Fabric</label>
+<select id="fabric">
+  <option value="">Select fabric</option>
+  <option>Cotton Tibeb</option>
+  <option>Silk Tibeb</option>
+  <option>Linen Tibeb</option>
+  <option>Netela Cotton</option>
 </select>
+<label>Product Story</label>
+<textarea id="description" rows="6"
+placeholder="Example:
+This Tibeb Kemis is traditionally worn during holidays and family gatherings.
+Handwoven cotton with red tibeb patterns inspired by Gondar heritage.
+Comfortable for long celebrations and cultural ceremonies."></textarea>
+
+<label>Categories (choose all that apply)</label>
+<div id="cats">
+  <label><input type="checkbox" value="womens"> Womens</label>
+  <label><input type="checkbox" value="mens"> Mens</label>
+  <label><input type="checkbox" value="wedding"> Wedding</label>
+  <label><input type="checkbox" value="holiday"> Holiday</label>
+  <label><input type="checkbox" value="everyday"> Everyday</label>
+  <label><input type="checkbox" value="netela"> Netela</label>
+</div>
 
 <input id="otherCategory" placeholder="If other, type category id">
 
 <label><input type="checkbox" id="featured"> Featured product</label>
 <label><input type="checkbox" id="measurementsRequired"> Requires measurements</label>
 
+<small>Upload clear front images. First image will be used in hero and category cards.</small>
 <input type="file" id="images" multiple>
 <div id="preview"></div>
 
@@ -108,12 +127,16 @@ function getSelectedCategories(){
 }
 
 /* ---------------- SAVE PRODUCT ---------------- */
-
+if(!title.value || !price.value || !fabric.value || uploadedImages.length===0){
+  alert("Please fill title, price, fabric and upload at least one image.");
+  return;
+}
 window.saveProduct = async function(){
   const btn = event.target;
   btn.innerText = "Saving...";
   btn.disabled = true;
-
+  const categoryId = [...document.querySelectorAll('#cats input:checked')]
+  .map(c=>c.value);
   const product = {
     title: title.value,
     slug: slug.value,
@@ -121,7 +144,7 @@ window.saveProduct = async function(){
     discountPrice: Number(discountPrice.value) || null,
     fabric: fabric.value,
     description: description.value,
-    categoryIds: getSelectedCategories(),
+    categoryId: getSelectedCategories(),
     images: uploadedImages,
     featured: featured.checked,
     measurementsRequired: measurementsRequired.checked,
@@ -179,6 +202,13 @@ if(id){
     });
   }
 }
+function makeSlug(){
+  slug.value = title.value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/(^-|-$)/g,'');
+}
+
 </script>
 
 </body>
