@@ -43,8 +43,11 @@
 <input type="file" id="images" multiple>
 <div id="preview"></div>
 
-<button onclick="saveProduct()">Save Product</button>
-
+<button id="saveBtn" onclick="saveProduct()">
+  <span id="btnText">Save Product</span>
+  <span id="btnLoader" class="loader"></span>
+</button>
+  
 <script type="module">
 import { db } from "./assets/jsfirebase.js";
 import {
