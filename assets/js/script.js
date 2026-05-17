@@ -301,6 +301,33 @@ window.doGoogleAuth = async function() {
   }
 };
 
+// Add this to script.js
+window.validateMeasurements = function() {
+  const fields = ['mShoulder', 'mBust', 'mWaist', 'mHips', 'mLength'];
+  let isValid = true;
+  let missingFields = [];
+
+  fields.forEach(id => {
+    const input = document.getElementById(id);
+    const value = parseFloat(input.value);
+    
+    // Check if empty or unrealistic (e.g., less than 5 inches/cm)
+    if (!input.value || value < 5) {
+      input.style.border = "1px solid var(--accent)";
+      isValid = false;
+      missingFields.push(input.placeholder || id);
+    } else {
+      input.style.border = "1px solid #eee";
+    }
+  });
+
+  if (!isValid) {
+    toast(`Please check: ${missingFields.join(', ')}`, 'error');
+  }
+  
+  return isValid;
+};
+
 /* ───── ORDER MODAL ───── */
 window.processDeposit = async function() {
   const product = window._currentProduct;
