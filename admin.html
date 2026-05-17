@@ -55,17 +55,24 @@ const uploadPreset = "dcc3dpccu";
 let uploadedImages = [];
 let editingId = null;
 
-// IMAGE UPLOAD + PREVIEW
-images.onchange = async function(e){
-  preview.innerHTML = "";
-  uploadedImages = [];
+/* ---------------- IMAGE UPLOAD (instant preview) ---------------- */
 
+images.onchange = function(e){
   for (let file of e.target.files){
-    const url = await uploadToCloudinary(file);
-    uploadedImages.push(url);
-    preview.innerHTML += `<img src="${url}">`;
+    uploadAndPreview(file);
   }
 };
+
+async function uploadAndPreview(file){
+  const imgBox = document.createElement("img");
+  imgBox.src = "loading.gif"; // optional loader image
+  preview.appendChild(imgBox);
+
+  const url = await uploadToCloudinary(file);
+
+  imgBox.src = url;
+  uploadedImages.push(url);
+}
 
 async function uploadToCloudinary(file){
   const fd = new FormData();
@@ -81,13 +88,26 @@ async function uploadToCloudinary(file){
   return data.secure_url;
 }
 
-// SAVE OR UPDATE
-window.saveProduct = async function(){
+/* ---------------- MULTI CATEGORY ---------------- */
 
-  let categoryId = categorySelect.value;
-  if(categoryId === "other"){
-    categoryId = otherCategory.value.trim();
+function getSelectedCategories(){
+  const checks = document.querySelectorAll(".catCheck:checked");
+  const arr = [...checks].map(c=>c.value);
+
+  if(arr.includes("other")){
+    const other = otherCategory.value.trim();
+    if(other) arr.push(other);
   }
+
+  return arr;
+}
+
+/* ---------------- SAVE PRODUCT ---------------- */
+
+window.saveProduct = async function(){
+  const btn = event.target;
+  btn.innerText = "Saving...";
+  btn.disabled = true;
 
   const product = {
     title: title.value,
@@ -96,7 +116,7 @@ window.saveProduct = async function(){
     discountPrice: Number(discountPrice.value) || null,
     fabric: fabric.value,
     description: description.value,
-    categoryId: categoryId,
+    categoryIds: getSelectedCategories(),
     images: uploadedImages,
     featured: featured.checked,
     measurementsRequired: measurementsRequired.checked,
@@ -104,18 +124,24 @@ window.saveProduct = async function(){
     createdAt: serverTimestamp()
   };
 
-  if(editingId){
-    await updateDoc(doc(db, "products", editingId), product);
-    alert("Product Updated!");
-  }else{
-    await addDoc(collection(db, "products"), product);
-    alert("Product Added!");
+  try{
+    if(editingId){
+      await updateDoc(doc(db, "products", editingId), product);
+      btn.innerText = "Updated ✅";
+    }else{
+      await addDoc(collection(db, "products"), product);
+      btn.innerText = "Saved ✅";
+    }
+  }catch(e){
+    btn.innerText = "Error ❌";
+    console.error(e);
   }
 
-  location.reload();
+  setTimeout(()=>location.reload(),1500);
 };
 
-// LOAD FOR EDITING
+/* ---------------- LOAD FOR EDIT ---------------- */
+
 const params = new URLSearchParams(window.location.search);
 const id = params.get("edit");
 
@@ -135,8 +161,18 @@ if(id){
 
   uploadedImages = data.images || [];
   uploadedImages.forEach(url=>{
-    preview.innerHTML += `<img src="${url}">`;
+    const img = document.createElement("img");
+    img.src = url;
+    preview.appendChild(img);
   });
+
+  // check categories
+  if(data.categoryId){
+    data.categoryId.forEach(cat=>{
+      const el = document.querySelector(`.catCheck[value="${cat}"]`);
+      if(el) el.checked = true;
+    });
+  }
 }
 </script>
 
