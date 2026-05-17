@@ -2,8 +2,8 @@
    TILF HABESHA — script.js
    Core UI, Cart, Wishlist, Nav
 ═══════════════════════════════════════════════ */
-
-import { auth } from "./firebase.js";
+import { signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { googleProvider } from "./firebase.js";
 import {
   onAuthStateChanged, signOut,
   createUserWithEmailAndPassword, signInWithEmailAndPassword
@@ -277,33 +277,49 @@ window.switchAuthMode = function() {
   const mode = modal.dataset.mode === 'signup' ? 'signin' : 'signup';
   openAuthModal(mode);
 };
-window.doAuth = async function() {
-  const modal = document.getElementById('authModal');
-  const mode = modal.dataset.mode;
-  const email = document.getElementById('authEmail').value.trim();
-  const pass  = document.getElementById('authPass').value;
-  const btn   = document.getElementById('authSubmitBtn');
-  if (!email || !pass) { toast('Please fill in all fields', 'error'); return; }
-  btn.disabled = true; btn.textContent = 'Please wait…';
+window.doGoogleAuth = async function() {
   try {
-    if (mode === 'signup') {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      toast('Welcome to Tilf Habesha! ✦', 'success');
-    } else {
-      await signInWithEmailAndPassword(auth, email, pass);
-      toast('Welcome back ✦', 'success');
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    
+    // Check if user exists in Firestore, if not, create profile
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: new Date()
+      });
     }
     closeAuthModal();
-  } catch(e) {
-    toast(e.message.replace('Firebase: ', '').replace(/\(.*\)/, ''), 'error');
-  } finally { btn.disabled = false; }
+    toast('Logged in with Google! ✦', 'success');
+  } catch (error) {
+    toast(error.message, 'error');
+  }
 };
 
 /* ───── ORDER MODAL ───── */
-window.openModal = function() {
-  const orderId = 'TH-' + Date.now().toString(36).toUpperCase();
-  document.getElementById('generatedOrderId').textContent = orderId;
-  document.getElementById('modal').classList.add('open');
+window.processDeposit = async function() {
+  const product = window._currentProduct;
+  
+  // 1. Call your secure backend (Firebase Function) to create a checkout session
+  const response = await fetch('https://your-cloud-function-url/create-checkout', {
+    method: 'POST',
+    body: JSON.stringify({
+      productId: product.id,
+      amount: product.deposit * 100, // Stripe uses cents
+      currency: 'usd',
+      measurements: { /* gather from DOM inputs */ }
+    })
+  });
+  
+  const { checkoutUrl } = await response.json();
+  
+  // 2. Redirect to Stripe's secure hosted page
+  window.location.href = checkoutUrl;
 };
 window.closeModal = function() {
   document.getElementById('modal').classList.remove('open');
