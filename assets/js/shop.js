@@ -54,29 +54,56 @@ async function fetchAllProducts() {
 
   return allProducts;
 }
-
-async function loadHero() {
+/* ─────────────────────────────────────────────
+   UPDATED HERO SLIDER (Horizontal & Filterable)
+───────────────────────────────────────────── */
+async function loadHero(filterCat = 'all') {
   const slider = document.getElementById('heroSlider');
+  const hint = document.getElementById('swipeHint');
   if (!slider) return;
 
   try {
-    const products = await fetchAllProducts();
-    const featured = products.filter(p => p.inStock !== false).slice(0, 3);
-    if (!featured.length) { slider.innerHTML = ''; return; }
+    const products = await fetchAllProducts(); //
+    let items = products.filter(p => p.inStock !== false);
 
-    slider.innerHTML = featured.map((p, i) => `
-      <div class="hero-card${i === 0 ? ' hero-card-tall' : ''}" onclick="window.openProduct('${p.id}')">
-        <img src="${p.images?.[0] || ''}" alt="${p.title}" loading="${i === 0 ? 'eager' : 'lazy'}" style="width:100%;height:100%;object-fit:cover;${i === 0 ? 'min-height:300px;' : 'aspect-ratio:3/4;'}">
+    // Filter logic: If 'all', show featured. If specific cat, show that cat.
+    const cat = filterCat.toLowerCase().trim();
+    if (cat && cat !== 'all') {
+      items = items.filter(p => 
+        (p.categorySlugs || []).some(s => s.toLowerCase() === cat)
+      );
+    } else {
+      // Default "All" view: Show top featured items
+      items = items.filter(p => p.featured || p.badge === 'Popular');
+    }
+
+    if (!items.length) { slider.innerHTML = ''; hint?.classList.add('hidden'); return; }
+    if (hint) hint.classList.remove('hidden');
+
+    slider.innerHTML = items.map((p) => `
+      <div class="hero-card" onclick="window.openProduct('${p.id}')">
+        <img src="${p.images?.[0] || ''}" alt="${p.title}" 
+             style="width:100%;height:100%;object-fit:cover;">
         <div class="dress-overlay">
-          <div class="dress-overlay-name">${p.title}</div>
+          <div class="dress-overlay-name" style="font-size:1.1rem;">${p.title}</div>
           <div class="dress-overlay-price">$${p.price} · ${p.supplierName}</div>
         </div>
       </div>
     `).join('');
+
   } catch (err) {
     console.error('Hero load error:', err);
   }
 }
+
+/* ─────────────────────────────────────────────
+   UPDATE EVENT LISTENER
+───────────────────────────────────────────── */
+// Update the existing listener at the bottom of shop.js
+window.addEventListener('filterProducts', (e) => {
+  loadProducts(e.detail); //
+  loadHero(e.detail);     // Now also updates the Hero section!
+});
 
 async function loadProducts(filterCat = 'all') {
   const grid = document.getElementById('productsGrid');
