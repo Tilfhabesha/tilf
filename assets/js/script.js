@@ -57,7 +57,7 @@ window.doGoogleAuth = async function() {
     const snap    = await getDoc(userRef);
 
     if (!snap.exists()) {
-      // First sign-in → create user doc matching schema
+      // 1. FIRST TIME LOGIN: Create full default schema
       await setDoc(userRef, {
         email:       user.email,
         displayName: user.displayName  || '',
@@ -74,11 +74,20 @@ window.doGoogleAuth = async function() {
           country: '', note: ''
         }
       });
+    } else {
+      // 2. RETURNING USER: Sync their latest Google Name/Photo, but MERGE so we don't delete data
+      await setDoc(userRef, {
+        email:       user.email,
+        displayName: user.displayName  || '',
+        photoURL:    user.photoURL     || '',
+        lastLogin:   serverTimestamp()
+      }, { merge: true });
     }
 
     closeAuthModal();
     toast('Welcome to Tilf Habesha! ✦', 'success');
   } catch (err) {
+    console.error("Google Auth Error:", err);
     toast(err.message, 'error');
   }
 };
