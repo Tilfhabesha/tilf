@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tilf Habesha Admin Hub</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,11 +14,11 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .hidden { display: none; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-  <!-- TOP HEADER -->
   <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -34,7 +32,6 @@
     </div>
   </header>
 
-  <!-- NAVIGATION TABS -->
   <nav class="bg-white border-b border-slate-200 sticky top-16 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex space-x-2 overflow-x-auto py-2 tabs" role="tablist">
@@ -54,13 +51,10 @@
     </div>
   </nav>
 
-  <!-- MAIN CANVAS -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
-    <!-- NOTIFICATION TOAST WRAPPER -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-3 pointer-events-none"></div>
 
-    <!-- ORDERS PANEL -->
     <section id="orders" class="tab-section block space-y-6">
       <div class="flex items-center justify-between border-b border-slate-200 pb-4">
         <h2 class="text-2xl font-bold text-slate-900 tracking-tight">System Purchase Orders</h2>
@@ -77,60 +71,49 @@
       </div>
     </section>
 
-    <!-- ADD PRODUCT PANEL -->
     <section id="addProduct" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
       <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Deploy New Product Inventory</h2>
       <div id="addForm" class="space-y-6"></div>
     </section>
 
-    <!-- EDIT PRODUCT PANEL -->
     <section id="editProduct" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
       <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Modify Catalog Registry</h2>
-      
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-8 flex space-x-3 items-end">
         <div class="flex-grow">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Target Product System ID (No Spaces or Hyphens)</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Target Product System ID</label>
           <input id="editId" placeholder="e.g., silktibebdress" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-mono font-semibold">
         </div>
         <button onclick="loadProduct()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-sm transition-all shadow-sm">Load Registry</button>
       </div>
-
       <div id="editForm" class="space-y-6 hidden border-t pt-6"></div>
     </section>
 
-    <!-- ARTISAN PROFILE MANAGEMENT -->
     <section id="artisan" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
-      <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Artisan Profiles & Identity Routing</h2>
-      
+      <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Artisan Profiles</h2>
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-8 flex space-x-3 items-end">
         <div class="flex-grow">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Query Artisan Document ID (Optional)</label>
-          <input id="artisanDocId" placeholder="Leave empty for new profile creation" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-medium">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Query Artisan Document ID</label>
+          <input id="artisanDocId" placeholder="Leave empty for new profile" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-medium">
         </div>
         <button onclick="loadArtisan()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-sm transition-all shadow-sm">Pull Document</button>
       </div>
-
       <div class="space-y-5">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Linked System User Account</label>
           <select id="artisanUser" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-medium"></select>
         </div>
-        
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Corporate / House Brand Identity</label>
           <input id="brandName" placeholder="Enter formal trading name" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm">
         </div>
-
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Professional Bio & Operational Scope</label>
-          <textarea id="bio" rows="4" placeholder="Detail history, creative alignments, workshop dynamics..." class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm"></textarea>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Professional Bio</label>
+          <textarea id="bio" rows="4" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm"></textarea>
         </div>
-
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Verified Telecom Routing Channel</label>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Verified Telecom Routing</label>
           <input id="phone" placeholder="+251-9..." class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm">
         </div>
-
         <div class="pt-4 flex items-center justify-between border-t border-slate-100">
           <div id="artisanStats" class="text-sm font-semibold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-md hidden"></div>
           <button onclick="saveArtisan()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition shadow-sm ml-auto">Commit Profile Entry</button>
@@ -140,7 +123,6 @@
 
   </main>
 
-  <!-- JS CONTROLLERS AND LOGIC FLUIDITY -->
   <script type="module">
     import { db } from "./assets/js/firebase.js";
     import {
@@ -149,7 +131,7 @@
       query, where, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    /* ================= STATE & CACHE SPACE ================= */
+    /* ================= STATE & CACHE ================= */
     const $ = id => document.getElementById(id);
     
     const state = {
@@ -160,7 +142,28 @@
     const fabricOptions = ["cotton tibeb", "linen", "silk", "velvet", "wool blend"];
     const categoryOptions = ["holiday", "women", "men", "wedding", "events", "new fashion", "casual"];
 
-    /* ================= IN-APP SYSTEM UTILITIES ================= */
+    /* ================= GLOBAL ACTIONS (Preview Logic) ================= */
+    window.removeImageState = (prefix, url) => {
+      state[prefix].images = state[prefix].images.filter(img => img !== url);
+      showToast("Asset removed from buffer.", "info");
+    };
+
+    async function upload(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'ml_default'); 
+
+      const res = await fetch("https://api.cloudinary.com/v1_1/dj7m9p8pa/image/upload", {
+        method: "POST",
+        body: formData
+      });
+      
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      return data.secure_url;
+    }
+
+    /* ================= SYSTEM UTILITIES ================= */
     function showToast(message, type = 'success') {
       const colors = {
         success: 'bg-emerald-900 text-emerald-100 border-emerald-700',
@@ -170,14 +173,8 @@
       const toast = document.createElement('div');
       toast.className = `p-4 border rounded-xl shadow-xl flex items-center justify-between pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-semibold max-w-sm ${colors[type]}`;
       toast.innerHTML = `<span>${message}</span>`;
-      
-      const container = $("toastContainer");
-      container.appendChild(toast);
-      
-      setTimeout(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      }, 50);
-
+      $("toastContainer").appendChild(toast);
+      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 50);
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-x-4');
         setTimeout(() => toast.remove(), 300);
@@ -189,12 +186,8 @@
       else $("globalLoader").classList.add('hidden');
     }
 
-    // MATCHES YOUR SCHEMA REQUIRMENT: Replaces all spaces " " and hyphens "-" with completely nothing ""
     function normalizeTitle(title){
-      return title.toLowerCase()
-        .replace(/\s+/g, '')
-        .replace(/-/g, '')
-        .replace(/[^a-z0-9]/g, ''); // Defensive sanitization against remaining illegal characters
+      return title.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/[^a-z0-9]/g, '');
     }
 
     function slugify(title){
@@ -205,239 +198,126 @@
       return (Number(price) * 0.15).toFixed(2);
     }
 
-    /* ================= APP STRUCTURAL ROUTING ================= */
+    /* ================= TAB ROUTING ================= */
     window.showTab = (e, id) => {
       document.querySelectorAll('.tab-section').forEach(s => s.classList.add('hidden'));
-      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('block'));
-      
       $(id).classList.remove('hidden');
-      $(id).classList.add('block');
-      
       document.querySelectorAll('.tab-btn').forEach(b => {
         b.className = "tab-btn px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap";
       });
-      
       e.currentTarget.className = "tab-btn active px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-900 text-white shadow-sm flex items-center space-x-2 whitespace-nowrap";
     };
 
-    /* ================= MANIFEST SYSTEM (ORDERS) ================= */
-    window.loadOrders = async () => {
-      try {
-        toggleGlobalLoader(true);
-        const snap = await getDocs(collection(db, "orders"));
-        const container = $("ordersList");
-        container.innerHTML = "";
+    /* ================= IMAGE PREVIEW ENGINE ================= */
+    function attachImageEngine(p) {
+      const input = $(`${p}_imgs`);
+      if (!input) return;
+
+      input.onchange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
         
-        if(snap.empty) {
-          container.innerHTML = `<div class="p-4 bg-slate-100 rounded-lg text-slate-500 text-xs italic text-center">No structural order documents in system registry.</div>`;
-          return;
-        }
-
-        snap.forEach(d => {
-          const data = d.data();
-          const statusColors = data.status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+        for (const f of files) {
+          const tempUrl = URL.createObjectURL(f);
+          const imgWrapper = document.createElement("div");
+          imgWrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm bg-white";
           
-          container.innerHTML += `
-            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-slate-400 transition flex flex-col justify-between space-y-4">
-              <div class="flex justify-between items-start">
-                <div class="truncate max-w-[180px]">
-                  <p class="text-xs text-slate-400 font-mono font-bold uppercase">ID Sequence</p>
-                  <h4 class="text-sm font-bold text-slate-900 font-mono truncate">${d.id}</h4>
-                </div>
-                <span class="px-2.5 py-1 text-2xs uppercase tracking-wider font-extrabold rounded-full ${statusColors}">${data.status || 'pending'}</span>
-              </div>
-              <button onclick="viewOrder('${d.id}')" class="w-full text-center py-2 bg-slate-50 hover:bg-slate-900 hover:text-white border border-slate-200 rounded-lg text-xs font-bold transition-all">Inspect Document</button>
-            </div>`;
-        });
-      } catch (err) {
-        showToast("Engine error querying orders index payload.", "error");
-        console.error(err);
-      } finally {
-        toggleGlobalLoader(false);
-      }
-    };
+          imgWrapper.innerHTML = `
+            <img src="${tempUrl}" class="w-full h-full object-cover opacity-50">
+            <div class="absolute inset-0 flex items-center justify-center">
+               <div class="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          `;
+          $(`${p}_prev`).appendChild(imgWrapper);
 
-    window.viewOrder = async (id) => {
-      try {
-        toggleGlobalLoader(true);
-        const d = await getDoc(doc(db, "orders", id));
-        if(!d.exists()) {
-          showToast("Document resource identifier invalid.", "error");
-          return;
+          try {
+            const cloudUrl = await upload(f);
+            state[p].images.push(cloudUrl);
+
+            imgWrapper.innerHTML = `
+              <img src="${cloudUrl}" class="w-full h-full object-cover">
+              <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-150 text-white font-bold text-xs" 
+                onclick="this.parentElement.remove(); window.removeImageState('${p}', '${cloudUrl}')">Remove</button>
+            `;
+          } catch(err) {
+            imgWrapper.remove();
+            showToast(`Failed to upload ${f.name}`, "error");
+          } finally {
+            URL.revokeObjectURL(tempUrl);
+          }
         }
-        $("orderDetail").innerHTML = `
-          <div class="bg-slate-900 rounded-lg p-4 font-mono text-xs text-emerald-400 overflow-x-auto border border-slate-800 shadow-inner">
-            <pre class="whitespace-pre-wrap">${JSON.stringify(d.data(), null, 2)}</pre>
-          </div>`;
-      } catch(e) {
-        showToast("Read sequence failed.", "error");
-      } finally {
-        toggleGlobalLoader(false);
-      }
-    };
+        showToast("Images processed and ready.", "success");
+      };
+    }
 
-    /* ================= DYNAMIC FORMS ARCHITECTURE ================= */
+    /* ================= DYNAMIC FORMS ================= */
     function buildForm(container, prefix) {
       container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div class="md:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title / Master Specification</label>
-            <input id="${prefix}_title" placeholder="e.g., Luxury Habesha Wedding Habesha Dress" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-semibold">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
+            <input id="${prefix}_title" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-semibold">
           </div>
-          
           <div class="md:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Item Description</label>
-            <textarea id="${prefix}_desc" rows="3" placeholder="Articulate material dimensions, structural patterns, and lineage nuances..." class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm"></textarea>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Description</label>
+            <textarea id="${prefix}_desc" rows="3" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm"></textarea>
           </div>
-
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Value (ETB / USD)</label>
-            <input id="${prefix}_price" type="number" placeholder="0.00" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-mono font-bold">
-            <div class="mt-1.5 text-xs text-slate-500 font-medium">15% Essential System Deposit Requirement: <span class="font-mono font-bold text-amber-600" id="${prefix}_dep">0.00</span></div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (USD)</label>
+            <input id="${prefix}_price" type="number" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-mono font-bold">
+            <div class="mt-1.5 text-xs text-slate-500">15% Deposit: <span class="font-mono font-bold text-amber-600" id="${prefix}_dep">0.00</span></div>
           </div>
-
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Primary Fabric Taxonomy</label>
-            <select id="${prefix}_fabric" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition text-sm font-medium capitalize"></select>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Fabric</label>
+            <select id="${prefix}_fabric" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-medium"></select>
           </div>
-
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Category Routing Architecture</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Categories</label>
             <div id="${prefix}_cats" class="bg-slate-50 border border-slate-200 rounded-lg p-4 grid grid-cols-2 gap-2.5 max-h-[140px] overflow-y-auto"></div>
           </div>
-
           <div class="flex flex-col justify-center space-y-3 px-2">
-            <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer select-none">
-              <input type="checkbox" id="${prefix}_req" class="w-4 h-4 text-slate-950 border-slate-300 rounded focus:ring-slate-900 accent-slate-900 mr-2.5"> Tailored Measurement Schema Compulsory
+            <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
+              <input type="checkbox" id="${prefix}_req" class="w-4 h-4 accent-slate-900 mr-2.5"> Tailored Measurements
             </label>
-            <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer select-none">
-              <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 text-slate-950 border-slate-300 rounded focus:ring-slate-900 accent-slate-900 mr-2.5" checked> Affirm Unit Stock Allotment Present
+            <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
+              <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 accent-slate-900 mr-2.5" checked> In Stock
             </label>
           </div>
-
           <div class="md:col-span-2 border-t border-slate-100 pt-4">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Asset Management (Images)</label>
-            <div class="flex items-center justify-center w-full">
-              <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                  <p class="mb-2 text-sm text-slate-500"><span class="font-bold">Click to batch select files</span> or pull from filesystem</p>
-                  <p class="text-xs text-slate-400">High-Fidelity Formats Only (PNG, JPG, WEBP)</p>
-                </div>
-                <input type="file" id="${prefix}_imgs" multiple class="hidden" accept="image/*">
-              </label>
-            </div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Images</label>
+            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition">
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                <p class="mb-2 text-sm text-slate-500"><span class="font-bold">Click to batch select files</span></p>
+              </div>
+              <input type="file" id="${prefix}_imgs" multiple class="hidden" accept="image/*">
+            </label>
             <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 p-2 bg-slate-50 rounded-lg border border-slate-100 empty:hidden"></div>
           </div>
         </div>
-
         <div class="pt-6 border-t border-slate-200 flex items-center justify-end">
-          <button onclick="saveProduct('${prefix}')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-sm transition-all shadow-md">Compile & Persist Product Document</button>
+          <button onclick="saveProduct('${prefix}')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-sm transition-all shadow-md">Save Product</button>
         </div>
       `;
-
       loadOptions(prefix);
       attachImageEngine(prefix);
-      attachReactiveMathEngine(prefix);
+      $(`${prefix}_price`).oninput = (e) => $(`${prefix}_dep`).innerText = deposit(e.target.value);
     }
 
     function loadOptions(p) {
-      const fabricSelect = $(`${p}_fabric`);
-      fabricSelect.innerHTML = `<option value="">Select Target Composition</option>`;
-      fabricOptions.forEach(f => {
-        fabricSelect.innerHTML += `<option value="${f}">${f}</option>`;
-      });
-
-      const catContainer = $(`${p}_cats`);
-      catContainer.innerHTML = "";
-      categoryOptions.forEach(c => {
-        catContainer.innerHTML += `
-          <label class="inline-flex items-center text-xs font-medium text-slate-700 capitalize cursor-pointer">
-            <input type="checkbox" value="${c}" class="w-3.5 h-3.5 text-slate-900 border-slate-300 rounded accent-slate-900 mr-2"> ${c}
-          </label>`;
-      });
+      $(`${p}_fabric`).innerHTML = `<option value="">Select Fabric</option>` + fabricOptions.map(f => `<option value="${f}">${f}</option>`).join('');
+      $(`${p}_cats`).innerHTML = categoryOptions.map(c => `
+        <label class="inline-flex items-center text-xs font-medium text-slate-700 capitalize cursor-pointer">
+          <input type="checkbox" value="${c}" class="w-3.5 h-3.5 accent-slate-900 mr-2"> ${c}
+        </label>`).join('');
     }
 
-    function attachReactiveMathEngine(p) {
-      $(`${p}_price`).addEventListener('input', (e) => {
-        const val = Number(e.target.value) || 0;
-        $(`${p}_dep`).innerText = deposit(val);
-      });
-    }
-
-    /* ================= ASSET UPLOAD CONTEXT ENGINE ================= */
-  
-function attachImageEngine(p) {
-  $(`${p}_imgs`).onchange = async (e) => {
-    if (!e.target.files.length) return;
-    
-    // We process each file individually to show them as they are picked
-    for (const f of e.target.files) {
-      // 1. Create a local temporary URL for an instant preview
-      const tempUrl = URL.createObjectURL(f);
-
-      // 2. Create the preview card immediately
-      const imgWrapper = document.createElement("div");
-      imgWrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm bg-white";
-      
-      // We show a loading spinner on top of the local image while it uploads
-      imgWrapper.innerHTML = `
-        <img src="${tempUrl}" class="w-full h-full object-cover opacity-50">
-        <div class="absolute inset-0 flex items-center justify-center">
-           <div class="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      `;
-      $(`${p}_prev`).appendChild(imgWrapper);
-
-      try {
-        // 3. Start the upload to Cloudinary in the background
-        const cloudUrl = await upload(f);
-        state[p].images.push(cloudUrl);
-
-        // 4. Once uploaded, replace the spinner with the "Remove" button and final URL
-        imgWrapper.innerHTML = `
-          <img src="${cloudUrl}" class="w-full h-full object-cover">
-          <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-150 text-white font-bold text-xs" 
-            onclick="this.parentElement.remove(); window.removeImageState('${p}', '${cloudUrl}')">Remove</button>
-        `;
-        
-        // Clean up memory
-        URL.revokeObjectURL(tempUrl);
-
-      } catch(err) {
-        // If the upload fails, remove that specific preview and alert the user
-        imgWrapper.remove();
-        showToast("One asset failed to upload to the server.", "error");
-        URL.revokeObjectURL(tempUrl);
-      }
-    }
-    
-    showToast("Images processed and ready.", "success");
-  };
-}
-
-    /* ================= COMMIT AND WRITE ARCHITECTURE ================= */
+    /* ================= FIREBASE PERSISTENCE ================= */
     window.saveProduct = async (p) => {
       const title = $(`${p}_title`).value.trim();
       const price = Number($(`${p}_price`).value);
-      
-      if(!title || !price) {
-        showToast("ValidationError: System fields [Title, Price] cannot possess null state configuration.", "error");
-        return;
-      }
+      if(!title || !price) return showToast("Title and Price are required.", "error");
 
-      // Safeguards active Document ID matching your naming constraint rules
-      let docId = "";
-      if (p === 'edit') {
-        docId = $("editId").value.trim();
-      } else {
-        docId = normalizeTitle(title);
-      }
-
-      if (!docId) {
-        showToast("Reference Mutation Error: Unable to assign catalog sequence ID.", "error");
-        return;
-      }
-
+      const docId = p === 'edit' ? $("editId").value.trim() : normalizeTitle(title);
       const data = {
         title,
         slug: slugify(title),
@@ -452,58 +332,30 @@ function attachImageEngine(p) {
         updatedAt: serverTimestamp()
       };
 
-      if (p === 'add') {
-        data.createdAt = serverTimestamp();
-      }
-
       try {
         toggleGlobalLoader(true);
         await setDoc(doc(db, "products", docId), data, { merge: true });
-
-        showToast(`Catalog deployment persistent storage write success [ID: ${docId}]`, "success");
-        
-        if (p === 'add') {
-          $(`${p}_title`).value = "";
-          $(`${p}_desc`).value = "";
-          $(`${p}_price`).value = "";
-          $(`${p}_dep`).innerText = "0.00";
-          $(`${p}_fabric`).value = "";
-          $(`${p}_cats`).querySelectorAll("input:checked").forEach(cb => cb.checked = false);
-          $(`${p}_prev`).innerHTML = "";
-          state[p].images = [];
-        }
+        showToast(`Product saved: ${docId}`, "success");
+        if(p === 'add') buildForm($("addForm"), "add"); // Reset
       } catch (e) {
-        console.error(e);
-        showToast("Storage cluster transaction payload execution aborted.", "error");
+        showToast("Storage error.", "error");
       } finally {
         toggleGlobalLoader(false);
       }
     };
 
-    /* ================= DESERIALIZATION & UPDATE ENGINE (EDIT TAB) ================= */
     window.loadProduct = async () => {
       const id = $("editId").value.trim();
-      if(!id) {
-        showToast("Please provide a valid document ID context.", "error");
-        return;
-      }
-
+      if(!id) return showToast("Enter ID", "error");
       try {
         toggleGlobalLoader(true);
         const d = await getDoc(doc(db, "products", id));
+        if(!d.exists()) return showToast("Not found", "error");
         
-        if(!d.exists()) {
-          showToast(`No catalog registry records associate with ID: ${id}`, "error");
-          $("editForm").classList.add('hidden');
-          return;
-        }
-
         const p = d.data();
-        const targetContainer = $("editForm");
-        buildForm(targetContainer, "edit");
-        targetContainer.classList.remove('hidden');
-
-        // Populate Form Fields Authentically
+        buildForm($("editForm"), "edit");
+        $("editForm").classList.remove('hidden');
+        
         $("edit_title").value = p.title || "";
         $("edit_desc").value = p.description || "";
         $("edit_price").value = p.price || "";
@@ -511,131 +363,21 @@ function attachImageEngine(p) {
         $("edit_fabric").value = p.fabric || "";
         $("edit_req").checked = !!p.measurementsRequired;
         $("edit_stock").checked = !!p.inStock;
-
-        $("#edit_cats input[type='checkbox']").forEach(cb => {
-          cb.checked = Array.isArray(p.categoryId) && p.categoryId.includes(cb.value);
-        });
-
-        $("edit_prev").innerHTML = "";
         state.edit.images = p.images || [];
 
         state.edit.images.forEach(u => {
-          const imgWrapper = document.createElement("div");
-          imgWrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm bg-white";
-          imgWrapper.innerHTML = `
-            <img src="${u}" class="w-full h-full object-cover">
-            <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-150 text-white font-bold text-xs" onclick="this.parentElement.remove(); window.removeImageState('edit', '${u}')">Remove</button>
-          `;
-          $("edit_prev").appendChild(imgWrapper);
+          $("edit_prev").innerHTML += `
+            <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden bg-white">
+              <img src="${u}" class="w-full h-full object-cover">
+              <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs" onclick="this.parentElement.remove(); window.removeImageState('edit', '${u}')">Remove</button>
+            </div>`;
         });
-
-        showToast("State deserialization mapping execution accomplished.", "success");
-      } catch(err) {
-        console.error(err);
-        showToast("Error retrieving configuration parameters.", "error");
-      } finally {
-        toggleGlobalLoader(false);
-      }
+      } catch(e) { showToast("Error loading", "error"); } finally { toggleGlobalLoader(false); }
     };
 
-    /* ================= ARTISAN PROFILES VECTOR ENGINE ================= */
-    async function loadArtisanUsers() {
-      try {
-        const q = query(collection(db, "users"), where("role", "==", "artisan"));
-        const s = await getDocs(q);
-        const select = $("artisanUser");
-        select.innerHTML = `<option value="">Bind User Profile Route Identity</option>`;
-        
-        s.forEach(u => {
-          select.innerHTML += `<option value="${u.id}">${u.data().displayName || 'Anonymous Partner Entity'}</option>`;
-        });
-      } catch(e) {
-        console.error("Artisan context indexing vector fault:", e);
-      }
-    }
-
-    window.saveArtisan = async () => {
-      const userSelectVal = $("artisanUser").value;
-      if(!userSelectVal) {
-        showToast("ValidationError: System structural integrity requires linked User Profile binding context.", "error");
-        return;
-      }
-
-      const data = {
-        userId: doc(db, "users", userSelectVal),
-        brandName: $("brandName").value.trim(),
-        bio: $("bio").value.trim(),
-        phone: $("phone").value.trim(),
-        active: true,
-        lastModified: serverTimestamp()
-      };
-
-      try {
-        toggleGlobalLoader(true);
-        const targetId = $("artisanDocId").value.trim();
-        
-        if(targetId) {
-          await updateDoc(doc(db, "artisans", targetId), data);
-          showToast(`Profile mutation structural commit achieved [ID: ${targetId}]`, "success");
-        } else {
-          const ref = await addDoc(collection(db, "artisans"), data);
-          $("artisanDocId").value = ref.id;
-          showToast(`Instantiated new profile interface sequence entry [ID: ${ref.id}]`, "success");
-        }
-      } catch(e) {
-        console.error(e);
-        showToast("Cluster synchronization transmission dropped.", "error");
-      } finally {
-        toggleGlobalLoader(false);
-      }
-    };
-
-    window.loadArtisan = async () => {
-      const id = $("artisanDocId").value.trim();
-      if(!id) {
-        showToast("Explicit target Document Identity required for pull operations.", "error");
-        return;
-      }
-
-      try {
-        toggleGlobalLoader(true);
-        const d = await getDoc(doc(db, "artisans", id));
-        
-        if(!d.exists()) {
-          showToast("Profile identity route index unallocated.", "error");
-          return;
-        }
-
-        const a = d.data();
-        $("brandName").value = a.brandName || "";
-        $("bio").value = a.bio || "";
-        $("phone").value = a.phone || "";
-        
-        if(a.userId && a.userId.id) {
-          $("artisanUser").value = a.userId.id;
-        }
-
-        const q = query(collection(db, "orders"), where("artisanId", "==", doc(db, "artisans", id)));
-        const s = await getDocs(q);
-
-        const statsBadge = $("artisanStats");
-        statsBadge.innerText = `Active Account Lifecycle Work Orders: ${s.size}`;
-        statsBadge.classList.remove('hidden');
-        
-        showToast("Profile context matrix mapping executed flawlessly.", "success");
-      } catch(e) {
-        console.error(e);
-        showToast("Failed to compile profile transactional logs.", "error");
-      } finally {
-        toggleGlobalLoader(false);
-      }
-    };
-
-    /* ================= BOOTSTRAP INITIALIZATION STREAMS ================= */
+    /* ================= INITIALIZE ================= */
     document.addEventListener("DOMContentLoaded", () => {
-      loadOrders();
       buildForm($("addForm"), "add");
-      loadArtisanUsers();
     });
   </script>
 </body>
