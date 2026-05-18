@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Tilf Habesha Admin</title>
+
 <style>
 body{font-family:Arial;margin:0;background:#f5f5f5}
 .tabs{display:flex;background:#111}
@@ -16,6 +17,7 @@ img{width:90px;border-radius:6px;margin:4px}
 .notice{font-size:13px;color:green}
 </style>
 </head>
+
 <body>
 
 <div class="tabs">
@@ -25,17 +27,20 @@ img{width:90px;border-radius:6px;margin:4px}
   <button onclick="showTab(event,'artisan')">Artisan</button>
 </div>
 
+<!-- ORDERS -->
 <div id="orders" class="section" style="display:block">
   <h2>Orders</h2>
   <div id="ordersList"></div>
   <div id="orderDetail"></div>
 </div>
 
+<!-- ADD PRODUCT -->
 <div id="addProduct" class="section">
   <h2>Add Product</h2>
   <div id="addForm"></div>
 </div>
 
+<!-- EDIT PRODUCT -->
 <div id="editProduct" class="section">
   <h2>Edit Product</h2>
   <input id="editId" placeholder="Enter productId">
@@ -43,10 +48,11 @@ img{width:90px;border-radius:6px;margin:4px}
   <div id="editForm"></div>
 </div>
 
+<!-- ARTISAN -->
 <div id="artisan" class="section">
-  <h2>Add / Edit Artisan</h2>
+  <h2>Artisan</h2>
 
-  <input id="artisanDocId" placeholder="Enter artisanId for edit">
+  <input id="artisanDocId" placeholder="Artisan ID">
   <button onclick="loadArtisan()">Load Artisan</button>
 
   <select id="artisanUser"></select>
@@ -61,13 +67,30 @@ img{width:90px;border-radius:6px;margin:4px}
 <script type="module">
 import { db } from "./assets/js/firebase.js";
 import {
-collection, getDocs, doc, getDoc, addDoc, updateDoc,
+collection, getDocs, doc, getDoc,
+addDoc, updateDoc, setDoc,
 query, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* ================= HELPERS ================= */
 const $ = id => document.getElementById(id);
 
-/* ---------- Tabs ---------- */
+function normalizeTitle(title){
+  return title.toLowerCase()
+    .replace(/['"]/g,'')
+    .replace(/\s+/g,'-')
+    .replace(/[^a-z0-9-]/g,'');
+}
+
+function slugify(title){
+  return title.toLowerCase().replace(/\s+/g,'-');
+}
+
+function deposit(price){
+  return Number((price * 0.15).toFixed(2));
+}
+
+/* ================= TABS ================= */
 window.showTab = (e,id)=>{
   document.querySelectorAll('.section').forEach(s=>s.style.display='none');
   $(id).style.display='block';
@@ -75,7 +98,7 @@ window.showTab = (e,id)=>{
   e.target.classList.add('active');
 };
 
-/* ---------- Orders ---------- */
+/* ================= ORDERS ================= */
 async function loadOrders(){
   const snap = await getDocs(collection(db,"orders"));
   $("ordersList").innerHTML="";
@@ -89,75 +112,78 @@ async function loadOrders(){
 }
 loadOrders();
 
-window.viewOrder = async id=>{
+window.viewOrder = async (id)=>{
   const d = await getDoc(doc(db,"orders",id));
-  $("orderDetail").innerHTML=`<pre>${JSON.stringify(d.data(),null,2)}</pre>`;
+  $("orderDetail").innerHTML =
+    `<pre>${JSON.stringify(d.data(),null,2)}</pre>`;
 };
 
-/* ---------- Product Form Builder ---------- */
-function buildProductForm(container, prefix){
+/* ================= PRODUCT SYSTEM ================= */
+const fabricOptions = ["cotton tibeb","linen","silk","velvet","wool blend"];
+const categoryOptions = ["holiday","women","men","wedding","events","new fashion","casual"];
+
+const state = { images: [] };
+
+/* ---------- FORM ---------- */
+function buildForm(container,prefix){
+
 container.innerHTML=`
 <input id="${prefix}_title" placeholder="Title">
 <textarea id="${prefix}_desc" placeholder="Description"></textarea>
+
 <input id="${prefix}_price" type="number" placeholder="Price">
 
-<select id="${prefix}_artisan"></select>
+<div>Deposit: <span id="${prefix}_dep">0.00</span></div>
+
+<select id="${prefix}_fabric"></select>
+
 <div id="${prefix}_cats"></div>
 
-<select id="${prefix}_reqM">
-<option value="true">Requires Measurement</option>
-<option value="false">No Measurement</option>
-</select>
-
-<select id="${prefix}_stock">
-<option value="true">In Stock</option>
-<option value="false">Out of Stock</option>
-</select>
+<label><input type="checkbox" id="${prefix}_req"> Measurement Required</label>
+<label><input type="checkbox" id="${prefix}_stock"> In Stock</label>
 
 <input type="file" id="${prefix}_imgs" multiple>
 <div id="${prefix}_prev"></div>
 
-<button onclick="saveProduct('${prefix}')">Save</button>
-<div id="${prefix}_msg" class="notice"></div>
+<button onclick="saveProduct('${prefix}')">Save Product</button>
+<div id="${prefix}_msg"></div>
 `;
-populateRelations(prefix);
-attachImage(prefix);
+
+loadOptions(prefix);
+attach(prefix);
 }
 
-buildProductForm($("addForm"),"add");
-buildProductForm($("editForm"),"edit");
+buildForm($("addForm"),"add");
+buildForm($("editForm"),"edit");
 
-/* ---------- Relations ---------- */
-async function populateRelations(p){
-  const arts = await getDocs(collection(db,"artisans"));
-  const aSel = $(`${p}_artisan`);
-  aSel.innerHTML="";
-  arts.forEach(a=>{
-    aSel.innerHTML+=`<option value="${a.id}">${a.data().brandName}</option>`;
-  });
+/* ---------- OPTIONS ---------- */
+async function loadOptions(p){
 
-  const cats = await getDocs(collection(db,"categories"));
-  const cDiv = $(`${p}_cats`);
-  cDiv.innerHTML="";
-  cats.forEach(c=>{
-    cDiv.innerHTML+=`<label>
-      <input type="checkbox" value="${c.id}"> ${c.data().name}
-    </label><br>`;
-  });
+fabricOptions.forEach(f=>{
+  $(`${p}_fabric`).innerHTML+=`<option>${f}</option>`;
+});
+
+categoryOptions.forEach(c=>{
+  $(`${p}_cats`).innerHTML+=`
+    <label><input type="checkbox" value="${c}"> ${c}</label><br>
+  `;
+});
 }
 
-/* ---------- Images ---------- */
-const imageStore={};
+/* ---------- IMAGE ---------- */
+function attach(p){
+state.images=[];
 
-function attachImage(p){
-  imageStore[p]=[];
-  $(`${p}_imgs`).onchange=async e=>{
-    for(const file of e.target.files){
-      const url = await upload(file);
-      imageStore[p].push(url);
-      $(`${p}_prev`).innerHTML+=`<img src="${url}">`;
-    }
-  };
+$(`${p}_imgs`).onchange = async (e)=>{
+  for(const f of e.target.files){
+    const url = await upload(f);
+    state.images.push(url);
+
+    const img=document.createElement("img");
+    img.src=url;
+    $(`${p}_prev`).appendChild(img);
+  }
+};
 }
 
 async function upload(file){
@@ -165,109 +191,24 @@ async function upload(file){
   fd.append("file",file);
   fd.append("upload_preset","dcc3dpccu");
 
-  const r=await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload",
-  {method:"POST",body:fd});
+  const r=await fetch(
+    "https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload",
+    {method:"POST",body:fd}
+  );
+
   const j=await r.json();
   return j.secure_url;
 }
 
-/* ---------- Save Product ---------- */
-window.saveProduct=async p=>{
-  const title=$(`${p}_title`).value;
-  const desc=$(`${p}_desc`).value;
-  const price=Number($(`${p}_price`).value);
-  const artisan=$(`${p}_artisan`).value;
+/* ================= SAVE PRODUCT ================= */
+window.saveProduct = async (p)=>{
 
-  const cats=[...$(`${p}_cats`).querySelectorAll('input:checked')]
-    .map(c=>doc(db,"categories",c.value));
+const title=$(`${p}_title`).value;
+const price=Number($(`${p}_price`).value);
 
-  const data={
-    title,
-    description:desc,
-    price,
-    depositAmount:price*0.15,
-    images:imageStore[p],
-    artisanId:doc(db,"artisans",artisan),
-    categoryIds:cats,
-    requiresMeasurement:$(`${p}_reqM`).value==="true",
-    inStock:$(`${p}_stock`).value==="true",
-    createdAt:serverTimestamp()
-  };
+const id = normalizeTitle(title);
 
-  if(p==="edit"){
-    await updateDoc(doc(db,"products",$("editId").value),data);
-  }else{
-    await addDoc(collection(db,"products"),data);
-  }
-
-  $(`${p}_msg`).innerText="Saved ✅";
-};
-
-/* ---------- Load Product ---------- */
-window.loadProduct=async()=>{
-  const id=$("editId").value;
-  const d=await getDoc(doc(db,"products",id));
-  const p=d.data();
-
-  $("edit_title").value=p.title;
-  $("edit_desc").value=p.description;
-  $("edit_price").value=p.price;
-
-  imageStore["edit"]=p.images||[];
-  $("edit_prev").innerHTML="";
-  p.images.forEach(u=>$("edit_prev").innerHTML+=`<img src="${u}">`);
-
-  $("edit_artisan").value=p.artisanId.id;
-
-  p.categoryIds.forEach(ref=>{
-    $("edit_cats")
-      .querySelector(`input[value="${ref.id}"]`).checked=true;
-  });
-};
-
-/* ---------- Artisan ---------- */
-async function loadArtisanUsers(){
-  const q=query(collection(db,"users"),where("role","==","artisan"));
-  const s=await getDocs(q);
-  $("artisanUser").innerHTML="";
-  s.forEach(u=>{
-    $("artisanUser").innerHTML+=
-      `<option value="${u.id}">${u.data().displayName}</option>`;
-  });
-}
-loadArtisanUsers();
-
-window.saveArtisan=async()=>{
-  const data={
-    userId:doc(db,"users",$("artisanUser").value),
-    brandName:$("brandName").value,
-    bio:$("bio").value,
-    phone:$("phone").value,
-    active:true
-  };
-  if($("artisanDocId").value){
-    await updateDoc(doc(db,"artisans",$("artisanDocId").value),data);
-  }else{
-    await addDoc(collection(db,"artisans"),data);
-  }
-  $("artisanStats").innerText="Saved ✅";
-};
-
-window.loadArtisan=async()=>{
-  const id=$("artisanDocId").value;
-  const d=await getDoc(doc(db,"artisans",id));
-  const a=d.data();
-
-  $("brandName").value=a.brandName;
-  $("bio").value=a.bio;
-  $("phone").value=a.phone;
-
-  const artRef=doc(db,"artisans",id);
-  const q=query(collection(db,"orders"),
-    where("artisanId","==",artRef));
-  const s=await getDocs(q);
-  $("artisanStats").innerText=`Total Orders: ${s.size}`;
-};
-</script>
-</body>
-</html>
+const data={
+  title,
+  slug: slugify(title),
+  description:$(`${p}_
