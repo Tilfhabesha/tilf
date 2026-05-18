@@ -365,32 +365,55 @@
     }
 
     /* ================= ASSET UPLOAD CONTEXT ENGINE ================= */
-    function attachImageEngine(p) {
-      $(`${p}_imgs`).onchange = async (e) => {
-        if (!e.target.files.length) return;
-        toggleGlobalLoader(true);
-        showToast("Initializing assets pipeline to Cloudinary clusters...", "info");
+    /* ================= ASSET UPLOAD CONTEXT ENGINE ================= */
+function attachImageEngine(p) {
+  $(`${p}_imgs`).onchange = async (e) => {
+    if (!e.target.files.length) return;
+    
+    // We process each file individually to show them as they are picked
+    for (const f of e.target.files) {
+      // 1. Create a local temporary URL for an instant preview
+      const tempUrl = URL.createObjectURL(f);
 
-        for (const f of e.target.files) {
-          try {
-            const url = await upload(f);
-            state[p].images.push(url);
+      // 2. Create the preview card immediately
+      const imgWrapper = document.createElement("div");
+      imgWrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm bg-white";
+      
+      // We show a loading spinner on top of the local image while it uploads
+      imgWrapper.innerHTML = `
+        <img src="${tempUrl}" class="w-full h-full object-cover opacity-50">
+        <div class="absolute inset-0 flex items-center justify-center">
+           <div class="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      `;
+      $(`${p}_prev`).appendChild(imgWrapper);
 
-            const imgWrapper = document.createElement("div");
-            imgWrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm shadow-inner bg-white";
-            imgWrapper.innerHTML = `
-              <img src="${url}" class="w-full h-full object-cover">
-              <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-150 text-white font-bold text-xs" onclick="this.parentElement.remove(); window.removeImageState('${p}', '${url}')">Remove</button>
-            `;
-            $(`${p}_prev`).appendChild(imgWrapper);
-          } catch(err) {
-            showToast("Asset stream pipeline validation anomaly.", "error");
-          }
-        }
-        toggleGlobalLoader(false);
-        showToast("Cloudinary deployment batch finalized.", "success");
-      };
+      try {
+        // 3. Start the upload to Cloudinary in the background
+        const cloudUrl = await upload(f);
+        state[p].images.push(cloudUrl);
+
+        // 4. Once uploaded, replace the spinner with the "Remove" button and final URL
+        imgWrapper.innerHTML = `
+          <img src="${cloudUrl}" class="w-full h-full object-cover">
+          <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-150 text-white font-bold text-xs" 
+            onclick="this.parentElement.remove(); window.removeImageState('${p}', '${cloudUrl}')">Remove</button>
+        `;
+        
+        // Clean up memory
+        URL.revokeObjectURL(tempUrl);
+
+      } catch(err) {
+        // If the upload fails, remove that specific preview and alert the user
+        imgWrapper.remove();
+        showToast("One asset failed to upload to the server.", "error");
+        URL.revokeObjectURL(tempUrl);
+      }
     }
+    
+    showToast("Images processed and ready.", "success");
+  };
+}
 
     window.removeImageState = (prefix, targetUrl) => {
       state[prefix].images = state[prefix].images.filter(url => url !== targetUrl);
