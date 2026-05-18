@@ -1,215 +1,265 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tilf Habesha Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <style>
-    body{font-family:Arial;padding:30px;max-width:900px;margin:auto}
-    input,textarea,select{width:100%;padding:10px;margin:8px 0}
-    button{padding:12px 20px;background:black;color:white;border:none;margin-top:10px}
-    img{width:120px;margin:5px;border-radius:6px}
-    #preview{display:flex;flex-wrap:wrap}
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Tilf Habesha Admin</title>
+
+<style>
+body{font-family:Arial;margin:0;background:#f5f5f5}
+.tabs{display:flex;background:#111}
+.tabs button{flex:1;padding:14px;border:none;color:#fff;background:#111;font-weight:bold}
+.tabs button.active{background:#333}
+.section{display:none;padding:25px;max-width:1100px;margin:auto}
+input,textarea,select{width:100%;padding:10px;margin:6px 0}
+button{padding:10px 15px;border:none;background:black;color:white;margin-top:8px}
+.card{background:#fff;padding:15px;border-radius:8px;margin:10px 0}
+img{width:90px;border-radius:6px;margin:4px}
+.loader{opacity:.6;font-size:13px}
+.notice{font-size:13px;color:green}
+</style>
 </head>
 <body>
 
-<h2>Add / Edit Product</h2>
-
-<label>Product Title</label>
-<input id="title" placeholder="e.g. Red Tibeb Kemis" oninput="makeSlug()">
-
-<label>Slug (auto-generated)</label>
-<input id="slug" readonly>
-<small>Example: red-tibeb-kemis</small>  
-  
-<label>Price (USD)</label>
-<input id="price" type="number" placeholder="e.g. 320">
-
-<label>Discount Price (optional)</label>
-<input id="discountPrice" type="number" placeholder="e.g. 280">
-  
-<label>Fabric</label>
-<select id="fabric">
-  <option value="">Select fabric</option>
-  <option>Cotton Tibeb</option>
-  <option>Silk Tibeb</option>
-  <option>Linen Tibeb</option>
-  <option>Netela Cotton</option>
-</select>
-<label>Product Story</label>
-<textarea id="description" rows="6"
-placeholder="Example:
-This Tibeb Kemis is traditionally worn during holidays and family gatherings.
-Handwoven cotton with red tibeb patterns inspired by Gondar heritage.
-Comfortable for long celebrations and cultural ceremonies."></textarea>
-
-<label>Categories (choose all that apply)</label>
-<div id="cats">
-  <label><input type="checkbox" value="womens"> Womens</label>
-  <label><input type="checkbox" value="mens"> Mens</label>
-  <label><input type="checkbox" value="wedding"> Wedding</label>
-  <label><input type="checkbox" value="holiday"> Holiday</label>
-  <label><input type="checkbox" value="everyday"> Everyday</label>
-  <label><input type="checkbox" value="netela"> Netela</label>
+<div class="tabs">
+  <button class="active" onclick="showTab(event,'orders')">Orders</button>
+  <button onclick="showTab(event,'addProduct')">Add Product</button>
+  <button onclick="showTab(event,'editProduct')">Edit Product</button>
+  <button onclick="showTab(event,'artisan')">Artisan</button>
 </div>
 
-<input id="otherCategory" placeholder="If other, type category id">
+<!-- ================= ORDERS ================= -->
+<div id="orders" class="section" style="display:block">
+  <h2>Orders</h2>
+  <div id="ordersList"></div>
+  <div id="orderDetail"></div>
+</div>
 
-<label><input type="checkbox" id="featured"> Featured product</label>
-<label><input type="checkbox" id="measurementsRequired"> Requires measurements</label>
+<!-- ================= ADD PRODUCT ================= -->
+<div id="addProduct" class="section">
+  <h2>Add Product</h2>
+  <div id="productForm"></div>
+</div>
 
-<small>Upload clear front images. First image will be used in hero and category cards.</small>
-<input type="file" id="images" multiple>
-<div id="preview"></div>
+<!-- ================= EDIT PRODUCT ================= -->
+<div id="editProduct" class="section">
+  <h2>Edit Product</h2>
+  <input id="editId" placeholder="Enter productId">
+  <button onclick="loadProduct()">Load Product</button>
+  <div id="editForm"></div>
+</div>
 
-<button id="saveBtn" onclick="saveProduct()">
-  <span id="btnText">Save Product</span>
-  <span id="btnLoader" class="loader"></span>
-</button>
-  
+<!-- ================= ARTISAN ================= -->
+<div id="artisan" class="section">
+  <h2>Add / Edit Artisan</h2>
+
+  <input id="artisanDocId" placeholder="Enter artisanId for edit">
+  <button onclick="loadArtisan()">Load Artisan</button>
+
+  <label>User (role = artisan)</label>
+  <select id="artisanUser"></select>
+
+  <label>Brand Name</label>
+  <input id="brandName">
+
+  <label>Bio</label>
+  <textarea id="bio"></textarea>
+
+  <label>Phone</label>
+  <input id="phone">
+
+  <button onclick="saveArtisan()">Save Artisan</button>
+  <div id="artisanStats" class="notice"></div>
+</div>
+
 <script type="module">
 import { db } from "./assets/jsfirebase.js";
 import {
-  collection, addDoc, updateDoc, doc, getDoc, serverTimestamp
+collection, getDocs, doc, getDoc, addDoc, updateDoc,
+query, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const cloudName = "dcc3dpccu";
-const uploadPreset = "dcc3dpccu";
-
-let uploadedImages = [];
-let editingId = null;
-
-/* ---------------- IMAGE UPLOAD (instant preview) ---------------- */
-
-images.onchange = function(e){
-  for (let file of e.target.files){
-    uploadAndPreview(file);
-  }
+/* ---------------- TABS ---------------- */
+window.showTab = (e,id)=>{
+  document.querySelectorAll('.section').forEach(s=>s.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
 };
 
-async function uploadAndPreview(file){
-  const imgBox = document.createElement("img");
-  imgBox.src = "loading.gif"; // optional loader image
-  preview.appendChild(imgBox);
+/* ---------------- ORDERS ---------------- */
+async function loadOrders(){
+  const snap = await getDocs(collection(db,"orders"));
+  ordersList.innerHTML="";
+  snap.forEach(d=>{
+    ordersList.innerHTML+=`
+      <div class="card">
+        <b>${d.id}</b> — ${d.data().status}
+        <button onclick="viewOrder('${d.id}')">View</button>
+      </div>`;
+  });
+}
+loadOrders();
 
-  const url = await uploadToCloudinary(file);
+window.viewOrder = async id=>{
+  const d = await getDoc(doc(db,"orders",id));
+  orderDetail.innerHTML=`
+  <div class="card">
+    <pre>${JSON.stringify(d.data(),null,2)}</pre>
+  </div>`;
+};
 
-  imgBox.src = url;
-  uploadedImages.push(url);
+/* ---------------- PRODUCT FORM ---------------- */
+let images=[], editingProductId=null;
+
+function renderProductForm(container){
+container.innerHTML=`
+<label>Title</label><input id="title">
+<label>Price</label><input id="price" type="number">
+
+<label>Artisan</label>
+<select id="artisanSelect"></select>
+
+<label>Categories</label>
+<div id="cats"></div>
+
+<label>Requires Measurement</label>
+<select id="reqM"><option value="true">true</option><option value="false">false</option></select>
+
+<label>In Stock</label>
+<select id="inStock"><option value="true">true</option><option value="false">false</option></select>
+
+<label>Upload Images (max 5)</label>
+<input type="file" id="imgs" multiple>
+<div id="prev"></div>
+
+<button onclick="saveProduct()">Save Product</button>
+<div id="msg" class="notice"></div>
+`;
+populateRelations();
+attachImageHandler();
+}
+renderProductForm(productForm);
+renderProductForm(editForm);
+
+/* ---------------- RELATIONS ---------------- */
+async function populateRelations(){
+  const arts = await getDocs(collection(db,"artisans"));
+  artisanSelect.innerHTML="";
+  arts.forEach(a=>{
+    artisanSelect.innerHTML+=`<option value="${a.id}">${a.data().brandName}</option>`;
+  });
+
+  const catsSnap = await getDocs(collection(db,"categories"));
+  cats.innerHTML="";
+  catsSnap.forEach(c=>{
+    cats.innerHTML+=
+    `<label><input type="checkbox" value="${c.id}"> ${c.data().name}</label><br>`;
+  });
+}
+
+/* ---------------- CLOUDINARY UPLOAD (MAX 5) ---------------- */
+function attachImageHandler(){
+imgs.onchange = async e=>{
+  if(images.length + e.target.files.length > 5){
+    alert("Maximum 5 images allowed");
+    return;
+  }
+  for(const file of e.target.files){
+    msg.innerText="Uploading image...";
+    const url = await uploadToCloudinary(file);
+    images.push(url);
+    prev.innerHTML+=`<img src="${url}">`;
+    msg.innerText="";
+  }
+};
 }
 
 async function uploadToCloudinary(file){
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", uploadPreset);
+  const fd=new FormData();
+  fd.append("file",file);
+  fd.append("upload_preset","dcc3dpccu");
 
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-    { method: "POST", body: fd }
-  );
-
-  const data = await res.json();
-  return data.secure_url;
-}
-
-/* ---------------- MULTI CATEGORY ---------------- */
-
-function getSelectedCategories(){
-  const checks = document.querySelectorAll(".catCheck:checked");
-  const arr = [...checks].map(c=>c.value);
-
-  if(arr.includes("other")){
-    const other = otherCategory.value.trim();
-    if(other) arr.push(other);
-  }
-
-  return arr;
+  const r=await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload",
+  {method:"POST",body:fd});
+  const j=await r.json();
+  return j.secure_url;
 }
 
 /* ---------------- SAVE PRODUCT ---------------- */
-if(!title.value || !price.value || !fabric.value || uploadedImages.length===0){
-  alert("Please fill title, price, fabric and upload at least one image.");
-  return;
-}
-window.saveProduct = async function(){
-  const btn = event.target;
-  btn.innerText = "Saving...";
-  btn.disabled = true;
-  const categoryId = [...document.querySelectorAll('#cats input:checked')]
-  .map(c=>c.value);
-  const product = {
-    title: title.value,
-    slug: slug.value,
-    price: Number(price.value),
-    discountPrice: Number(discountPrice.value) || null,
-    fabric: fabric.value,
-    description: description.value,
-    categoryId: getSelectedCategories(),
-    images: uploadedImages,
-    featured: featured.checked,
-    measurementsRequired: measurementsRequired.checked,
-    inStock: true,
-    createdAt: serverTimestamp()
+window.saveProduct = async ()=>{
+  msg.innerText="Saving...";
+  const data={
+    title:title.value,
+    price:Number(price.value),
+    artisanId:doc(db,"artisans",artisanSelect.value),
+    categoryId:[...cats.querySelectorAll('input:checked')]
+      .map(c=>doc(db,"categories",c.value)),
+    requiresMeasurement:reqM.value==="true",
+    inStock:inStock.value==="true",
+    images,
+    depositAmount:Number(price.value)*0.15,
+    createdAt:serverTimestamp()
   };
 
-  try{
-    if(editingId){
-      await updateDoc(doc(db, "products", editingId), product);
-      btn.innerText = "Updated ✅";
-    }else{
-      await addDoc(collection(db, "products"), product);
-      btn.innerText = "Saved ✅";
-    }
-  }catch(e){
-    btn.innerText = "Error ❌";
-    console.error(e);
+  if(editingProductId){
+    await updateDoc(doc(db,"products",editingProductId),data);
+  }else{
+    await addDoc(collection(db,"products"),data);
   }
 
-  setTimeout(()=>location.reload(),1500);
+  msg.innerText="Saved ✅";
+  images=[];
 };
 
-/* ---------------- LOAD FOR EDIT ---------------- */
+/* ---------------- EDIT PRODUCT ---------------- */
+window.loadProduct = async ()=>{
+  const d=await getDoc(doc(db,"products",editId.value));
+  const p=d.data();
+  editingProductId=editId.value;
+  title.value=p.title;
+  price.value=p.price;
+  images=p.images||[];
+  prev.innerHTML="";
+  images.forEach(u=>prev.innerHTML+=`<img src="${u}">`);
+};
 
-const params = new URLSearchParams(window.location.search);
-const id = params.get("edit");
-
-if(id){
-  editingId = id;
-  const snap = await getDoc(doc(db,"products",id));
-  const data = snap.data();
-
-  title.value = data.title;
-  slug.value = data.slug;
-  price.value = data.price;
-  discountPrice.value = data.discountPrice;
-  fabric.value = data.fabric;
-  description.value = data.description;
-  featured.checked = data.featured;
-  measurementsRequired.checked = data.measurementsRequired;
-
-  uploadedImages = data.images || [];
-  uploadedImages.forEach(url=>{
-    const img = document.createElement("img");
-    img.src = url;
-    preview.appendChild(img);
+/* ---------------- ARTISAN ---------------- */
+async function loadArtisanUsers(){
+  const q=query(collection(db,"users"),where("role","==","artisan"));
+  const s=await getDocs(q);
+  s.forEach(u=>{
+    artisanUser.innerHTML+=`<option value="${u.id}">${u.data().displayName}</option>`;
   });
+}
+loadArtisanUsers();
 
-  // check categories
-  if(data.categoryId){
-    data.categoryId.forEach(cat=>{
-      const el = document.querySelector(`.catCheck[value="${cat}"]`);
-      if(el) el.checked = true;
-    });
+window.saveArtisan=async()=>{
+  const data={
+    userId:doc(db,"users",artisanUser.value),
+    brandName:brandName.value,
+    bio:bio.value,
+    phone:phone.value
+  };
+  if(artisanDocId.value){
+    await updateDoc(doc(db,"artisans",artisanDocId.value),data);
+  }else{
+    await addDoc(collection(db,"artisans"),data);
   }
-}
-function makeSlug(){
-  slug.value = title.value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g,'-')
-    .replace(/(^-|-$)/g,'');
-}
+  artisanStats.innerText="Saved ✅";
+};
 
+window.loadArtisan=async()=>{
+  const d=await getDoc(doc(db,"artisans",artisanDocId.value));
+  const a=d.data();
+  brandName.value=a.brandName;
+  bio.value=a.bio;
+  phone.value=a.phone;
+
+  const q=query(collection(db,"orders"),
+    where("artisanId","==",doc(db,"artisans",artisanDocId.value)));
+  const s=await getDocs(q);
+  artisanStats.innerText=`Total Orders: ${s.size}`;
+};
 </script>
-
 </body>
 </html>
