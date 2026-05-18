@@ -151,10 +151,10 @@
     async function upload(file) {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'ml_default'); // Ensure this matches your Cloudinary Settings
+      formData.append('upload_preset', 'dcc3dpccu'); // Ensure this matches your Cloudinary Settings
 
       try {
-        const res = await fetch("https://api.cloudinary.com/v1_1/dj7m9p8pa/image/upload", {
+        const res = await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload", {
         method: "POST",
         body: formData
       });
