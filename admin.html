@@ -151,17 +151,27 @@
     async function upload(file) {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'ml_default'); 
+      formData.append('upload_preset', 'ml_default'); // Ensure this matches your Cloudinary Settings
 
-      const res = await fetch("https://api.cloudinary.com/v1_1/dj7m9p8pa/image/upload", {
+      try {
+        const res = await fetch("https://api.cloudinary.com/v1_1/dj7m9p8pa/image/upload", {
         method: "POST",
         body: formData
       });
-      
-      if (!res.ok) throw new Error("Upload failed");
+    
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Cloudinary Error:", errorData);
+        throw new Error(errorData.error?.message || "Upload failed");
+      }
+
       const data = await res.json();
       return data.secure_url;
+    } catch (err) {
+      console.error("Network/Upload Error:", err);
+      throw err;
     }
+  }
 
     /* ================= SYSTEM UTILITIES ================= */
     function showToast(message, type = 'success') {
@@ -208,47 +218,46 @@
       e.currentTarget.className = "tab-btn active px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-900 text-white shadow-sm flex items-center space-x-2 whitespace-nowrap";
     };
 
-    /* ================= IMAGE PREVIEW ENGINE ================= */
-    function attachImageEngine(p) {
+    window.attachImageEngine = (p) => {
       const input = $(`${p}_imgs`);
       if (!input) return;
 
       input.onchange = async (e) => {
         const files = Array.from(e.target.files);
-        if (!files.length) return;
-        
-        for (const f of files) {
-          const tempUrl = URL.createObjectURL(f);
-          const imgWrapper = document.createElement("div");
-          imgWrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm bg-white";
-          
-          imgWrapper.innerHTML = `
-            <img src="${tempUrl}" class="w-full h-full object-cover opacity-50">
-            <div class="absolute inset-0 flex items-center justify-center">
-               <div class="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          `;
-          $(`${p}_prev`).appendChild(imgWrapper);
+    
+    for (const f of files) {
+      // Create a temporary loading placeholder
+      const tempId = 'img-' + Math.random().toString(36).substr(2, 9);
+      const imgWrapper = document.createElement("div");
+      imgWrapper.id = tempId;
+      imgWrapper.className = "relative group w-20 h-20 rounded-lg border-2 border-amber-500 overflow-hidden bg-slate-100 shadow-inner";
+      
+      imgWrapper.innerHTML = `
+        <div class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+           <div class="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      `;
+      $(`${p}_prev`).appendChild(imgWrapper);
 
-          try {
-            const cloudUrl = await upload(f);
-            state[p].images.push(cloudUrl);
+      try {
+        const cloudUrl = await upload(f);
+        state[p].images.push(cloudUrl);
 
-            imgWrapper.innerHTML = `
-              <img src="${cloudUrl}" class="w-full h-full object-cover">
-              <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-150 text-white font-bold text-xs" 
-                onclick="this.parentElement.remove(); window.removeImageState('${p}', '${cloudUrl}')">Remove</button>
-            `;
-          } catch(err) {
-            imgWrapper.remove();
-            showToast(`Failed to upload ${f.name}`, "error");
-          } finally {
-            URL.revokeObjectURL(tempUrl);
-          }
-        }
-        showToast("Images processed and ready.", "success");
-      };
+        // ONLY NOW do we show the image and say it's ready
+        imgWrapper.classList.replace('border-amber-500', 'border-slate-200');
+        imgWrapper.innerHTML = `
+          <img src="${cloudUrl}" class="w-full h-full object-cover">
+          <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all text-white font-bold text-[10px]" 
+            onclick="this.parentElement.remove(); window.removeImageState('${p}', '${cloudUrl}')">REMOVE</button>
+        `;
+      } catch(err) {
+        // If it fails, remove the placeholder so the user doesn't think it's "Ready"
+        imgWrapper.remove();
+        showToast(`Failed: ${f.name}. ${err.message}`, "error");
+      }
     }
+  };
+};
 
     /* ================= DYNAMIC FORMS ================= */
     function buildForm(container, prefix) {
