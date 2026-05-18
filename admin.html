@@ -211,4 +211,108 @@ const id = normalizeTitle(title);
 const data={
   title,
   slug: slugify(title),
-  description:$(`${p}_
+  description:$(`${p}_desc`).value,
+  price,
+  depositAmount:deposit(price),
+
+  fabric:$(`${p}_fabric`).value,
+
+  categoryId:[...$(`${p}_cats`).querySelectorAll("input:checked")]
+    .map(x=>x.value),
+
+  measurementsRequired:$(`${p}_req`).checked,
+  inStock:$(`${p}_stock`).checked,
+
+  images:state.images,
+  createdAt:serverTimestamp()
+};
+
+try{
+  $(`${p}_msg`).innerText="Uploading...";
+
+  await setDoc(doc(db,"products",id),data);
+
+  $(`${p}_msg`).innerText="Successfully uploaded ✅";
+  state.images=[];
+}catch(e){
+  console.error(e);
+  $(`${p}_msg`).innerText="Error ❌";
+}
+};
+
+/* ================= EDIT PRODUCT ================= */
+window.loadProduct = async ()=>{
+
+const id=$("editId").value;
+const d=await getDoc(doc(db,"products",id));
+const p=d.data();
+
+$("edit_title").value=p.title;
+$("edit_desc").value=p.description;
+$("edit_price").value=p.price;
+
+$("edit_prev").innerHTML="";
+state.images=p.images||[];
+
+p.images?.forEach(u=>{
+  const img=document.createElement("img");
+  img.src=u;
+  $("edit_prev").appendChild(img);
+});
+
+};
+
+/* ================= ARTISAN ================= */
+async function loadArtisanUsers(){
+const q=query(collection(db,"users"),where("role","==","artisan"));
+const s=await getDocs(q);
+
+$("artisanUser").innerHTML="";
+s.forEach(u=>{
+  $("artisanUser").innerHTML+=
+    `<option value="${u.id}">${u.data().displayName}</option>`;
+});
+}
+loadArtisanUsers();
+
+window.saveArtisan=async()=>{
+
+const data={
+  userId:doc(db,"users",$("artisanUser").value),
+  brandName:$("brandName").value,
+  bio:$("bio").value,
+  phone:$("phone").value,
+  active:true
+};
+
+if($("artisanDocId").value){
+  await updateDoc(doc(db,"artisans",$("artisanDocId").value),data);
+}else{
+  await addDoc(collection(db,"artisans"),data);
+}
+
+$("artisanStats").innerText="Saved ✅";
+};
+
+window.loadArtisan=async()=>{
+
+const id=$("artisanDocId").value;
+const d=await getDoc(doc(db,"artisans",id));
+
+const a=d.data();
+
+$("brandName").value=a.brandName;
+$("bio").value=a.bio;
+$("phone").value=a.phone;
+
+const q=query(collection(db,"orders"),
+  where("artisanId","==",doc(db,"artisans",id)));
+
+const s=await getDocs(q);
+
+$("artisanStats").innerText=`Orders: ${s.size}`;
+};
+
+</script>
+</body>
+</html>
