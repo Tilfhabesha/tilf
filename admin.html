@@ -124,270 +124,235 @@
   </main>
 
   <script type="module">
-    import { db } from "./assets/js/firebase.js";
-    import {
-      collection, getDocs, doc, getDoc,
-      addDoc, updateDoc, setDoc,
-      query, where, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { db } from "./assets/js/firebase.js";
+  import {
+    collection, getDocs, doc, getDoc,
+    addDoc, updateDoc, setDoc,
+    query, where, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    /* ================= STATE & CACHE ================= */
-    const $ = id => document.getElementById(id);
-    
-    const state = {
-      add: { images: [] },
-      edit: { images: [] }
-    };
+  const $ = id => document.getElementById(id);
+  
+  const state = {
+    add: { images: [] },
+    edit: { images: [] }
+  };
 
-    const fabricOptions = ["cotton tibeb", "linen", "silk", "velvet", "wool blend"];
-    const categoryOptions = ["holiday", "women", "men", "wedding", "events", "new fashion", "casual"];
+  const fabricOptions = ["cotton tibeb", "linen", "silk", "velvet", "wool blend"];
+  const categoryOptions = ["holiday", "women", "men", "wedding", "events", "new fashion", "casual"];
 
-    /* ================= GLOBAL ACTIONS (Preview Logic) ================= */
-    window.removeImageState = (prefix, url) => {
-      state[prefix].images = state[prefix].images.filter(img => img !== url);
-      showToast("Asset removed from buffer.", "info");
-    };
+  // --- GLOBALS ---
+  window.removeImageState = (prefix, url) => {
+    state[prefix].images = state[prefix].images.filter(img => img !== url);
+    showToast("Image removed from record.", "info");
+  };
 
-    async function upload(file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'dcc3dpccu'); // Ensure this matches your Cloudinary Settings
+  async function upload(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    // CRITICAL: Ensure 'upload_preset' is the name of your UNSIGNED preset
+    // If you haven't created one, go to Settings > Upload > Add Upload Preset (Set to Unsigned)
+    formData.append('upload_preset', 'ml_default'); 
 
-      try {
-        const res = await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload", {
+    try {
+      // Replace 'dcc3dpccu' with your Cloud Name if it's different
+      const res = await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload", {
         method: "POST",
         body: formData
       });
-    
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Cloudinary Error:", errorData);
-        throw new Error(errorData.error?.message || "Upload failed");
-      }
-
+      
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || "Upload Failed");
       return data.secure_url;
     } catch (err) {
-      console.error("Network/Upload Error:", err);
+      console.error("Cloudinary Error:", err);
       throw err;
     }
   }
 
-    /* ================= SYSTEM UTILITIES ================= */
-    function showToast(message, type = 'success') {
-      const colors = {
-        success: 'bg-emerald-900 text-emerald-100 border-emerald-700',
-        error: 'bg-rose-900 text-rose-100 border-rose-700',
-        info: 'bg-slate-900 text-slate-100 border-slate-700'
-      };
-      const toast = document.createElement('div');
-      toast.className = `p-4 border rounded-xl shadow-xl flex items-center justify-between pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-semibold max-w-sm ${colors[type]}`;
-      toast.innerHTML = `<span>${message}</span>`;
-      $("toastContainer").appendChild(toast);
-      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 50);
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-x-4');
-        setTimeout(() => toast.remove(), 300);
-      }, 4000);
-    }
-
-    function toggleGlobalLoader(show) {
-      if(show) $("globalLoader").classList.remove('hidden');
-      else $("globalLoader").classList.add('hidden');
-    }
-
-    function normalizeTitle(title){
-      return title.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/[^a-z0-9]/g, '');
-    }
-
-    function slugify(title){
-      return title.toLowerCase().replace(/\s+/g,'-');
-    }
-
-    function deposit(price){
-      return (Number(price) * 0.15).toFixed(2);
-    }
-
-    /* ================= TAB ROUTING ================= */
-    window.showTab = (e, id) => {
-      document.querySelectorAll('.tab-section').forEach(s => s.classList.add('hidden'));
-      $(id).classList.remove('hidden');
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.className = "tab-btn px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap";
-      });
-      e.currentTarget.className = "tab-btn active px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-900 text-white shadow-sm flex items-center space-x-2 whitespace-nowrap";
+  function showToast(message, type = 'success') {
+    const colors = {
+      success: 'bg-emerald-900 text-emerald-100 border-emerald-700',
+      error: 'bg-rose-900 text-rose-100 border-rose-700',
+      info: 'bg-slate-900 text-slate-100 border-slate-700'
     };
+    const toast = document.createElement('div');
+    toast.className = `p-4 border rounded-xl shadow-xl flex items-center justify-between pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-semibold max-w-sm ${colors[type]}`;
+    toast.innerHTML = `<span>${message}</span>`;
+    $("toastContainer").appendChild(toast);
+    setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 50);
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'translate-x-4');
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
 
-    window.attachImageEngine = (p) => {
-      const input = $(`${p}_imgs`);
-      if (!input) return;
+  function toggleGlobalLoader(show) {
+    if(show) $("globalLoader").classList.remove('hidden');
+    else $("globalLoader").classList.add('hidden');
+  }
 
-      input.onchange = async (e) => {
-        const files = Array.from(e.target.files);
-    
-    for (const f of files) {
-      // Create a temporary loading placeholder
-      const tempId = 'img-' + Math.random().toString(36).substr(2, 9);
-      const imgWrapper = document.createElement("div");
-      imgWrapper.id = tempId;
-      imgWrapper.className = "relative group w-20 h-20 rounded-lg border-2 border-amber-500 overflow-hidden bg-slate-100 shadow-inner";
-      
-      imgWrapper.innerHTML = `
-        <div class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-           <div class="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      `;
-      $(`${p}_prev`).appendChild(imgWrapper);
+  const normalizeTitle = t => t.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const slugify = t => t.toLowerCase().replace(/\s+/g,'-');
+  const deposit = p => (Number(p) * 0.15).toFixed(2);
 
-      try {
-        const cloudUrl = await upload(f);
-        state[p].images.push(cloudUrl);
-
-        // ONLY NOW do we show the image and say it's ready
-        imgWrapper.classList.replace('border-amber-500', 'border-slate-200');
-        imgWrapper.innerHTML = `
-          <img src="${cloudUrl}" class="w-full h-full object-cover">
-          <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all text-white font-bold text-[10px]" 
-            onclick="this.parentElement.remove(); window.removeImageState('${p}', '${cloudUrl}')">REMOVE</button>
-        `;
-      } catch(err) {
-        // If it fails, remove the placeholder so the user doesn't think it's "Ready"
-        imgWrapper.remove();
-        showToast(`Failed: ${f.name}. ${err.message}`, "error");
-      }
-    }
+  window.showTab = (e, id) => {
+    document.querySelectorAll('.tab-section').forEach(s => s.classList.add('hidden'));
+    $(id).classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.className = "tab-btn px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap";
+    });
+    e.currentTarget.className = "tab-btn active px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-900 text-white shadow-sm flex items-center space-x-2 whitespace-nowrap";
   };
-};
 
-    /* ================= DYNAMIC FORMS ================= */
-    function buildForm(container, prefix) {
-      container.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div class="md:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
-            <input id="${prefix}_title" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-semibold">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Description</label>
-            <textarea id="${prefix}_desc" rows="3" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm"></textarea>
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (USD)</label>
-            <input id="${prefix}_price" type="number" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-mono font-bold">
-            <div class="mt-1.5 text-xs text-slate-500">15% Deposit: <span class="font-mono font-bold text-amber-600" id="${prefix}_dep">0.00</span></div>
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Fabric</label>
-            <select id="${prefix}_fabric" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-medium"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Categories</label>
-            <div id="${prefix}_cats" class="bg-slate-50 border border-slate-200 rounded-lg p-4 grid grid-cols-2 gap-2.5 max-h-[140px] overflow-y-auto"></div>
-          </div>
-          <div class="flex flex-col justify-center space-y-3 px-2">
-            <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
-              <input type="checkbox" id="${prefix}_req" class="w-4 h-4 accent-slate-900 mr-2.5"> Tailored Measurements
-            </label>
-            <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
-              <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 accent-slate-900 mr-2.5" checked> In Stock
-            </label>
-          </div>
-          <div class="md:col-span-2 border-t border-slate-100 pt-4">
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Images</label>
-            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition">
-              <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                <p class="mb-2 text-sm text-slate-500"><span class="font-bold">Click to batch select files</span></p>
-              </div>
-              <input type="file" id="${prefix}_imgs" multiple class="hidden" accept="image/*">
-            </label>
-            <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 p-2 bg-slate-50 rounded-lg border border-slate-100 empty:hidden"></div>
-          </div>
-        </div>
-        <div class="pt-6 border-t border-slate-200 flex items-center justify-end">
-          <button onclick="saveProduct('${prefix}')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-sm transition-all shadow-md">Save Product</button>
-        </div>
-      `;
-      loadOptions(prefix);
-      attachImageEngine(prefix);
-      $(`${prefix}_price`).oninput = (e) => $(`${prefix}_dep`).innerText = deposit(e.target.value);
-    }
+  window.attachImageEngine = (p) => {
+    const input = $(`${p}_imgs`);
+    if (!input) return;
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files);
+      for (const f of files) {
+        const tempId = 'img-' + Math.random().toString(36).substr(2, 9);
+        const wrapper = document.createElement("div");
+        wrapper.id = tempId;
+        wrapper.className = "relative group w-20 h-20 rounded-lg border-2 border-amber-500 overflow-hidden bg-slate-100 shadow-inner";
+        wrapper.innerHTML = `<div class="absolute inset-0 flex items-center justify-center bg-white/80 z-10"><div class="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div></div>`;
+        $(`${p}_prev`).appendChild(wrapper);
 
-    function loadOptions(p) {
-      $(`${p}_fabric`).innerHTML = `<option value="">Select Fabric</option>` + fabricOptions.map(f => `<option value="${f}">${f}</option>`).join('');
-      $(`${p}_cats`).innerHTML = categoryOptions.map(c => `
-        <label class="inline-flex items-center text-xs font-medium text-slate-700 capitalize cursor-pointer">
-          <input type="checkbox" value="${c}" class="w-3.5 h-3.5 accent-slate-900 mr-2"> ${c}
-        </label>`).join('');
-    }
+        try {
+          const url = await upload(f);
+          state[p].images.push(url);
+          wrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden";
+          wrapper.innerHTML = `
+            <img src="${url}" class="w-full h-full object-cover">
+            <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all text-white font-bold text-[10px]" 
+              onclick="this.parentElement.remove(); window.removeImageState('${p}', '${url}')">REMOVE</button>`;
+        } catch(err) {
+          wrapper.remove();
+          showToast(`Error: ${err.message}`, "error");
+        }
+      }
+    };
+  };
 
-    /* ================= FIREBASE PERSISTENCE ================= */
-    window.saveProduct = async (p) => {
-      const title = $(`${p}_title`).value.trim();
-      const price = Number($(`${p}_price`).value);
-      if(!title || !price) return showToast("Title and Price are required.", "error");
+  window.saveProduct = async (p) => {
+    const title = $(`${p}_title`).value.trim();
+    const price = Number($(`${p}_price`).value);
+    if(!title || !price) return showToast("Title and Price required", "error");
 
-      const docId = p === 'edit' ? $("editId").value.trim() : normalizeTitle(title);
-      const data = {
-        title,
-        slug: slugify(title),
+    const docId = p === 'edit' ? $("editId").value.trim() : normalizeTitle(title);
+    toggleGlobalLoader(true);
+    try {
+      await setDoc(doc(db, "products", docId), {
+        title, slug: slugify(title),
         description: $(`${p}_desc`).value.trim(),
-        price,
-        depositAmount: Number(deposit(price)),
+        price, depositAmount: Number(deposit(price)),
         fabric: $(`${p}_fabric`).value,
         categoryId: [...$(`${p}_cats`).querySelectorAll("input:checked")].map(x => x.value),
         measurementsRequired: $(`${p}_req`).checked,
         inStock: $(`${p}_stock`).checked,
         images: state[p].images,
         updatedAt: serverTimestamp()
-      };
-
-      try {
-        toggleGlobalLoader(true);
-        await setDoc(doc(db, "products", docId), data, { merge: true });
-        showToast(`Product saved: ${docId}`, "success");
-        if(p === 'add') buildForm($("addForm"), "add"); // Reset
-      } catch (e) {
-        showToast("Storage error.", "error");
-      } finally {
-        toggleGlobalLoader(false);
+      }, { merge: true });
+      showToast("Inventory Synchronized", "success");
+      if(p === 'add') {
+        state.add.images = [];
+        buildForm($("addForm"), "add");
       }
-    };
+    } catch (e) { showToast("Database error", "error"); }
+    finally { toggleGlobalLoader(false); }
+  };
 
-    window.loadProduct = async () => {
-      const id = $("editId").value.trim();
-      if(!id) return showToast("Enter ID", "error");
-      try {
-        toggleGlobalLoader(true);
-        const d = await getDoc(doc(db, "products", id));
-        if(!d.exists()) return showToast("Not found", "error");
-        
-        const p = d.data();
-        buildForm($("editForm"), "edit");
-        $("editForm").classList.remove('hidden');
-        
-        $("edit_title").value = p.title || "";
-        $("edit_desc").value = p.description || "";
-        $("edit_price").value = p.price || "";
-        $("edit_dep").innerText = deposit(p.price || 0);
-        $("edit_fabric").value = p.fabric || "";
-        $("edit_req").checked = !!p.measurementsRequired;
-        $("edit_stock").checked = !!p.inStock;
-        state.edit.images = p.images || [];
+  window.loadProduct = async () => {
+    const id = $("editId").value.trim();
+    if(!id) return showToast("Enter ID", "error");
+    toggleGlobalLoader(true);
+    try {
+      const d = await getDoc(doc(db, "products", id));
+      if(!d.exists()) { showToast("Product not found", "error"); return; }
+      const p = d.data();
+      buildForm($("editForm"), "edit");
+      $("editForm").classList.remove('hidden');
+      
+      $("edit_title").value = p.title || "";
+      $("edit_desc").value = p.description || "";
+      $("edit_price").value = p.price || "";
+      $("edit_dep").innerText = deposit(p.price || 0);
+      $("edit_fabric").value = p.fabric || "";
+      $("edit_req").checked = !!p.measurementsRequired;
+      $("edit_stock").checked = !!p.inStock;
+      state.edit.images = p.images || [];
 
-        state.edit.images.forEach(u => {
-          $("edit_prev").innerHTML += `
-            <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden bg-white">
-              <img src="${u}" class="w-full h-full object-cover">
-              <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs" onclick="this.parentElement.remove(); window.removeImageState('edit', '${u}')">Remove</button>
-            </div>`;
-        });
-      } catch(e) { showToast("Error loading", "error"); } finally { toggleGlobalLoader(false); }
-    };
+      $("edit_prev").innerHTML = ""; // Clear existing previews
+      state.edit.images.forEach(u => {
+        $("edit_prev").innerHTML += `
+          <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden">
+            <img src="${u}" class="w-full h-full object-cover">
+            <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold" 
+              onclick="this.parentElement.remove(); window.removeImageState('edit', '${u}')">REMOVE</button>
+          </div>`;
+      });
+    } catch(e) { showToast("Load error", "error"); }
+    finally { toggleGlobalLoader(false); }
+  };
 
-    /* ================= INITIALIZE ================= */
-    document.addEventListener("DOMContentLoaded", () => {
-      buildForm($("addForm"), "add");
-    });
-  </script>
+  function buildForm(container, prefix) {
+    container.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
+          <input id="${prefix}_title" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-semibold">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Description</label>
+          <textarea id="${prefix}_desc" rows="3" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (USD)</label>
+          <input id="${prefix}_price" type="number" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-mono font-bold">
+          <div class="mt-1.5 text-xs text-slate-500">15% Deposit: <span class="font-mono font-bold text-amber-600" id="${prefix}_dep">0.00</span></div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Fabric</label>
+          <select id="${prefix}_fabric" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-medium"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Categories</label>
+          <div id="${prefix}_cats" class="bg-slate-50 border border-slate-200 rounded-lg p-4 grid grid-cols-2 gap-2.5 max-h-[140px] overflow-y-auto"></div>
+        </div>
+        <div class="flex flex-col justify-center space-y-3 px-2">
+          <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
+            <input type="checkbox" id="${prefix}_req" class="w-4 h-4 accent-slate-900 mr-2.5"> Tailored
+          </label>
+          <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
+            <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 accent-slate-900 mr-2.5" checked> In Stock
+          </label>
+        </div>
+        <div class="md:col-span-2 border-t border-slate-100 pt-4">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Images</label>
+          <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition">
+            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+              <p class="text-sm text-slate-500 font-bold">Batch Upload Photos</p>
+            </div>
+            <input type="file" id="${prefix}_imgs" multiple class="hidden" accept="image/*">
+          </label>
+          <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 p-2 bg-slate-50 rounded-lg border border-slate-100 empty:hidden"></div>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-200 flex items-center justify-end">
+        <button onclick="saveProduct('${prefix}')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-sm transition-all shadow-md">Commit Changes</button>
+      </div>
+    `;
+    // Re-fill options and bind engine
+    $(`${prefix}_fabric`).innerHTML = fabricOptions.map(f => `<option value="${f}">${f}</option>`).join('');
+    $(`${prefix}_cats`).innerHTML = categoryOptions.map(c => `
+      <label class="inline-flex items-center text-xs font-medium text-slate-700 capitalize cursor-pointer">
+        <input type="checkbox" value="${c}" class="w-3.5 h-3.5 accent-slate-900 mr-2"> ${c}
+      </label>`).join('');
+    attachImageEngine(prefix);
+    $(`${prefix}_price`).oninput = (e) => $(`${prefix}_dep`).innerText = deposit(e.target.value);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => buildForm($("addForm"), "add"));
+ </script>
 </body>
 </html>
