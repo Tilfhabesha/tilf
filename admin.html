@@ -471,7 +471,7 @@
       } catch (e) {
         console.error(e);
         showToast("Storage cluster transaction payload execution aborted.", "error");
-      } goldly {
+      } finally {
         toggleGlobalLoader(false);
       }
     };
