@@ -26,7 +26,10 @@
         <h1 class="text-xl font-bold tracking-tight">Tilf Habesha <span class="text-amber-400 font-medium text-sm border-l border-slate-700 pl-3 ml-2">Admin Portal</span></h1>
       </div>
       <div id="globalLoader" class="hidden flex items-center space-x-2 text-amber-400 text-sm">
-        <svg class="animate-spin h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <svg class="animate-spin h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
         <span>Processing Sync...</span>
       </div>
     </div>
@@ -52,9 +55,10 @@
   </nav>
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-3 pointer-events-none"></div>
 
+    <!-- ── ORDERS ─────────────────────────────────────────────────────────── -->
     <section id="orders" class="tab-section block space-y-6">
       <div class="flex items-center justify-between border-b border-slate-200 pb-4">
         <h2 class="text-2xl font-bold text-slate-900 tracking-tight">System Purchase Orders</h2>
@@ -71,11 +75,13 @@
       </div>
     </section>
 
+    <!-- ── ADD PRODUCT ────────────────────────────────────────────────────── -->
     <section id="addProduct" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
       <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Deploy New Product Inventory</h2>
       <div id="addForm" class="space-y-6"></div>
     </section>
 
+    <!-- ── EDIT PRODUCT ───────────────────────────────────────────────────── -->
     <section id="editProduct" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
       <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Modify Catalog Registry</h2>
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-8 flex space-x-3 items-end">
@@ -88,6 +94,7 @@
       <div id="editForm" class="space-y-6 hidden border-t pt-6"></div>
     </section>
 
+    <!-- ── ARTISAN ─────────────────────────────────────────────────────────── -->
     <section id="artisan" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
       <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Artisan Profiles</h2>
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-8 flex space-x-3 items-end">
@@ -132,175 +139,247 @@
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const $ = id => document.getElementById(id);
-  
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  // pendingFiles = local File objects waiting to upload on commit
+  // uploadedUrls = already-uploaded Cloudinary URLs (for edit: existing images)
   const state = {
-    add: { images: [] },
-    edit: { images: [] }
+    add:  { pendingFiles: [], uploadedUrls: [] },
+    edit: { pendingFiles: [], uploadedUrls: [] }
   };
 
-  const fabricOptions = ["cotton tibeb", "linen", "silk", "velvet", "wool blend"];
+  const fabricOptions   = ["cotton tibeb", "linen", "silk", "velvet", "wool blend"];
   const categoryOptions = ["holiday", "women", "men", "wedding", "events", "new fashion", "casual"];
 
-  // --- GLOBALS ---
-  window.removeImageState = (prefix, url) => {
-    state[prefix].images = state[prefix].images.filter(img => img !== url);
-    showToast("Image removed from record.", "info");
-  };
-
-  async function upload(file) {
+  // ── Cloudinary upload (called only on commit) ─────────────────────────────
+  async function uploadFile(file) {
     const formData = new FormData();
-    formData.append('file', file);
-    // CRITICAL: Ensure 'upload_preset' is the name of your UNSIGNED preset
-    // If you haven't created one, go to Settings > Upload > Add Upload Preset (Set to Unsigned)
-    formData.append('upload_preset', 'tilfhabesha'); 
-
-    try {
-      // Replace 'dcc3dpccu' with your Cloud Name if it's different
-      const res = await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload", {
-        method: "POST",
-        body: formData
-      });
-      
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || "Upload Failed");
-      return data.secure_url;
-    } catch (err) {
-      console.error("Cloudinary Error:", err);
-      throw err;
-    }
+    formData.append("file", file);
+    formData.append("upload_preset", "tilfhabesha");
+    const res  = await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "Upload failed");
+    return data.secure_url;
   }
 
-  function showToast(message, type = 'success') {
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(message, type = "success") {
     const colors = {
-      success: 'bg-emerald-900 text-emerald-100 border-emerald-700',
-      error: 'bg-rose-900 text-rose-100 border-rose-700',
-      info: 'bg-slate-900 text-slate-100 border-slate-700'
+      success: "bg-emerald-900 text-emerald-100 border-emerald-700",
+      error:   "bg-rose-900 text-rose-100 border-rose-700",
+      info:    "bg-slate-900 text-slate-100 border-slate-700"
     };
-    const toast = document.createElement('div');
-    toast.className = `p-4 border rounded-xl shadow-xl flex items-center justify-between pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-semibold max-w-sm ${colors[type]}`;
+    const toast = document.createElement("div");
+    toast.className = `p-4 border rounded-xl shadow-xl flex items-center pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-semibold max-w-sm ${colors[type]}`;
     toast.innerHTML = `<span>${message}</span>`;
     $("toastContainer").appendChild(toast);
-    setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 50);
+    setTimeout(() => toast.classList.remove("translate-y-2", "opacity-0"), 50);
     setTimeout(() => {
-      toast.classList.add('opacity-0', 'translate-x-4');
+      toast.classList.add("opacity-0", "translate-x-4");
       setTimeout(() => toast.remove(), 300);
     }, 4000);
   }
 
   function toggleGlobalLoader(show) {
-    if(show) $("globalLoader").classList.remove('hidden');
-    else $("globalLoader").classList.add('hidden');
+    show ? $("globalLoader").classList.remove("hidden")
+         : $("globalLoader").classList.add("hidden");
   }
 
-  const normalizeTitle = t => t.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const slugify = t => t.toLowerCase().replace(/\s+/g,'-');
-  const deposit = p => (Number(p) * 0.15).toFixed(2);
+  const normalizeTitle = t => t.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const slugify        = t => t.toLowerCase().replace(/\s+/g, "-");
+  const deposit        = p => (Number(p) * 0.15).toFixed(2);
 
+  // ── Tab switching ─────────────────────────────────────────────────────────
   window.showTab = (e, id) => {
-    document.querySelectorAll('.tab-section').forEach(s => s.classList.add('hidden'));
-    $(id).classList.remove('hidden');
-    document.querySelectorAll('.tab-btn').forEach(b => {
+    document.querySelectorAll(".tab-section").forEach(s => s.classList.add("hidden"));
+    $(id).classList.remove("hidden");
+    document.querySelectorAll(".tab-btn").forEach(b => {
       b.className = "tab-btn px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-600 hover:bg-slate-100 flex items-center space-x-2 whitespace-nowrap";
     });
     e.currentTarget.className = "tab-btn active px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-900 text-white shadow-sm flex items-center space-x-2 whitespace-nowrap";
   };
 
-  window.attachImageEngine = (p) => {
-    const input = $(`${p}_imgs`);
+  // ── Image engine: local preview only, no upload yet ───────────────────────
+  window.attachImageEngine = (prefix) => {
+    const input = $(`${prefix}_imgs`);
     if (!input) return;
-    input.onchange = async (e) => {
-      const files = Array.from(e.target.files);
-      for (const f of files) {
-        const tempId = 'img-' + Math.random().toString(36).substr(2, 9);
-        const wrapper = document.createElement("div");
-        wrapper.id = tempId;
-        wrapper.className = "relative group w-20 h-20 rounded-lg border-2 border-amber-500 overflow-hidden bg-slate-100 shadow-inner";
-        wrapper.innerHTML = `<div class="absolute inset-0 flex items-center justify-center bg-white/80 z-10"><div class="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div></div>`;
-        $(`${p}_prev`).appendChild(wrapper);
 
-        try {
-          const url = await upload(f);
-          state[p].images.push(url);
-          wrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden";
-          wrapper.innerHTML = `
-            <img src="${url}" class="w-full h-full object-cover">
-            <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all text-white font-bold text-[10px]" 
-              onclick="this.parentElement.remove(); window.removeImageState('${p}', '${url}')">REMOVE</button>`;
-        } catch(err) {
-          wrapper.remove();
-          showToast(`Error: ${err.message}`, "error");
+    input.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      files.forEach(file => {
+        // Guard: max 10 images total
+        if (state[prefix].pendingFiles.length + state[prefix].uploadedUrls.length >= 10) {
+          showToast("Max 10 images allowed", "error");
+          return;
         }
-      }
+
+        const tempId = "prev-" + Math.random().toString(36).substr(2, 8);
+        state[prefix].pendingFiles.push({ id: tempId, file });
+
+        // Local preview using FileReader — no network call
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const wrapper = document.createElement("div");
+          wrapper.id = tempId;
+          wrapper.className = "relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm";
+          wrapper.innerHTML = `
+            <img src="${ev.target.result}" class="w-full h-full object-cover"/>
+            <div class="absolute top-0.5 left-0.5 bg-amber-500 text-slate-900 text-[8px] font-bold px-1 rounded">NEW</div>
+            <button type="button"
+              class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all text-white font-bold text-[10px]"
+              onclick="removePending('${prefix}','${tempId}')">REMOVE</button>
+          `;
+          $(`${prefix}_prev`).appendChild(wrapper);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Reset input so same file can be re-added if removed
+      input.value = "";
     };
   };
 
-  window.saveProduct = async (p) => {
-    const title = $(`${p}_title`).value.trim();
-    const price = Number($(`${p}_price`).value);
-    if(!title || !price) return showToast("Title and Price required", "error");
+  // Remove a pending (not yet uploaded) file from state + DOM
+  window.removePending = (prefix, tempId) => {
+    state[prefix].pendingFiles = state[prefix].pendingFiles.filter(f => f.id !== tempId);
+    const el = document.getElementById(tempId);
+    if (el) el.remove();
+  };
 
-    const docId = p === 'edit' ? $("editId").value.trim() : normalizeTitle(title);
+  // Remove an already-uploaded URL (edit mode: existing Cloudinary image)
+  window.removeUploaded = (prefix, url) => {
+    state[prefix].uploadedUrls = state[prefix].uploadedUrls.filter(u => u !== url);
+    showToast("Image removed", "info");
+  };
+
+  // ── Save product: upload pending files first, then write to Firestore ─────
+  window.saveProduct = async (prefix) => {
+    const title = $(`${prefix}_title`).value.trim();
+    const price = Number($(`${prefix}_price`).value);
+    if (!title || !price) return showToast("Title and Price are required", "error");
+
+    const docId = prefix === "edit" ? $("editId").value.trim() : normalizeTitle(title);
+    if (!docId) return showToast("Could not determine document ID", "error");
+
     toggleGlobalLoader(true);
+
     try {
+      // ① Upload any pending local files now
+      if (state[prefix].pendingFiles.length > 0) {
+        showToast(`Uploading ${state[prefix].pendingFiles.length} image(s)…`, "info");
+        for (const item of state[prefix].pendingFiles) {
+          const url = await uploadFile(item.file);
+          state[prefix].uploadedUrls.push(url);
+          // Swap preview: remove NEW badge, show uploaded indicator
+          const wrapper = document.getElementById(item.id);
+          if (wrapper) {
+            const badge = wrapper.querySelector(".bg-amber-500");
+            if (badge) badge.remove();
+            const done = document.createElement("div");
+            done.className = "absolute top-0.5 left-0.5 bg-emerald-500 text-white text-[8px] font-bold px-1 rounded";
+            done.textContent = "✓";
+            wrapper.appendChild(done);
+          }
+        }
+        state[prefix].pendingFiles = []; // clear after upload
+      }
+
+      // ② Write to Firestore
       await setDoc(doc(db, "products", docId), {
-        title, slug: slugify(title),
-        description: $(`${p}_desc`).value.trim(),
-        price, depositAmount: Number(deposit(price)),
-        fabric: $(`${p}_fabric`).value,
-        categoryId: [...$(`${p}_cats`).querySelectorAll("input:checked")].map(x => x.value),
-        measurementsRequired: $(`${p}_req`).checked,
-        inStock: $(`${p}_stock`).checked,
-        images: state[p].images,
-        updatedAt: serverTimestamp()
+        title,
+        slug:                 slugify(title),
+        description:          $(`${prefix}_desc`).value.trim(),
+        price,
+        depositAmount:        Number(deposit(price)),
+        fabric:               $(`${prefix}_fabric`).value,
+        categoryId:           [...$(`${prefix}_cats`).querySelectorAll("input:checked")].map(x => x.value),
+        measurementsRequired: $(`${prefix}_req`).checked,
+        inStock:              $(`${prefix}_stock`).checked,
+        images:               state[prefix].uploadedUrls,
+        updatedAt:            serverTimestamp()
       }, { merge: true });
-      showToast("Inventory Synchronized", "success");
-      if(p === 'add') {
-        state.add.images = [];
+
+      showToast("Product saved successfully ✓", "success");
+
+      // ③ Reset add form after successful save
+      if (prefix === "add") {
+        state.add.pendingFiles  = [];
+        state.add.uploadedUrls  = [];
         buildForm($("addForm"), "add");
       }
-    } catch (e) { showToast("Database error", "error"); }
-    finally { toggleGlobalLoader(false); }
+
+    } catch (err) {
+      console.error(err);
+      showToast("Error: " + err.message, "error");
+    } finally {
+      toggleGlobalLoader(false);
+    }
   };
 
+  // ── Load product into edit form ───────────────────────────────────────────
   window.loadProduct = async () => {
     const id = $("editId").value.trim();
-    if(!id) return showToast("Enter ID", "error");
+    if (!id) return showToast("Enter a product ID", "error");
+
     toggleGlobalLoader(true);
     try {
-      const d = await getDoc(doc(db, "products", id));
-      if(!d.exists()) { showToast("Product not found", "error"); return; }
-      const p = d.data();
-      buildForm($("editForm"), "edit");
-      $("editForm").classList.remove('hidden');
-      
-      $("edit_title").value = p.title || "";
-      $("edit_desc").value = p.description || "";
-      $("edit_price").value = p.price || "";
-      $("edit_dep").innerText = deposit(p.price || 0);
-      $("edit_fabric").value = p.fabric || "";
-      $("edit_req").checked = !!p.measurementsRequired;
-      $("edit_stock").checked = !!p.inStock;
-      state.edit.images = p.images || [];
+      const snap = await getDoc(doc(db, "products", id));
+      if (!snap.exists()) { showToast("Product not found", "error"); return; }
 
-      $("edit_prev").innerHTML = ""; // Clear existing previews
-      state.edit.images.forEach(u => {
-        $("edit_prev").innerHTML += `
-          <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden">
-            <img src="${u}" class="w-full h-full object-cover">
-            <button type="button" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold" 
-              onclick="this.parentElement.remove(); window.removeImageState('edit', '${u}')">REMOVE</button>
-          </div>`;
+      const p = snap.data();
+      buildForm($("editForm"), "edit");
+      $("editForm").classList.remove("hidden");
+
+      // Fill fields
+      $("edit_title").value  = p.title       || "";
+      $("edit_desc").value   = p.description || "";
+      $("edit_price").value  = p.price       || "";
+      $("edit_dep").innerText = deposit(p.price || 0);
+      $("edit_fabric").value = p.fabric      || "";
+      $("edit_req").checked   = !!p.measurementsRequired;
+      $("edit_stock").checked = !!p.inStock;
+
+      // Tick saved categories
+      const saved = p.categoryId || [];
+      $("edit_cats").querySelectorAll("input").forEach(cb => {
+        cb.checked = saved.includes(cb.value);
       });
-    } catch(e) { showToast("Load error", "error"); }
-    finally { toggleGlobalLoader(false); }
+
+      // Load existing Cloudinary images into state and preview
+      state.edit.uploadedUrls = p.images || [];
+      state.edit.pendingFiles = [];
+      $("edit_prev").innerHTML = "";
+
+      state.edit.uploadedUrls.forEach(url => {
+        $("edit_prev").insertAdjacentHTML("beforeend", `
+          <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+            <img src="${url}" class="w-full h-full object-cover"/>
+            <button type="button"
+              class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-all"
+              onclick="removeUploaded('edit','${url}'); this.closest('.relative').remove()">REMOVE</button>
+          </div>`);
+      });
+
+    } catch (err) {
+      console.error(err);
+      showToast("Load error: " + err.message, "error");
+    } finally {
+      toggleGlobalLoader(false);
+    }
   };
 
+  // ── Build form HTML ───────────────────────────────────────────────────────
   function buildForm(container, prefix) {
     container.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div class="md:col-span-2">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
-          <input id="${prefix}_title" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-semibold">
+          <input id="${prefix}_title" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-semibold"/>
         </div>
         <div class="md:col-span-2">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Description</label>
@@ -308,12 +387,12 @@
         </div>
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Price (USD)</label>
-          <input id="${prefix}_price" type="number" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-mono font-bold">
+          <input id="${prefix}_price" type="number" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 outline-none text-sm font-mono font-bold"/>
           <div class="mt-1.5 text-xs text-slate-500">15% Deposit: <span class="font-mono font-bold text-amber-600" id="${prefix}_dep">0.00</span></div>
         </div>
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Fabric</label>
-          <select id="${prefix}_fabric" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-medium"></select>
+          <select id="${prefix}_fabric" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-medium outline-none focus:ring-2 focus:ring-slate-900"></select>
         </div>
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Categories</label>
@@ -321,38 +400,103 @@
         </div>
         <div class="flex flex-col justify-center space-y-3 px-2">
           <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
-            <input type="checkbox" id="${prefix}_req" class="w-4 h-4 accent-slate-900 mr-2.5"> Tailored
+            <input type="checkbox" id="${prefix}_req" class="w-4 h-4 accent-slate-900 mr-2.5"/> Tailored
           </label>
           <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
-            <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 accent-slate-900 mr-2.5" checked> In Stock
+            <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 accent-slate-900 mr-2.5" checked/> In Stock
           </label>
         </div>
+
+        <!-- Image section -->
         <div class="md:col-span-2 border-t border-slate-100 pt-4">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Images</label>
-          <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition">
-            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-              <p class="text-sm text-slate-500 font-bold">Batch Upload Photos</p>
-            </div>
-            <input type="file" id="${prefix}_imgs" multiple class="hidden" accept="image/*">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+            Images
+            <span class="ml-2 text-slate-400 normal-case font-normal tracking-normal">— previewed locally, uploaded on commit</span>
           </label>
-          <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 p-2 bg-slate-50 rounded-lg border border-slate-100 empty:hidden"></div>
+          <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-amber-400 transition-all">
+            <svg class="w-7 h-7 text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <p class="text-sm text-slate-500 font-semibold">Click to select photos</p>
+            <p class="text-xs text-slate-400 mt-0.5">PNG, JPG, WEBP — multiple allowed</p>
+            <input type="file" id="${prefix}_imgs" multiple class="hidden" accept="image/*"/>
+          </label>
+
+          <!-- Preview grid -->
+          <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 empty:hidden"></div>
         </div>
       </div>
-      <div class="pt-6 border-t border-slate-200 flex items-center justify-end">
-        <button onclick="saveProduct('${prefix}')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-sm transition-all shadow-md">Commit Changes</button>
+
+      <div class="pt-6 border-t border-slate-200 flex items-center justify-between">
+        <p class="text-xs text-slate-400">Images upload to Cloudinary when you click Commit.</p>
+        <button onclick="saveProduct('${prefix}')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-sm transition-all shadow-md">
+          Commit Changes
+        </button>
       </div>
     `;
-    // Re-fill options and bind engine
-    $(`${prefix}_fabric`).innerHTML = fabricOptions.map(f => `<option value="${f}">${f}</option>`).join('');
+
+    // Populate selects and checkboxes
+    $(`${prefix}_fabric`).innerHTML = fabricOptions.map(f =>
+      `<option value="${f}">${f}</option>`).join("");
+
     $(`${prefix}_cats`).innerHTML = categoryOptions.map(c => `
       <label class="inline-flex items-center text-xs font-medium text-slate-700 capitalize cursor-pointer">
-        <input type="checkbox" value="${c}" class="w-3.5 h-3.5 accent-slate-900 mr-2"> ${c}
-      </label>`).join('');
+        <input type="checkbox" value="${c}" class="w-3.5 h-3.5 accent-slate-900 mr-2"/> ${c}
+      </label>`).join("");
+
+    // Deposit calculator
+    $(`${prefix}_price`).oninput = (e) => {
+      $(`${prefix}_dep`).innerText = deposit(e.target.value);
+    };
+
+    // Attach image engine AFTER DOM is ready
     attachImageEngine(prefix);
-    $(`${prefix}_price`).oninput = (e) => $(`${prefix}_dep`).innerText = deposit(e.target.value);
   }
 
-  document.addEventListener("DOMContentLoaded", () => buildForm($("addForm"), "add"));
- </script>
+  // ── Artisan ───────────────────────────────────────────────────────────────
+  window.loadArtisan = async () => {
+    const id = $("artisanDocId").value.trim();
+    if (!id) return;
+    try {
+      const snap = await getDoc(doc(db, "artisans", id));
+      if (!snap.exists()) { showToast("Artisan not found", "error"); return; }
+      const a = snap.data();
+      $("brandName").value = a.brandName || "";
+      $("bio").value       = a.bio       || "";
+      $("phone").value     = a.phone     || "";
+      showToast("Artisan loaded", "info");
+    } catch (err) {
+      showToast("Load error", "error");
+    }
+  };
+
+  window.saveArtisan = async () => {
+    const id = $("artisanDocId").value.trim() || Date.now().toString();
+    try {
+      await setDoc(doc(db, "artisans", id), {
+        brandName: $("brandName").value.trim(),
+        bio:       $("bio").value.trim(),
+        phone:     $("phone").value.trim(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      showToast("Artisan saved ✓", "success");
+    } catch (err) {
+      showToast("Save error: " + err.message, "error");
+    }
+  };
+
+  // ── Orders (placeholder — fill with your own query) ───────────────────────
+  window.loadOrders = async () => {
+    // TODO: query your orders collection
+    $("ordersList").innerHTML = `<p class="text-slate-400 text-sm italic">No orders loaded yet.</p>`;
+  };
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener("DOMContentLoaded", () => {
+    buildForm($("addForm"), "add");
+    loadOrders();
+  });
+
+  </script>
 </body>
 </html>
