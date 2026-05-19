@@ -196,5 +196,5 @@ window.openProduct = async function(id) {
   } catch(e) { console.error(e); }
 };
 
-window.addEventListener('filterProducts', (e) => loadProducts(e.detail));
+
 document.addEventListener('DOMContentLoaded', () => { loadHero(); loadProducts(); });
