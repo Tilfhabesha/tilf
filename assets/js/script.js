@@ -142,16 +142,40 @@ window.doSignOut = async function() {
 /* ─────────────────────────────────────────────
    AUTH STATE LISTENER
 ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   AUTH STATE LISTENER & ROLE SECURITY GUARD
+───────────────────────────────────────────── */
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
-  renderNavAuth(user);
 
   if (user) {
-    await syncUserDataToLocal(user.uid);
+    try {
+      // Fetch user profile doc to verify their account access tier permissions
+      const userSnap = await getDoc(doc(db, 'users', user.uid));
+      let userRole = 'customer';
+      
+      if (userSnap.exists()) {
+        userRole = userSnap.data().role || 'customer';
+      }
+
+      // Pass user and their validated role to render navigation changes
+      renderNavAuth(user, userRole);
+      await syncUserDataToLocal(user.uid);
+    } catch (err) {
+      console.error("Error identifying user role status:", err);
+      renderNavAuth(user, 'customer');
+    }
+  } else {
+    renderNavAuth(null, null);
+    // If an unauthenticated user somehow stays on admin view, bounce them home
+    if (document.getElementById('admin-panel')?.classList.contains('active')) {
+      window.showPage('home');
+    }
   }
 });
 
-function renderNavAuth(user) {
+
+function renderNavAuth(user, role) {
   const area = document.getElementById('navAuthArea');
   if (!area) return;
 
@@ -160,11 +184,17 @@ function renderNavAuth(user) {
       ? `<img src="${user.photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" alt="me">`
       : `<span style="width:28px;height:28px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:#1a1535;">${(user.displayName||user.email||'U')[0].toUpperCase()}</span>`;
 
+    // Dynamic Navigation: Render an extra administrative console button if role === 'admin'
+    const adminLink = role === 'admin' 
+      ? `<a href="#" onclick="window.showPage('admin-panel'); return false;" style="font-size:0.78rem; color:var(--gold); text-decoration:none; border: 1px solid rgba(201,168,76,0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">🛠 Admin</a>`
+      : '';
+
     area.innerHTML = `
       <div style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;" onclick="window.showPage('profile')">
         ${avatar}
         <span style="font-size:0.78rem;color:rgba(245,240,232,0.7);letter-spacing:0.06em;">Account</span>
       </div>
+      ${adminLink}
       <a href="#" onclick="window.doSignOut();return false;" style="font-size:0.78rem;color:rgba(245,240,232,0.4);text-decoration:none;letter-spacing:0.06em;">Sign Out</a>
     `;
   } else {
