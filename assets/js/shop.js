@@ -63,18 +63,20 @@ async function loadHero(filterCat = 'all') {
   if (!slider) return;
 
   try {
-    const products = await fetchAllProducts(); //
+    const products = await fetchAllProducts(); 
+    // Note: products are ALREADY sorted by latest (createdAt desc) from fetchAllProducts
     let items = products.filter(p => p.inStock !== false);
 
-    // Filter logic: If 'all', show featured. If specific cat, show that cat.
     const cat = filterCat.toLowerCase().trim();
     if (cat && cat !== 'all') {
+      // Filter by the specific category selected
       items = items.filter(p => 
         (p.categorySlugs || []).some(s => s.toLowerCase() === cat)
       );
     } else {
-      // Default "All" view: Show top featured items
-      items = items.filter(p => p.featured || p.badge === 'Popular');
+      // "All" view: Display swipe horizontal latest from ALL categories
+      // We take the first 8 items from the already date-sorted array
+      items = items.slice(0, 8); 
     }
 
     if (!items.length) { slider.innerHTML = ''; hint?.classList.add('hidden'); return; }
