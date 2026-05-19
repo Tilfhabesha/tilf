@@ -666,6 +666,33 @@
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- Scripts -->
+<div id="admin-panel" class="page">
+  <div class="tibeb-border-thin"></div>
+  <div style="padding: 4rem 2rem; max-width: 1200px; margin: 0 auto;">
+    <h1 style="color: var(--cream); font-family: 'Cormorant Garamond', serif; font-size: 3rem; margin-bottom: 2rem;">
+      Artisan Marketplace <em>Admin Console</em>
+    </h1>
+    
+    <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 2rem;">
+      <div style="background: rgba(245,240,232,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(201,168,76,0.12);">
+        <h3 style="color: var(--gold); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;">Management</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
+          <li><a href="#" style="color: var(--cream); text-decoration: none; font-size: 0.9rem;">✦ Overview Orders</a></li>
+          <li><a href="#" style="color: rgba(245,240,232,0.6); text-decoration: none; font-size: 0.9rem;">🧵 Manage Artisans</a></li>
+          <li><a href="#" style="color: rgba(245,240,232,0.6); text-decoration: none; font-size: 0.9rem;">👗 Inventory Products</a></li>
+        </ul>
+      </div>
+
+      <div style="background: rgba(245,240,232,0.02); padding: 2rem; border-radius: 8px; border: 1px solid rgba(245,240,232,0.05);">
+        <h2 style="color: var(--gold-light); margin-bottom: 1.5rem;">Incoming Artisan Orders</h2>
+        <div id="adminOrdersLog">
+          <p style="color: rgba(245,240,232,0.4); font-style: italic;">Loading live workshop streams...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--scripts-->
 <script type="module" src="assets/js/firebase.js"></script>
 <script type="module" src="assets/js/script.js"></script>
 <script type="module" src="assets/js/shop.js"></script>
