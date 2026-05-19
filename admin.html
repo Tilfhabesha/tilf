@@ -82,6 +82,24 @@
     </section>
 
     <!-- ── EDIT PRODUCT ───────────────────────────────────────────────────── -->
+    <div class="flex gap-3 items-end mb-4">
+  
+  <!-- Category filter -->
+      <select id="editCategoryFilter"
+              class="px-3 py-2 border rounded-lg text-sm w-64">
+        <option value="">Select category</option>
+      </select>
+
+  <!-- Load list button -->
+      <button onclick="loadProductsByCategory()"
+        class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm">
+       Load Products
+      </button>
+
+    </div>
+
+<!-- Results list -->
+    <div id="editProductList" class="space-y-2"></div>
     <section id="editProduct" class="tab-section hidden max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
       <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-6 border-b pb-4">Modify Catalog Registry</h2>
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-8 flex space-x-3 items-end">
@@ -359,57 +377,73 @@ async function rebuildCategoriesFromProducts() {
     }
   };
 
-  // ── Load product into edit form ───────────────────────────────────────────
-  window.loadProduct = async () => {
-    const id = $("editId").value.trim();
-    if (!id) return showToast("Enter a product ID", "error");
+  window.loadProduct = async (overrideId = null) => {
+  const id = (overrideId || $("editId").value).trim();
+  if (!id) return showToast("Enter a product ID", "error");
 
-    toggleGlobalLoader(true);
-    try {
-      const snap = await getDoc(doc(db, "products", id));
-      if (!snap.exists()) { showToast("Product not found", "error"); return; }
+  toggleGlobalLoader(true);
 
-      const p = snap.data();
-      buildForm($("editForm"), "edit");
-      $("editForm").classList.remove("hidden");
+  try {
+    const snap = await getDoc(doc(db, "products", id));
 
-      // Fill fields
-      $("edit_title").value  = p.title       || "";
-      $("edit_desc").value   = p.description || "";
-      $("edit_price").value  = p.price       || "";
-      $("edit_dep").innerText = deposit(p.price || 0);
-      $("edit_fabric").value = p.fabric      || "";
-      $("edit_req").checked   = !!p.measurementsRequired;
-      $("edit_stock").checked = !!p.inStock;
+    if (!snap.exists()) {
+      showToast("Product not found", "error");
+      return;
+    }
 
-      // Tick saved categories
-      const saved = p.categoryId || [];
-      $("edit_cats").querySelectorAll("input").forEach(cb => {
+    const p = snap.data();
+
+    buildForm($("editForm"), "edit");
+    $("editForm").classList.remove("hidden");
+
+    // Fill fields
+    $("edit_title").value = p.title || "";
+    $("edit_desc").value = p.description || "";
+    $("edit_price").value = p.price || "";
+    $("edit_dep").innerText = deposit(p.price || 0);
+    $("edit_fabric").value = p.fabric || "";
+    $("edit_req").checked = !!p.measurementsRequired;
+    $("edit_stock").checked = !!p.inStock;
+
+    // Tick saved categories
+    const saved = Array.isArray(p.categoryId) ? p.categoryId : [];
+    const catWrap = $("edit_cats");
+
+    if (catWrap) {
+      catWrap.querySelectorAll("input").forEach(cb => {
         cb.checked = saved.includes(cb.value);
       });
-
-      // Load existing Cloudinary images into state and preview
-      state.edit.uploadedUrls = p.images || [];
-      state.edit.pendingFiles = [];
-      $("edit_prev").innerHTML = "";
-
-      state.edit.uploadedUrls.forEach(url => {
-        $("edit_prev").insertAdjacentHTML("beforeend", `
-          <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm">
-            <img src="${url}" class="w-full h-full object-cover"/>
-            <button type="button"
-              class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-all"
-              onclick="removeUploaded('edit','${url}'); this.closest('.relative').remove()">REMOVE</button>
-          </div>`);
-      });
-
-    } catch (err) {
-      console.error(err);
-      showToast("Load error: " + err.message, "error");
-    } finally {
-      toggleGlobalLoader(false);
     }
-  };
+
+    // Ensure state safety
+    state.edit = state.edit || {};
+    state.edit.uploadedUrls = p.images || [];
+    state.edit.pendingFiles = [];
+
+    $("edit_prev").innerHTML = "";
+
+    // Render existing images
+    state.edit.uploadedUrls.forEach(url => {
+      $("edit_prev").insertAdjacentHTML("beforeend", `
+        <div class="relative group w-20 h-20 rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+          <img src="${url}" class="w-full h-full object-cover"/>
+
+          <button type="button"
+            class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-all"
+            onclick="removeUploaded('edit','${url}'); this.closest('.relative').remove()">
+            REMOVE
+          </button>
+        </div>
+      `);
+    });
+
+  } catch (err) {
+    console.error(err);
+    showToast("Load error: " + err.message, "error");
+  } finally {
+    toggleGlobalLoader(false);
+  }
+};
 
   // ── Build form HTML ───────────────────────────────────────────────────────
   function buildForm(container, prefix) {
