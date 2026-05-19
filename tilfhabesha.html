@@ -511,8 +511,8 @@
         <div class="pay-badge pay-apple">Apple Pay</div>
         <div class="pay-badge pay-google">G Pay</div>
       </div>
-      <button class="btn-deposit" onclick="openModal()">
-        <span>💳</span> Pay Deposit · $—
+      <button class="btn-deposit" id="btnPayDeposit">
+        <span>💳</span> Pay Deposit · <span id="depositBtnAmount">$—</span>
       </button>
       <div class="btn-deposit-note">
         🔒 Secure payment · Balance only charged when your dress is finished and approved
@@ -523,7 +523,7 @@
 
 
 <!-- ─── FOOTER ─── -->
-<div id="footer-wrap-src" id="footer-wrap">
+<div id="footer-wrap">
   <div class="tibeb-border"></div>
   <footer>
     <div class="footer-inner">
