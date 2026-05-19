@@ -1,202 +1,126 @@
 /* ═══════════════════════════════════════════════
-   TILF HABESHA — shop.js
-   Synced to Admin Panel Schema
+   TILF HABESHA — shop.js (CLEAN ARCHITECTURE)
 ═══════════════════════════════════════════════ */
 import {
-  collection, getDocs, doc, getDoc,
-  query, orderBy
+  collection, getDocs, doc, getDoc, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from "./firebase.js";
 
-let allProducts  = [];
-let allArtisans  = {};
+let ALL_PRODUCTS = [];
+let ALL_ARTISANS = {};
+let CURRENT_FILTER = 'all';
 
-async function fetchArtisans() {
-  if (Object.keys(allArtisans).length) return allArtisans;
-  const snap = await getDocs(collection(db, 'artisans'));
-  snap.docs.forEach(d => { allArtisans[d.id] = d.data(); });
-  return allArtisans;
+/* ───────────────── ARTISANS CACHE ───────────────── */
+async function fetchArtisans(){
+  if(Object.keys(ALL_ARTISANS).length) return;
+  const snap = await getDocs(collection(db,'artisans'));
+  snap.forEach(d => ALL_ARTISANS[d.id] = d.data());
 }
 
-function resolveRefId(refOrId) {
-  if (!refOrId) return '';
-  if (typeof refOrId === 'string' && refOrId.startsWith('ref:')) {
-    return refOrId.split('/').pop();
-  }
-  if (refOrId?.id) return refOrId.id;
-  return refOrId;
-}
+/* ───────────────── PRODUCTS CACHE ───────────────── */
+async function fetchProducts(){
+  if(ALL_PRODUCTS.length) return ALL_PRODUCTS;
 
-async function fetchAllProducts() {
-  if (allProducts.length) return allProducts;
+  await fetchArtisans();
 
-  const [snap] = await Promise.all([
-    getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc'))),
-    fetchArtisans()
-  ]);
+  const snap = await getDocs(
+    query(collection(db,'products'), orderBy('createdAt','desc'))
+  );
 
-  allProducts = snap.docs.map(d => {
+  ALL_PRODUCTS = snap.docs.map(d=>{
     const data = d.data();
-    const artisanDocId = resolveRefId(data.artisanId);
-    const artisan = allArtisans[artisanDocId] || {};
+    const art = ALL_ARTISANS[data.artisanId] || {};
 
     return {
-      id: d.id,
+      id:d.id,
       ...data,
-      supplierName: artisan.brandName || 'Tilf Artisan',
-      supplierAvatar: artisan.photoURL || '',
-      rating: artisan.rating || 4.9,
-      // Fixed: Schema uses categoryId as array of strings
-      categorySlugs: (data.categoryId || []).map(c => c.toLowerCase()),
-      depositAmount: data.depositAmount || parseFloat((data.price * 0.15).toFixed(2))
+      supplierName: art.brandName || 'Tilf Artisan',
+      categorySlugs:(data.categoryId||[]).map(c=>c.toLowerCase()),
+      depositAmount:data.depositAmount || +(data.price*0.15).toFixed(2)
     };
   });
 
-  return allProducts;
+  return ALL_PRODUCTS;
 }
-/* ─────────────────────────────────────────────
-   UPDATED HERO SLIDER (Horizontal & Filterable)
-───────────────────────────────────────────── */
-async function loadHero(filterCat = 'all') {
+
+/* ───────────────── FILTER ENGINE (ONLY ONE) ───────────────── */
+function getFilteredProducts(){
+  if(CURRENT_FILTER === 'all') return ALL_PRODUCTS;
+  return ALL_PRODUCTS.filter(p =>
+    p.categorySlugs.includes(CURRENT_FILTER)
+  );
+}
+
+/* ───────────────── HERO RENDER ───────────────── */
+function renderHero(products){
   const slider = document.getElementById('heroSlider');
-  const hint = document.getElementById('swipeHint');
-  if (!slider) return;
+  if(!slider) return;
 
-  try {
-    const products = await fetchAllProducts(); 
-    // Note: products are ALREADY sorted by latest (createdAt desc) from fetchAllProducts
-    let items = products.filter(p => p.inStock !== false);
+  const items = products.slice(0,8);
 
-    const cat = filterCat.toLowerCase().trim();
-    if (cat && cat !== 'all') {
-      // Filter by the specific category selected
-      items = items.filter(p => 
-        (p.categorySlugs || []).some(s => s.toLowerCase() === cat)
-      );
-    } else {
-      // "All" view: Display swipe horizontal latest from ALL categories
-      // We take the first 8 items from the already date-sorted array
-      items = items.slice(0, 8); 
-    }
-
-    if (!items.length) { slider.innerHTML = ''; hint?.classList.add('hidden'); return; }
-    if (hint) hint.classList.remove('hidden');
-
-    slider.innerHTML = items.map((p) => `
-      <div class="hero-card" onclick="window.openProduct('${p.id}')">
-        <img src="${p.images?.[0] || ''}" alt="${p.title}" 
-             style="width:100%;height:100%;object-fit:cover;">
-        <div class="dress-overlay">
-          <div class="dress-overlay-name" style="font-size:1.1rem;">${p.title}</div>
-          <div class="dress-overlay-price">$${p.price} · ${p.supplierName}</div>
-        </div>
+  slider.innerHTML = items.map(p=>`
+    <div class="hero-card" onclick="openProduct('${p.id}')">
+      <img src="${p.images?.[0]||''}" style="width:100%;height:100%;object-fit:cover;">
+      <div class="dress-overlay">
+        <div class="dress-overlay-name">${p.title}</div>
+        <div class="dress-overlay-price">$${p.price} · ${p.supplierName}</div>
       </div>
-    `).join('');
-
-  } catch (err) {
-    console.error('Hero load error:', err);
-  }
+    </div>
+  `).join('');
 }
 
-/* ─────────────────────────────────────────────
-   UPDATE EVENT LISTENER
-───────────────────────────────────────────── */
-// Update the existing listener at the bottom of shop.js
-window.addEventListener('filterProducts', (e) => {
-  loadProducts(e.detail); //
-  loadHero(e.detail);     // Now also updates the Hero section!
-});
-
-async function loadProducts(filterCat = 'all') {
+/* ───────────────── GRID RENDER ───────────────── */
+function renderGrid(products){
   const grid = document.getElementById('productsGrid');
-  if (!grid) return;
-  grid.innerHTML = Array(6).fill('<div class="skeleton skeleton-card" style="height:300px"></div>').join('');
+  if(!grid) return;
 
-  try {
-    const products = await fetchAllProducts();
-    let filtered = products.filter(p => p.inStock !== false);
-
-    const cat = filterCat.toLowerCase().trim();
-    if (cat && cat !== 'all') {
-      filtered = filtered.filter(p => (p.categorySlugs || []).includes(cat));
-    }
-
-    if (!filtered.length) {
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;font-style:italic;">No dresses in this category.</div>`;
-      return;
-    }
-
-    grid.innerHTML = filtered.map(p => {
-      const isWished = (window._wishCache || []).includes(p.id);
-      return `
-      <div class="dress-card fade-up" onclick="window.openProduct('${p.id}')">
-        <div class="dress-card-img-wrap">
-          <img src="${p.images?.[0] || ''}" alt="${p.title}" loading="lazy">
-          <div class="card-actions">
-            <button class="card-action-btn ${isWished ? 'wishlisted' : ''}" data-wish-btn="${p.id}" onclick="event.stopPropagation();window.toggleWish('${p.id}','${p.title.replace(/'/g,"\\'")}')">♡</button>
-            <button class="card-action-btn" onclick="event.stopPropagation();window.addToCart({productId:'${p.id}',name:'${p.title.replace(/'/g,"\\'")}',price:${p.price},image:'${p.images?.[0]||''}',supplierName:'${p.supplierName.replace(/'/g,"\\'")}'})">🛒</button>
-          </div>
-        </div>
-        <div class="dress-card-body">
-          <div class="dress-card-name">${p.title}</div>
-          <div class="dress-card-supplier"><span class="supplier-dot"></span>${p.supplierName}</div>
-          <div class="dress-card-footer">
-            <div>
-              <div class="dress-price">$${p.price} <span>USD</span></div>
-              <div style="font-size:0.7rem;color:var(--gold-dim);">Deposit: $${p.depositAmount.toFixed(2)}</div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch (err) {
-    console.error('Product load error:', err);
-  }
+  grid.innerHTML = products.map(p=>`
+    <div class="dress-card" onclick="openProduct('${p.id}')">
+      <img src="${p.images?.[0]||''}">
+      <div class="dress-card-body">
+        <div class="dress-card-name">${p.title}</div>
+        <div class="dress-price">$${p.price}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
-window.openProduct = async function(id) {
-  window.showPage('product');
-  try {
-    const snap = await getDoc(doc(db, 'products', id));
-    if (!snap.exists()) return;
-    
-    const raw = snap.data();
-    const artisanDocId = resolveRefId(raw.artisanId);
-    const artisan = allArtisans[artisanDocId] || (await getDoc(doc(db, 'artisans', artisanDocId))).data() || {};
-    
-    const p = {
-      id, ...raw,
-      supplierName: artisan.brandName || 'Tilf Artisan',
-      supplierAvatar: artisan.photoURL || '',
-      rating: artisan.rating || 4.9,
-      depositAmount: raw.depositAmount || parseFloat((raw.price * 0.15).toFixed(2))
-    };
+/* ───────────────── MASTER RENDER ───────────────── */
+function renderAll(){
+  const filtered = getFilteredProducts();
+  renderHero(filtered);
+  renderGrid(filtered);
+}
 
-    const balance = (p.price - p.depositAmount).toFixed(2);
-    
-    document.querySelector('.product-name').textContent = p.title;
-    document.querySelector('.product-price-main').textContent = `$${p.price}`;
-    document.querySelector('.deposit-box-amount').textContent = `$${p.depositAmount.toFixed(2)}`;
-    document.querySelector('.deposit-box-label').innerHTML = `Pay only <strong>$${p.depositAmount.toFixed(2)} now</strong>. Balance of <strong>$${balance}</strong> due when complete.`;
-    
-    // Fixed: measurementsRequired matches Admin schema
-    document.getElementById('productDescription').innerHTML = `
-      <p>${p.description || ''}</p>
-      ${p.fabric ? `<div>Fabric: <strong>${p.fabric}</strong></div>` : ''}
-      ${p.measurementsRequired ? `<div style="color:var(--sage);">📏 Custom measurements required</div>` : ''}
-    `;
+/* ───────────────── FILTER BUTTONS ───────────────── */
+function initFilters(){
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelector('.filter-btn.active')?.classList.remove('active');
+      btn.classList.add('active');
 
-    document.querySelector('.product-main-img').innerHTML = `<img src="${p.images?.[0] || ''}" style="width:100%;height:100%;object-fit:cover;">`;
-    
-    document.querySelectorAll('.btn-deposit').forEach(btn => {
-      if (btn.closest('#cartDrawerFooter')) return;
-      btn.innerHTML = `<span>💳</span> Pay Deposit · $${p.depositAmount.toFixed(2)}`;
-      btn.onclick = () => window.handleDepositPayment();
+      CURRENT_FILTER = btn.dataset.cat.toLowerCase().trim();
+      renderAll();
     });
+  });
+}
 
-    window._currentProduct = p;
-  } catch(e) { console.error(e); }
+/* ───────────────── PRODUCT PAGE ───────────────── */
+window.openProduct = async function(id){
+  window.showPage('product');
+
+  const snap = await getDoc(doc(db,'products',id));
+  const p = snap.data();
+
+  document.querySelector('.product-name').textContent = p.title;
+  document.querySelector('.product-price-main').textContent = `$${p.price}`;
+  document.querySelector('.product-main-img').innerHTML =
+    `<img src="${p.images?.[0]||''}" style="width:100%">`;
 };
 
-
-document.addEventListener('DOMContentLoaded', () => { loadHero(); loadProducts(); });
+/* ───────────────── INIT ───────────────── */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  await fetchProducts();
+  initFilters();
+  renderAll();
+});
