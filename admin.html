@@ -155,7 +155,7 @@
   async function uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "tilfhabesha");
+    formData.append("upload_preset", "til_ml");
     const res  = await fetch("https://api.cloudinary.com/v1_1/dcc3dpccu/image/upload", {
       method: "POST",
       body: formData
