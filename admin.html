@@ -32,7 +32,7 @@
         </svg>
         <span>Processing Sync...</span>
       </div>
-    </div>
+    </div>  
   </header>
 
   <nav class="bg-white border-b border-slate-200 sticky top-16 z-40 shadow-sm">
@@ -131,18 +131,17 @@
   </main>
 
   <script type="module">
-  import { db } from "./assets/js/firebase.js";
+  import { db, auth } from "./firebase.js";
   import {
     collection, getDocs, doc, getDoc,
     addDoc, updateDoc, setDoc,
     query, where, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const $ = id => document.getElementById(id);
 
   // ── State ─────────────────────────────────────────────────────────────────
-  // pendingFiles = local File objects waiting to upload on commit
-  // uploadedUrls = already-uploaded Cloudinary URLs (for edit: existing images)
   const state = {
     add:  { pendingFiles: [], uploadedUrls: [] },
     edit: { pendingFiles: [], uploadedUrls: [] }
@@ -150,6 +149,26 @@
 
   const fabricOptions   = ["cotton tibeb", "linen", "silk", "velvet", "wool blend"];
   const categoryOptions = ["holiday", "women", "men", "wedding", "events", "new fashion", "casual"];
+
+  // ── Auth Gate Status Check ────────────────────────────────────────────────
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (userSnap.exists() && userSnap.data().role === "admin") {
+          showToast(`Authenticated as Admin: ${user.email}`, "success");
+        } else {
+          showToast("Access Denied: Your account role is not set to admin!", "error");
+        }
+      } catch (err) {
+        showToast("Error checking admin profile privileges.", "error");
+      }
+    } else {
+      showToast("Unauthenticated: Please sign into an admin account on your main storefront first!", "info");
+    }
+  });
+
+  // ... (Keep the remainder of your admin.html script code exactly as it was)
 
   // ── Cloudinary upload (called only on commit) ─────────────────────────────
   async function uploadFile(file) {
