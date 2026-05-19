@@ -195,7 +195,7 @@ function renderNavAuth(user, role) {
         <span style="font-size:0.78rem;color:rgba(245,240,232,0.7);letter-spacing:0.06em;">Account</span>
       </div>
       ${adminLink}
-      <a href="#" onclick="window.doSignOut();return false;" style="font-size:0.78rem;color:rgba(245,240,232,0.4);text-decoration:none;letter-spacing:0.06em;">Sign Out</a>
+      <a href="https://tilfhabesha.github.io/tilf/admin.html" onclick="window.doSignOut();return false;" style="font-size:0.78rem;color:rgba(245,240,232,0.4);text-decoration:none;letter-spacing:0.06em;">Sign Out</a>
     `;
   } else {
     area.innerHTML = `
@@ -204,6 +204,46 @@ function renderNavAuth(user, role) {
     `;
   }
 }
+
+// Paste this near your tracking logic inside script.js to load admin metrics dynamically
+import { collection, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+function listenToGlobalArtisanOrders() {
+  const adminContainer = document.getElementById("adminOrdersLog");
+  if (!adminContainer) return;
+
+  // Set a live snapshot listener on incoming marketplace assignments
+  onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
+    if (snapshot.empty) {
+      adminContainer.innerHTML = `<p style="color: rgba(245,240,232,0.3)">No active tailoring contracts found.</p>`;
+      return;
+    }
+
+    adminContainer.innerHTML = snapshot.docs.map(doc => {
+      const order = doc.data();
+      return `
+        <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 3px solid var(--gold);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <strong style="color: var(--cream); font-size: 0.9rem;">ID: ${order.trackingId || doc.id}</strong>
+            <span style="font-size: 0.8rem; text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 3px; background: rgba(201,168,76,0.15); color: var(--gold-light);">${order.status}</span>
+          </div>
+          <p style="margin: 0; font-size: 0.82rem; color: rgba(245,240,232,0.6);">
+            Sizing Metrics — Shoulder: ${order.measurements?.shoulder}cm | Bust: ${order.measurements?.bust}cm | Length: ${order.measurements?.length}cm
+          </p>
+        </div>
+      `;
+    }).join("");
+  });
+}
+
+// Trigger streaming once your navigation validates an active admin path
+window.addEventListener('DOMContentLoaded', () => {
+  // If the admin container element exists in markup, safely initialize backend sync hooks
+  if(document.getElementById("adminOrdersLog")) {
+     listenToGlobalArtisanOrders();
+  }
+});
+
 
 /* ─────────────────────────────────────────────
    SYNC USER DATA → pre-fill forms
