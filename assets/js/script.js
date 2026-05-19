@@ -560,6 +560,9 @@ function initFilterBars() {
 /* ─────────────────────────────────────────────
    AUTH MODAL HELPERS
 ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   AUTH MODAL HELPERS (FIXED & EXPOSED GLOBALLY)
+───────────────────────────────────────────── */
 window.openAuthModal = function(mode = 'signin') {
   const overlay  = document.getElementById('authModal');
   const title    = document.getElementById('authModalTitle');
@@ -586,8 +589,9 @@ window.closeAuthModal = function() {
 window.switchAuthMode = function() {
   const title = document.getElementById('authModalTitle');
   if (!title) return;
+  // Convert to lowercase before evaluating to avoid case mismatch bugs
   const isSignin = title.textContent.toLowerCase().includes('sign in');
-  openAuthModal(isSignin ? 'signup' : 'signin');
+  window.openAuthModal(isSignin ? 'signup' : 'signin');
 };
 
 /* ─────────────────────────────────────────────
