@@ -256,7 +256,43 @@
     state[prefix].uploadedUrls = state[prefix].uploadedUrls.filter(u => u !== url);
     showToast("Image removed", "info");
   };
+/* ─────────────────────────────────────────────
+   AUTO BUILD / UPDATE CATEGORIES FROM PRODUCTS
+───────────────────────────────────────────── */
+async function rebuildCategoriesFromProducts() {
+  const snap = await getDocs(collection(db, "products"));
 
+  const map = {}; // { women: { images:Set, count } }
+
+  snap.forEach(docSnap => {
+    const p = docSnap.data();
+    const cats = p.categoryId || [];
+    const img  = p.coverImage || p.images?.[0] || "";
+
+    cats.forEach(c => {
+      if (!map[c]) map[c] = { images: new Set(), count: 0 };
+      if (img) map[c].images.add(img);
+      map[c].count++;
+    });
+  });
+
+  const ORDER = { women:1, men:2, wedding:3, holiday:4, events:5, casual:6 };
+
+  for (const [cat, data] of Object.entries(map)) {
+    const images = Array.from(data.images);
+
+    await setDoc(doc(db, "categories", cat), {
+      name: cat,
+      slug: cat + "s",
+      active: true,
+      order: ORDER[cat] || 99,
+      coverImage: images[0] || "",
+      images
+    }, { merge: true });
+  }
+
+  console.log("✓ Categories rebuilt from products");
+}
   // ── Save product: upload pending files first, then write to Firestore ─────
   window.saveProduct = async (prefix) => {
     const title = $(`${prefix}_title`).value.trim();
@@ -303,7 +339,9 @@
         images:               state[prefix].uploadedUrls,
         updatedAt:            serverTimestamp()
       }, { merge: true });
-
+      await 
+        rebuildCategoriesFromProducts();
+      
       showToast("Product saved successfully ✓", "success");
 
       // ③ Reset add form after successful save
