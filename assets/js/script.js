@@ -540,18 +540,21 @@ async function handleStripeReturn() {
     console.error('Order return error:', err);
   }
 }
-
 /* ─────────────────────────────────────────────
    FILTER BAR  (delegates to shop.js via event)
 ───────────────────────────────────────────── */
 function initFilterBars() {
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Deactivate siblings in same bar
-      btn.closest('.filter-bar')?.querySelectorAll('.filter-btn')
-        .forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
       const cat = btn.dataset.cat || 'all';
+      
+      // 1. Remove 'active' class from ALL filter buttons on the page
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      
+      // 2. Add 'active' class to the clicked category on BOTH bars
+      document.querySelectorAll(`.filter-btn[data-cat="${cat}"]`).forEach(b => b.classList.add('active'));
+      
+      // 3. Dispatch the event to trigger shop.js
       window.dispatchEvent(new CustomEvent('filterProducts', { detail: cat }));
     });
   });
