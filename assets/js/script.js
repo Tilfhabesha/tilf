@@ -142,40 +142,16 @@ window.doSignOut = async function() {
 /* ─────────────────────────────────────────────
    AUTH STATE LISTENER
 ───────────────────────────────────────────── */
-/* ─────────────────────────────────────────────
-   AUTH STATE LISTENER & ROLE SECURITY GUARD
-───────────────────────────────────────────── */
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
+  renderNavAuth(user);
 
   if (user) {
-    try {
-      // Fetch user profile doc to verify their account access tier permissions
-      const userSnap = await getDoc(doc(db, 'users', user.uid));
-      let userRole = 'customer';
-      
-      if (userSnap.exists()) {
-        userRole = userSnap.data().role || 'customer';
-      }
-
-      // Pass user and their validated role to render navigation changes
-      renderNavAuth(user, userRole);
-      await syncUserDataToLocal(user.uid);
-    } catch (err) {
-      console.error("Error identifying user role status:", err);
-      renderNavAuth(user, 'customer');
-    }
-  } else {
-    renderNavAuth(null, null);
-    // If an unauthenticated user somehow stays on admin view, bounce them home
-    if (document.getElementById('admin-panel')?.classList.contains('active')) {
-      window.showPage('home');
-    }
+    await syncUserDataToLocal(user.uid);
   }
 });
 
-
-function renderNavAuth(user, role) {
+function renderNavAuth(user) {
   const area = document.getElementById('navAuthArea');
   if (!area) return;
 
@@ -184,18 +160,12 @@ function renderNavAuth(user, role) {
       ? `<img src="${user.photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" alt="me">`
       : `<span style="width:28px;height:28px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:#1a1535;">${(user.displayName||user.email||'U')[0].toUpperCase()}</span>`;
 
-    // Dynamic Navigation: Render an extra administrative console button if role === 'admin'
-    const adminLink = role === 'admin' 
-      ? `<a href="#" onclick="window.showPage('admin-panel'); return false;" style="font-size:0.78rem; color:var(--gold); text-decoration:none; border: 1px solid rgba(201,168,76,0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">🛠 Admin</a>`
-      : '';
-
     area.innerHTML = `
       <div style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;" onclick="window.showPage('profile')">
         ${avatar}
         <span style="font-size:0.78rem;color:rgba(245,240,232,0.7);letter-spacing:0.06em;">Account</span>
       </div>
-      ${adminLink}
-      <a href="https://tilfhabesha.github.io/tilf/admin.html" onclick="window.doSignOut();return false;" style="font-size:0.78rem;color:rgba(245,240,232,0.4);text-decoration:none;letter-spacing:0.06em;">Sign Out</a>
+      <a href="#" onclick="window.doSignOut();return false;" style="font-size:0.78rem;color:rgba(245,240,232,0.4);text-decoration:none;letter-spacing:0.06em;">Sign Out</a>
     `;
   } else {
     area.innerHTML = `
@@ -204,46 +174,6 @@ function renderNavAuth(user, role) {
     `;
   }
 }
-
-// Paste this near your tracking logic inside script.js to load admin metrics dynamically
-import { collection, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-function listenToGlobalArtisanOrders() {
-  const adminContainer = document.getElementById("adminOrdersLog");
-  if (!adminContainer) return;
-
-  // Set a live snapshot listener on incoming marketplace assignments
-  onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), (snapshot) => {
-    if (snapshot.empty) {
-      adminContainer.innerHTML = `<p style="color: rgba(245,240,232,0.3)">No active tailoring contracts found.</p>`;
-      return;
-    }
-
-    adminContainer.innerHTML = snapshot.docs.map(doc => {
-      const order = doc.data();
-      return `
-        <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 3px solid var(--gold);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <strong style="color: var(--cream); font-size: 0.9rem;">ID: ${order.trackingId || doc.id}</strong>
-            <span style="font-size: 0.8rem; text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 3px; background: rgba(201,168,76,0.15); color: var(--gold-light);">${order.status}</span>
-          </div>
-          <p style="margin: 0; font-size: 0.82rem; color: rgba(245,240,232,0.6);">
-            Sizing Metrics — Shoulder: ${order.measurements?.shoulder}cm | Bust: ${order.measurements?.bust}cm | Length: ${order.measurements?.length}cm
-          </p>
-        </div>
-      `;
-    }).join("");
-  });
-}
-
-// Trigger streaming once your navigation validates an active admin path
-window.addEventListener('DOMContentLoaded', () => {
-  // If the admin container element exists in markup, safely initialize backend sync hooks
-  if(document.getElementById("adminOrdersLog")) {
-     listenToGlobalArtisanOrders();
-  }
-});
-
 
 /* ─────────────────────────────────────────────
    SYNC USER DATA → pre-fill forms
@@ -630,9 +560,6 @@ function initFilterBars() {
 /* ─────────────────────────────────────────────
    AUTH MODAL HELPERS
 ───────────────────────────────────────────── */
-/* ─────────────────────────────────────────────
-   AUTH MODAL HELPERS (FIXED & EXPOSED GLOBALLY)
-───────────────────────────────────────────── */
 window.openAuthModal = function(mode = 'signin') {
   const overlay  = document.getElementById('authModal');
   const title    = document.getElementById('authModalTitle');
@@ -659,9 +586,8 @@ window.closeAuthModal = function() {
 window.switchAuthMode = function() {
   const title = document.getElementById('authModalTitle');
   if (!title) return;
-  // Convert to lowercase before evaluating to avoid case mismatch bugs
   const isSignin = title.textContent.toLowerCase().includes('sign in');
-  window.openAuthModal(isSignin ? 'signup' : 'signin');
+  openAuthModal(isSignin ? 'signup' : 'signin');
 };
 
 /* ─────────────────────────────────────────────
