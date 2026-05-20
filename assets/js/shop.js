@@ -36,8 +36,8 @@ async function fetchCategories() {
   snap.forEach(d => {
     const data = d.data();
     // key by both document id AND slug field so both lookups work
-    CATEGORIES[d.id]          = data;
-    if (data.slug) CATEGORIES[data.slug] = data;
+    //CATEGORIES[d.id]          = data;
+    //if (data.slug) CATEGORIES[data.slug] = data;
   });
 }
 
