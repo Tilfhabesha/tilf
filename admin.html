@@ -525,6 +525,12 @@ async function updateCategoryCover(categoryIds, imageUrl) {
           <label class="inline-flex items-center text-sm font-semibold text-slate-700 cursor-pointer">
             <input type="checkbox" id="${prefix}_stock" class="w-4 h-4 accent-slate-900 mr-2.5" checked/> In Stock
           </label>
+          <label class="inline-flex items-center text-sm font-semibold text-amber-700 cursor-pointer">
+            <input type="checkbox"
+                   id="${prefix}_cover"
+                   class="w-4 h-4 accent-amber-600 mr-2.5"/>
+            For Cover
+          </label>
         </div>
 
         <!-- Image section -->
@@ -544,14 +550,6 @@ async function updateCategoryCover(categoryIds, imageUrl) {
 
           <!-- Preview grid -->
           <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 empty:hidden"></div>
-        </div>
-        <div class="flex flex-col justify-center space-y-3 px-2">
-          <label class="inline-flex items-center text-sm font-semibold text-amber-700 cursor-pointer">
-            <input type="checkbox"
-                   id="${prefix}_cover"
-                   class="w-4 h-4 accent-amber-600 mr-2.5"/>
-            For Cover
-          </label>
         </div>
       </div>
 
