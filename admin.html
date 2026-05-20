@@ -308,7 +308,40 @@ async function rebuildCategoriesFromProducts() {
       images
     }, { merge: true });
   }
+  /* ─────────────────────────────────────────────
+   MANUAL CATEGORY COVER IMAGE
+───────────────────────────────────────────── */
+async function updateCategoryCover(categoryIds, imageUrl) {
 
+  if (!categoryIds?.length || !imageUrl) return;
+
+  for (const catId of categoryIds) {
+
+    const catRef = doc(db, "categories", catId);
+    const snap   = await getDoc(catRef);
+
+    let covers = [];
+
+    if (snap.exists()) {
+      covers = Array.isArray(snap.data().coverImage)
+        ? snap.data().coverImage
+        : [];
+    }
+
+    // remove duplicate if already exists
+    covers = covers.filter(x => x !== imageUrl);
+
+    // newest first
+    covers.unshift(imageUrl);
+
+    // keep latest 3 only
+    covers = covers.slice(0, 3);
+
+    await setDoc(catRef, {
+      coverImage: covers
+    }, { merge: true });
+  }
+}
   console.log("✓ Categories rebuilt from products");
 }
   // ── Save product: upload pending files first, then write to Firestore ─────
@@ -344,6 +377,14 @@ async function rebuildCategoriesFromProducts() {
       }
 
       // ② Write to Firestore
+      const selectedCategories =
+        [...$(`${prefix}_cats`).querySelectorAll("input:checked")]
+        .map(x => x.value);
+
+// For cover checkbox
+      const forCover = $(`${prefix}_cover`).checked;
+
+// ② Write to Firestore
       await setDoc(doc(db, "products", docId), {
         title,
         slug:                 slugify(title),
@@ -351,15 +392,22 @@ async function rebuildCategoriesFromProducts() {
         price,
         depositAmount:        Number(deposit(price)),
         fabric:               $(`${prefix}_fabric`).value,
-        categoryId:           [...$(`${prefix}_cats`).querySelectorAll("input:checked")].map(x => x.value),
+        categoryId:           selectedCategories,
         measurementsRequired: $(`${prefix}_req`).checked,
         inStock:              $(`${prefix}_stock`).checked,
         images:               state[prefix].uploadedUrls,
         updatedAt:            serverTimestamp()
       }, { merge: true });
-      await 
-        rebuildCategoriesFromProducts();
-      
+
+      await rebuildCategoriesFromProducts();
+
+// Manual category cover update
+      if (forCover && state[prefix].uploadedUrls?.[0]) {
+        await updateCategoryCover(
+          selectedCategories,
+          state[prefix].uploadedUrls[0]
+        );
+      }      
       showToast("Product saved successfully ✓", "success");
  
       // ③ Reset add form after successful save
@@ -496,6 +544,14 @@ async function rebuildCategoriesFromProducts() {
 
           <!-- Preview grid -->
           <div id="${prefix}_prev" class="flex flex-wrap gap-3 mt-4 empty:hidden"></div>
+        </div>
+        <div class="flex flex-col justify-center space-y-3 px-2">
+          <label class="inline-flex items-center text-sm font-semibold text-amber-700 cursor-pointer">
+            <input type="checkbox"
+                   id="${prefix}_cover"
+                   class="w-4 h-4 accent-amber-600 mr-2.5"/>
+            For Cover
+          </label>
         </div>
       </div>
 
