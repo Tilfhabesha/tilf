@@ -308,6 +308,8 @@ async function rebuildCategoriesFromProducts() {
       images
     }, { merge: true });
   }
+  console.log("✓ Categories rebuilt from products");
+}
   /* ─────────────────────────────────────────────
    MANUAL CATEGORY COVER IMAGE
 ───────────────────────────────────────────── */
@@ -342,8 +344,7 @@ async function updateCategoryCover(categoryIds, imageUrl) {
     }, { merge: true });
   }
 }
-  console.log("✓ Categories rebuilt from products");
-}
+  
   // ── Save product: upload pending files first, then write to Firestore ─────
   window.saveProduct = async (prefix) => {
     const title = $(`${prefix}_title`).value.trim();
