@@ -304,7 +304,6 @@ async function rebuildCategoriesFromProducts() {
       slug: cat + "s",
       active: true,
       order: ORDER[cat] || 99,
-      coverImage: images[0] || "",
       images
     }, { merge: true });
   }
