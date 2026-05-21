@@ -397,9 +397,10 @@ nav {
 .hero-discovery-wrapper {
   position: relative;
   width: 100%;
+  height: 100%
   overflow: hidden;
 }
-.hero-visual { flex: 1; position: relative; min-height: 460px; }
+.hero-visual { flex: 1; position: relative; min-height: 500px; }
 .hero-slider {
   display: flex !important; /* Force flex instead of grid */
   flex-direction: row;
@@ -426,7 +427,7 @@ nav {
 .hero-card:hover { transform: translateY(-4px); }
 .hero-card:first-child { grid-row: span 2; }
 .hero-card img {
-  width: 100%; height: 100%;
+  width: 100%; height: 550px;
   aspect-ratio: 3/4; object-fit: cover; display: block;
 }
 .hero-card:first-child img { aspect-ratio: auto; height: 100%; }
