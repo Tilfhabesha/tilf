@@ -11,8 +11,10 @@
 </head>
 <body>
 
+<!-- TIBEB TOP ACCENT (fixed) -->
 <div class="nav-tibeb"></div>
 
+<!-- ─── NAV ─── -->
 <nav>
   <div class="nav-inner">
     <a href="#" class="logo" onclick="showPage('home')">
@@ -28,18 +30,22 @@
     </ul>
 
     <div class="nav-right">
+      <!-- Wishlist -->
       <a href="#" class="nav-icon-link" onclick="openWish(); return false;" title="Wishlist">
         <span>♡</span>
         <span class="nav-badge" id="wishBadge" style="display:none">0</span>
       </a>
+      <!-- Cart -->
       <a href="#" class="nav-icon-link" onclick="openCart(); return false;" title="Cart">
         <span>🛒</span>
         <span class="nav-badge" id="cartBadge" style="display:none">0</span>
       </a>
+      <!-- Auth -->
       <div id="navAuthArea" style="display:flex;align-items:center;gap:0.65rem;">
         <a href="#" onclick="openAuthModal('signin')" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
         <a href="#" onclick="openAuthModal('signup')" class="nav-cta">Join</a>
       </div>
+      <!-- Hamburger -->
       <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -49,27 +55,43 @@
 </nav>
 
 
+<!-- ══════════════════════════════════════
+     HOME PAGE
+══════════════════════════════════════ -->
 <div id="home" class="page active">
 
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-pattern"></div>
-    <div class="hero-content">
-      <div class="hero-text">
-        <div class="hero-eyebrow fade-up">Traditional dress,</div>
-        <h1 class="hero-title fade-up-2">
-          Your exact fit
-        </h1>
-        <p class="hero-tagline fade-up-3">"Measured by you. Made in Ethiopia."</p>
-        <div class="hero-actions fade-up-4">
-          <a href="#" class="btn-primary" onclick="goScrollTo('dresses')">✦ Browse Collections</a>
-        </div>
-      </div>
-      <div class="tibeb-border"></div>
+  <!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
 
-      <div class="hero-visual fade-up-3">
-        <div class="hero-discovery-wrapper">
-          <div class="hero-slider" id="heroSlider">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow fade-up">Traditional dress,</div>
+
+      <h1 class="hero-title fade-up-2">
+        Your exact fit
+      </h1>
+
+      <p class="hero-tagline fade-up-3">
+        "Measured by you. Made in Ethiopia."
+      </p>
+
+      <div class="hero-actions fade-up-4">
+        <a href="#" class="btn-primary" onclick="goScrollTo('dresses')">
+          ✦ Browse Collections
+        </a>
+      </div>
+    </div>
+
+    <div class="tibeb-border"></div>
+
+    <div class="hero-visual fade-up-3">
+
+      <!-- NEW FASHION HERO -->
+      <div class="hero-discovery-wrapper">
+
+        <div class="hero-slider" id="heroSlider">
           <div class="hero-card"><div class="skeleton"></div></div>
           <div class="hero-card"><div class="skeleton"></div></div>
           <div class="hero-card"><div class="skeleton"></div></div>
@@ -79,43 +101,89 @@
           <div class="hand-icon">☝️</div>
           <span>Swipe to explore</span>
         </div>
-       </div>
-      </div>
-    <div class="tibeb-border"></div>
-  </section>
 
-  
-  <section class="section dresses-section" id="dresses">
-  <div class="section-inner">
-    <div class="dresses-header">
-      <div>
-        <div class="section-label">Collections</div>
-        <h2 class="section-title">Handcrafted for <em>every occasion</em></h2>
       </div>
-      <div class="filter-bar fade-up-4">
-        <button class="filter-btn active" data-cat="women">Women</button>
-        <button class="filter-btn" data-cat="men">Men</button>
-        <button class="filter-btn" data-cat="wedding">Wedding</button>
-        <button class="filter-btn" data-cat="holiday">Holiday</button>
-        <button class="filter-btn" data-cat="events">Events</button>
-        <button class="filter-btn" data-cat="casual">Casual</button>
-      </div>
-    </div>
-    <div class="hero-discovery-wrapper">
-      <div class="hero-slider" id="productsGrid">
-        <div class="hero-card"><div class="skeleton"></div></div>
-        <div class="hero-card"><div class="skeleton"></div></div>
-        <div class="hero-card"><div class="skeleton"></div></div>
-        <div class="hero-card"><div class="skeleton"></div></div>
-      </div>
+
     </div>
   </div>
+
+  <div class="tibeb-border"></div>
 </section>
 
-<section class="section" style="text-align: center; padding: 2rem 1rem;">
-  <a href="how-it-works.html" class="btn-ghost" target="_blank" style="display: inline-block;">How It Works ↗</a>
+  
+  <!-- DRESS GRID -->
+<!-- DRESS GRID -->
+<section class="section dresses-section" id="dresses">
+
+  <div class="section-inner">
+
+    <div class="dresses-header">
+
+      <div>
+        <div class="section-label">Collections</div>
+        <h2 class="section-title">
+          Handcrafted for <em>every occasion</em>
+        </h2>
+      </div>
+
+      <!-- MAIN FILTERS -->
+      <div class="filter-bar fade-up-4" id="mainFilterBar">
+
+        <button class="filter-btn active" data-main-cat="women">
+          Women
+        </button>
+
+        <button class="filter-btn" data-main-cat="men">
+          Men
+        </button>
+
+        <button class="filter-btn" data-main-cat="wedding">
+          Wedding
+        </button>
+
+        <button class="filter-btn" data-main-cat="holiday">
+          Holiday
+        </button>
+
+        <button class="filter-btn" data-main-cat="events">
+          Events
+        </button>
+
+        <button class="filter-btn" data-main-cat="casual">
+          Casual
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="hero-discovery-wrapper">
+
+      <div class="hero-slider" id="productsGrid">
+
+        <div class="hero-card"><div class="skeleton"></div></div>
+        <div class="hero-card"><div class="skeleton"></div></div>
+        <div class="hero-card"><div class="skeleton"></div></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </section>
 
+<!-- HOW IT WORKS BUTTON -->
+<div style="text-align:center;padding:0 2rem 5rem;">
+  <a href="how-it-works.html"
+     class="btn-ghost"
+     target="_blank">
+    How It Works ↗
+  </a>
+</div>
+
+  <!-- MEET THE ARTISANS -->
   <section class="section artisans-section">
     <div class="section-inner artisans-inner">
       <div class="artisans-text">
@@ -161,7 +229,11 @@
     </div>
   </section>
 
-</div><div id="footer-wrap-src" id="footer-wrap">
+</div><!-- /#home -->
+
+
+<!-- ─── FOOTER ─── -->
+<div id="footer-wrap-src" id="footer-wrap">
   <div class="tibeb-border"></div>
   <footer>
     <div class="footer-inner">
@@ -211,8 +283,10 @@
 </div>
 
 
+<!-- ─── DRAWERS (Cart & Wishlist) ─── -->
 <div class="drawer-overlay" id="drawerOverlay"></div>
 
+<!-- Cart Drawer -->
 <div class="drawer" id="cartDrawer">
   <div class="drawer-tibeb"></div>
   <div class="drawer-header">
@@ -243,6 +317,7 @@
   </div>
 </div>
 
+<!-- Wishlist Drawer -->
 <div class="drawer" id="wishDrawer">
   <div class="drawer-tibeb"></div>
   <div class="drawer-header">
@@ -255,6 +330,7 @@
 </div>
 
 
+<!-- ─── AUTH MODAL (redesigned) ─── -->
 <div class="modal-overlay" id="authModal">
   <div class="modal auth-modal-inner">
     <div class="drawer-tibeb"></div>
@@ -264,7 +340,9 @@
     </div>
     <div class="modal-body">
 
+      <!-- Google — prominent, primary action -->
       <button class="btn-google" id="googleAuthBtn" onclick="window.doGoogleAuth()">
+        <!-- Google SVG logo -->
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="margin-right:10px;flex-shrink:0">
           <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
           <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
@@ -274,8 +352,10 @@
         Continue with Google
       </button>
 
+      <!-- Divider -->
       <div class="auth-divider">or continue with email</div>
 
+      <!-- Email / password -->
       <div class="form-group" style="margin-bottom:0.65rem;">
         <label>Email Address</label>
         <input type="email" id="authEmail" placeholder="your@email.com" autocomplete="email">
@@ -285,6 +365,7 @@
         <input type="password" id="authPass" placeholder="Your password" autocomplete="current-password">
       </div>
 
+      <!-- Forgot password -->
       <div style="text-align:right;margin-bottom:1rem;">
         <a href="#" id="authForgotLink" onclick="window.doForgotPassword();return false;"
           style="font-size:0.76rem;color:var(--gold-dim);text-decoration:none;letter-spacing:0.04em;">
@@ -310,6 +391,7 @@
 </div>
 
 
+<!-- ─── ORDER SUCCESS MODAL ─── -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="drawer-tibeb"></div>
@@ -335,8 +417,10 @@
   </div>
 </div>
 
+<!-- Toast container -->
 <div class="toast-wrap" id="toastWrap"></div>
 
+<!-- Scripts -->
 <script type="module" src="assets/js/firebase.js"></script>
 <script type="module" src="assets/js/script.js"></script>
 <script type="module" src="assets/js/shop.js"></script>
