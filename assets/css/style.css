@@ -369,7 +369,7 @@ nav {
 .filter-btn {
   padding: 0.38rem 1rem;
   border: 1px solid rgba(201,168,76,0.4);
-  background: transparent; cursor: pointer;
+  background: var(--indigo); cursor: pointer;
   font-family: 'Afacad', sans-serif;
   font-size: 0.78rem; letter-spacing: 0.05em;
   color: rgba(245,240,232,0.6); border-radius: 2rem;
