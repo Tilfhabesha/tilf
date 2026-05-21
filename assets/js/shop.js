@@ -247,11 +247,14 @@ async function openProduct(id) {
   );
 
   const hero = $(".product-main-img");
+   
+   if (hero) {
 
-  if (hero) {
-    hero.innerHTML = `
-      <img src="${p.images?.[0] || ""}"
-           alt="${p.title}">
+   hero.innerHTML = `
+    <img
+      id="mainProductImage"
+      src="${p.images?.[0] || ""}"
+      alt="${p.title}">
     `;
   }
 
@@ -264,8 +267,8 @@ async function openProduct(id) {
     (p.images || []).slice(1).forEach(img => {
 
       gallery.innerHTML += `
-        <div class="product-gallery-item">
-          <img src="${img}">
+        <div class="product-thumb">
+          <img src="${img}" alt="">
         </div>
       `;
     });
@@ -372,6 +375,20 @@ document.addEventListener("click", (e) => {
     return;
   }
 });
+document.addEventListener("click", (e) => {
+
+  const thumb =
+    e.target.closest(".product-thumb img");
+
+  if (!thumb) return;
+
+  const main =
+    document.getElementById("mainProductImage");
+
+  if (!main) return;
+
+  main.src = thumb.src;
+});
 
 /* ───────────────── INIT ───────────────── */
 
@@ -382,5 +399,6 @@ document.addEventListener("click", (e) => {
   renderHeroProducts();
 
   renderGridProducts();
+
 
 })();
