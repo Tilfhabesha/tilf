@@ -13,7 +13,7 @@ import { db } from "./firebase.js";
 let PRODUCTS   = [];
 let ARTISANS   = {};
 let CATEGORIES = {};           // { slug → { name, coverImage, images, order } }
-let CURRENT_FILTER = 'all';
+let CURRENT_FILTER = 'women';  // Default filter changed to women
 
 /* ───────────────── HELPERS ───────────────── */
 const $  = (s) => document.querySelector(s);
@@ -34,7 +34,9 @@ async function fetchCategories() {
   if (Object.keys(CATEGORIES).length) return;
   const snap = await getDocs(collection(db, 'categories'));
   snap.forEach(d => {
-    CATEGORIES[d.id] = d.data();
+    const data = d.data();
+    CATEGORIES[d.id]          = data;
+    if (data.slug) CATEGORIES[data.slug] = data;
   });
 }
 
@@ -48,6 +50,7 @@ async function fetchProducts() {
   if (PRODUCTS.length) return;
   await Promise.all([fetchArtisans(), fetchCategories()]);
 
+  // Fetched in order: latest to oldest
   const snap = await getDocs(
     query(collection(db, 'products'), orderBy('createdAt', 'desc'))
   );
@@ -57,7 +60,6 @@ async function fetchProducts() {
     const artisanId = resolveRefId(data.artisanId);
     const artisan   = ARTISANS[artisanId] || {};
 
-    // categoryId may be array of strings e.g. ["women","casual"] or doc refs
     const categorySlugs = (data.categoryId || []).map(c =>
       (typeof c === 'string' ? c : c?.id || '').toLowerCase().trim()
     );
@@ -76,64 +78,19 @@ async function fetchProducts() {
 }
 
 /* ═══════════════════════════════════════════════
-   HERO — category coverImages as swipeable cards
-   "All" → featured/popular products
-   Any other filter → coverImage + extra images
-   from that category doc
+   HERO — independent, only shows 'new fashion'
 ═══════════════════════════════════════════════ */
 function renderHero() {
   const slider = $('#heroSlider');
   const hint   = $('#swipeHint');
   if (!slider) return;
 
-  let slides = [];
+  // Filter explicitly for "new fashion" independent of main page filters
+  const items = PRODUCTS.filter(p =>
+    p.inStock !== false && p.categorySlugs.includes('new fashion')
+  );
 
-  if (CURRENT_FILTER === 'all') {
-    /* Use featured/popular products as hero cards */
-    const items = PRODUCTS.filter(p =>
-      p.inStock !== false && (p.featured || p.badge === 'Popular')
-    );
-    slides = items.map(p => ({
-      img:      p.images?.[0] || '',
-      title:    p.title,
-      subtitle: `$${p.price} · ${p.supplierName}`,
-      id:       p.id,
-      type:     'product'
-    }));
-  } else {
-    /* Use category coverImage + images array */
-    const cat = CATEGORIES[CURRENT_FILTER];
-    if (cat) {
-      const imgs = [];
-      if (cat.coverImage) imgs.push(cat.coverImage);
-      (cat.images || []).forEach(img => {
-        if (img && img !== cat.coverImage) imgs.push(img);
-      });
-      slides = imgs.map((img, i) => ({
-        img,
-        title:    cat.name || CURRENT_FILTER,
-        subtitle: i === 0 ? `${cat.name || CURRENT_FILTER} Collection` : '',
-        type:     'category'
-      }));
-    }
-
-    /* Fallback: if no category doc images, use product images */
-    if (!slides.length) {
-      const items = PRODUCTS.filter(p =>
-        p.inStock !== false &&
-        p.categorySlugs.includes(CURRENT_FILTER)
-      );
-      slides = items.map(p => ({
-        img:      p.images?.[0] || '',
-        title:    p.title,
-        subtitle: `$${p.price} · ${p.supplierName}`,
-        id:       p.id,
-        type:     'product'
-      }));
-    }
-  }
-
-  if (!slides.length) {
+  if (!items.length) {
     slider.innerHTML = '';
     hint?.classList.add('hidden');
     return;
@@ -141,17 +98,27 @@ function renderHero() {
 
   hint?.classList.remove('hidden');
 
-  slider.innerHTML = slides.map(s => `
-    <div class="hero-card" ${s.id ? `data-id="${s.id}"` : ''} style="cursor:${s.id ? 'pointer' : 'default'}">
-      <img src="${s.img}" alt="${s.title}" loading="lazy">
-      <div class="dress-overlay">
-        <div class="dress-overlay-name">${s.title}</div>
-        ${s.subtitle ? `<div class="dress-overlay-price">${s.subtitle}</div>` : ''}
-      </div>
-    </div>
-  `).join('');
+  slider.innerHTML = items.map(p => {
+    const wished = (window._wishCache || []).includes(p.id);
+    return `
+      <div class="hero-card" data-id="${p.id}" style="cursor:pointer; position:relative;">
+        <img src="${p.images?.[0] || ''}" alt="${p.title}" loading="lazy">
+        
+        <div class="card-actions" style="position: absolute; top: 1rem; right: 1rem; z-index: 10; display: flex; gap: 0.5rem;">
+          <button class="wish-btn ${wished ? 'wishlisted' : ''}" data-wish="${p.id}" data-wish-btn="${p.id}" aria-label="Save to wishlist" style="background: rgba(26,21,53,0.6); border: 1px solid var(--gold); border-radius: 50%; width: 36px; height: 36px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px);">
+            ${wished ? '♥' : '♡'}
+          </button>
+          <button class="cart-btn" data-cart="${p.id}" aria-label="Add to cart" style="background: rgba(26,21,53,0.6); border: 1px solid var(--gold); border-radius: 50%; width: 36px; height: 36px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px);">🛒</button>
+        </div>
 
-  /* Re-attach swipe hint logic after render */
+        <div class="dress-overlay">
+          <div class="dress-overlay-name">${p.title}</div>
+          <div class="dress-overlay-price">$${p.price} · ${p.supplierName}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
   initSwipeHint(slider, hint);
 }
 
@@ -170,8 +137,7 @@ function initSwipeHint(slider, hint) {
 
   slider.addEventListener('scroll', () => {
     const scrolled   = slider.scrollLeft;
-    const maxScroll  = slider.scrollWidth - slider.clientWidth;
-
+    
     if (!hintShown && scrolled > 20) {
       hintShown = true;
       hint.classList.add('hidden');
@@ -196,8 +162,7 @@ function initSwipeHint(slider, hint) {
 }
 
 /* ═══════════════════════════════════════════════
-   PRODUCTS GRID — horizontal swipe, 2 per screen
-   "All" → all in-stock   |  filter → by category
+   PRODUCTS GRID — uses hero-card styles visually
 ═══════════════════════════════════════════════ */
 function renderGrid() {
   const grid = $('#productsGrid');
@@ -205,42 +170,32 @@ function renderGrid() {
 
   let items = PRODUCTS.filter(p => p.inStock !== false);
 
+  // Filter based on grid controls (defaults to 'women')
   if (CURRENT_FILTER !== 'all') {
-    items = items.filter(p =>
-      p.categorySlugs.includes(CURRENT_FILTER)
-    );
+    items = items.filter(p => p.categorySlugs.includes(CURRENT_FILTER));
   }
 
   if (!items.length) {
     grid.innerHTML = `<div class="empty-state">No dresses in this category yet.</div>`;
-    grid.classList.remove('swipe-grid');
     return;
   }
-
-  /* ── Mark grid as horizontal swipe layout ── */
-  grid.classList.add('swipe-grid');
 
   grid.innerHTML = items.map(p => {
     const wished = (window._wishCache || []).includes(p.id);
     return `
-      <div class="dress-card" data-id="${p.id}">
-        <div class="dress-card-img-wrap">
-          <img src="${p.images?.[0] || ''}" alt="${p.title}" loading="lazy">
-          <div class="card-actions">
-            <button class="wish-btn ${wished ? 'wishlisted' : ''}"
-              data-wish="${p.id}"
-              data-wish-btn="${p.id}"
-              aria-label="Save to wishlist">
-              ${wished ? '♥' : '♡'}
-            </button>
-            <button class="cart-btn" data-cart="${p.id}" aria-label="Add to cart">🛒</button>
-          </div>
-          ${p.badge ? `<div class="card-badge">${p.badge}</div>` : ''}
+      <div class="hero-card" data-id="${p.id}" style="cursor:pointer; position:relative;">
+        <img src="${p.images?.[0] || ''}" alt="${p.title}" loading="lazy">
+        
+        <div class="card-actions" style="position: absolute; top: 1rem; right: 1rem; z-index: 10; display: flex; gap: 0.5rem;">
+          <button class="wish-btn ${wished ? 'wishlisted' : ''}" data-wish="${p.id}" data-wish-btn="${p.id}" aria-label="Save to wishlist" style="background: rgba(26,21,53,0.6); border: 1px solid var(--gold); border-radius: 50%; width: 36px; height: 36px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px);">
+            ${wished ? '♥' : '♡'}
+          </button>
+          <button class="cart-btn" data-cart="${p.id}" aria-label="Add to cart" style="background: rgba(26,21,53,0.6); border: 1px solid var(--gold); border-radius: 50%; width: 36px; height: 36px; color: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px);">🛒</button>
         </div>
-        <div class="dress-card-body">
-          <div class="dress-card-name">${p.title}</div>
-          <div class="dress-card-supplier">${p.supplierName}</div>
-          <div class="dress-price">$${p.price}</div>
+
+        <div class="dress-overlay">
+          <div class="dress-overlay-name">${p.title}</div>
+          <div class="dress-overlay-price">$${p.price} · ${p.supplierName}</div>
         </div>
       </div>
     `;
@@ -299,12 +254,8 @@ async function openProduct(id) {
 ═══════════════════════════════════════════════ */
 document.addEventListener('click', (e) => {
 
-  /* Hero card → open product */
-  const heroCard = e.target.closest('#heroSlider [data-id]');
-  if (heroCard) { openProduct(heroCard.dataset.id); return; }
-
-  /* Product grid card (but not action buttons) */
-  const card = e.target.closest('.dress-card[data-id]');
+  /* Intercept card clicks across both hero and grid sections */
+  const card = e.target.closest('.hero-card[data-id]');
   if (card && !e.target.closest('[data-wish]') && !e.target.closest('[data-cart]')) {
     openProduct(card.dataset.id);
     return;
@@ -338,15 +289,15 @@ document.addEventListener('click', (e) => {
   /* Filter button */
   const filter = e.target.closest('.filter-btn');
   if (filter) {
-    const newCat = (filter.dataset.cat || 'all').toLowerCase().trim();
+    const newCat = (filter.dataset.cat || 'women').toLowerCase().trim();
     CURRENT_FILTER = newCat;
 
-    /* Sync BOTH filter bars */
+    /* Sync active class states for filter bar */
     $$('.filter-btn').forEach(b => {
-      b.classList.toggle('active', (b.dataset.cat || 'all').toLowerCase().trim() === newCat);
+      b.classList.toggle('active', (b.dataset.cat || 'women').toLowerCase().trim() === newCat);
     });
 
-    renderHero();
+    // NOTE: Only grid is re-rendered; Hero section remains independent.
     renderGrid();
     return;
   }
@@ -407,34 +358,6 @@ window.addEventListener('renderWishDetails', async (e) => {
   const style = document.createElement('style');
   style.id = 'swipe-grid-style';
   style.textContent = `
-    /* ── Horizontal swipe product grid ── */
-    .dress-grid.swipe-grid {
-      display: flex;
-      flex-direction: row;
-      overflow-x: auto;
-      overflow-y: visible;
-      gap: 1.25rem;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding-bottom: 1rem;
-    }
-    .dress-grid.swipe-grid::-webkit-scrollbar { display: none; }
-
-    .dress-grid.swipe-grid .dress-card {
-      flex: 0 0 calc(50% - 0.625rem);
-      min-width: calc(50% - 0.625rem);
-      scroll-snap-align: start;
-    }
-
-    @media (max-width: 480px) {
-      .dress-grid.swipe-grid .dress-card {
-        flex: 0 0 calc(50% - 0.5rem);
-        min-width: calc(50% - 0.5rem);
-      }
-    }
-
-    /* ── Empty state ── */
     .empty-state {
       padding: 2.5rem 1rem;
       text-align: center;
