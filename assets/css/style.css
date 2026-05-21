@@ -430,6 +430,41 @@ nav {
   aspect-ratio: 3/4; object-fit: cover; display: block;
 }
 .hero-card:first-child img { aspect-ratio: auto; height: 100%; }
+/* ACTION ICONS */
+.card-actions{
+  position:absolute;
+  top:14px;
+  right:14px;
+  display:flex;
+  flex-direction:column;
+  gap:0.65rem;
+  z-index:30;
+}
+
+.card-actions button{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:50%;
+  background:rgba(17,17,17,0.72);
+  backdrop-filter:blur(10px);
+  color:#fff;
+  font-size:1rem;
+  cursor:pointer;
+  transition:0.25s;
+}
+
+.card-actions button:hover{
+  transform:scale(1.08);
+  background:var(--gold);
+  color:#1a1535;
+}
+
+.wish-btn.wishlisted{
+  background:var(--gold);
+  color:#1a1535;
+}
+
 .dress-overlay {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: linear-gradient(transparent, rgba(15,13,26,0.88));
