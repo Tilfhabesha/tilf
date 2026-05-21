@@ -535,6 +535,48 @@ nav {
   opacity: 0; transform: translateX(8px);
   transition: all 0.25s;
 }
+.card-actions{
+  position:absolute;
+  top:28px;
+  right:28px;
+
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+
+  z-index:20;
+}
+
+.wish-btn,
+.cart-btn{
+  width:46px;
+  height:46px;
+
+  border:none;
+  border-radius:50%;
+
+  background:rgba(0,0,0,0.55);
+
+  color:white;
+
+  font-size:1.1rem;
+
+  cursor:pointer;
+
+  backdrop-filter:blur(10px);
+
+  transition:0.25s ease;
+}
+
+.wish-btn:hover,
+.cart-btn:hover{
+  transform:scale(1.08);
+  background:rgba(0,0,0,0.8);
+}
+
+.wishlisted{
+  color:#ff4d6d;
+}
 .dress-card:hover .card-actions { opacity: 1; transform: translateX(0); }
 .card-action-btn {
   width: 34px; height: 34px; border-radius: 50%;
@@ -787,6 +829,98 @@ nav {
 .product-name em { font-style: italic; color: var(--gold-dim); }
 .product-supplier-row {
   display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.25rem;
+}
+.product-page-section{
+  padding:9rem 2rem 5rem;
+  min-height:100vh;
+}
+
+.product-layout{
+  max-width:1400px;
+  margin:auto;
+
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  gap:4rem;
+}
+
+.product-main-img img{
+  width:100%;
+  height:720px;
+  object-fit:cover;
+
+  border-radius:30px;
+}
+
+.product-gallery{
+  margin-top:1.2rem;
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+}
+
+.product-gallery-item img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+
+  border-radius:20px;
+}
+
+.product-name{
+  font-size:3rem;
+  margin:1rem 0;
+}
+
+.product-price-main{
+  font-size:2rem;
+  color:var(--gold-light);
+  margin-bottom:1.5rem;
+}
+
+.deposit-box{
+  margin:2rem 0;
+  padding:1.5rem;
+
+  border-radius:24px;
+
+  background:rgba(255,255,255,0.05);
+}
+
+.deposit-box-label{
+  font-size:0.85rem;
+  opacity:0.7;
+}
+
+.deposit-box-amount{
+  font-size:2rem;
+  margin-top:0.5rem;
+}
+
+.measurement-grid{
+  margin-top:1rem;
+
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1rem;
+}
+
+.measurement-grid input{
+  padding:1rem;
+  border-radius:14px;
+  border:none;
+
+  background:#1a1a1a;
+  color:white;
+}
+
+.product-actions{
+  margin-top:2rem;
+
+  display:flex;
+  gap:1rem;
+  flex-wrap:wrap;
 }
 .supplier-avatar {
   width: 38px; height: 38px; border-radius: 50%;
