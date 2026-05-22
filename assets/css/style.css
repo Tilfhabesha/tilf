@@ -147,7 +147,7 @@ nav {
 /* Hamburger */
 .nav-hamburger {
   display: none; background: none; border: none; cursor: pointer;
-  flex-direction: column; gap: 5px; padding: 4px;
+  flex-direction: column; gap: 15px; padding: 4px;
 }
 .nav-hamburger span {
   display: block; width: 22px; height: 2px;
@@ -278,6 +278,7 @@ nav {
     radial-gradient(ellipse 80% 60% at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 60%),
     radial-gradient(ellipse 40% 80% at 10% 80%, rgba(184,92,58,0.12) 0%, transparent 50%),
     radial-gradient(ellipse 60% 40% at 90% 10%, rgba(90,122,94,0.08) 0%, transparent 50%);
+    margin-bottom: 8px !important;
 }
 .hero-pattern {
   position: absolute; inset: 0; opacity: 0.035;
@@ -304,7 +305,7 @@ nav {
   font-size: clamp(2.8rem, 5.5vw, 5rem);
   font-weight: 300; line-height: 1.05;
   color: var(--cream); margin-bottom: 0.4rem;
-  margin-bottom: 8px !important;
+  
 }
 .hero-title em { font-style: italic; color: var(--gold-light); display: block; }
 .hero-tagline {
@@ -647,7 +648,7 @@ nav {
 
 /* ─── HOW IT WORKS ─── */
 .how-section { background: var(--indigo); }
-.how-section .section-title { color: var(--cream); }
+.how-section .section-title { color: var(--indigo); }
 .how-section .section-sub { color: rgba(245,240,232,0.55); }
 .steps-grid {
   display: grid; grid-template-columns: repeat(5, 1fr);
