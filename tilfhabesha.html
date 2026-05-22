@@ -42,8 +42,8 @@
       </a>
       <!-- Auth -->
       <div id="navAuthArea" style="display:flex;align-items:center;gap:0.65rem;">
-        <a href="#" onclick="openAuthModal('signin')" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
-        <a href="#" onclick="openAuthModal('signup')" class="nav-cta">Join</a>
+        <a href="#" onclick="window.openAuthModal('signin');return false;" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
+        <a href="#" onclick="window.openAuthModal('signup');return false;" class="nav-cta">Join</a>
       </div>
       <!-- Hamburger -->
       <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
@@ -198,22 +198,22 @@
       </div>
       <div class="artisans-strip">
         <div class="artisan-card">
-          <img src="assets/images/artisans/kb.jpg" alt="Kibrom Negasi"
+          <img src="assets/images/kb.jpg" alt="Kibrom Negasi"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
             loading="lazy">
           <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#1e1850,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">M</div>
           <div class="artisan-info">
-            <div class="artisan-name"Kibrom Negasi</div>
+            <div class="artisan-name">Kibrom Negasi</div>
             <div class="artisan-city">Addis Ababa · 12 years experience</div>
           </div>
         </div>
         <div class="artisan-card">
-          <img src="assets/images/artisans/teddy.jpg" alt="Teddy Arefayne"
+          <img src="assets/images/teddy.jpg" alt="Teddy Arefayne"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
             loading="lazy">
           <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#2a1a10,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">S</div>
           <div class="artisan-info">
-            <div class="artisan-name"Teddy Arefayne</div>
+            <div class="artisan-name">Teddy Arefayne</div>
             <div class="artisan-city">Addis Ababa · Tibeb specialist</div>
           </div>
         </div>
