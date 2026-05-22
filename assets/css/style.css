@@ -101,6 +101,7 @@ nav {
   white-space: nowrap;
   color: var(--gold-dim); letter-spacing: 0.08em;
   text-transform: uppercase; line-height: 1.4;
+  margin-left: 10px;
 }
 .nav-links {
   display: flex; gap: 1.75rem; list-style: none; align-items: center;
@@ -147,7 +148,6 @@ nav {
 .nav-hamburger {
   display: none; background: none; border: none; cursor: pointer;
   margin-left: 10px;
-  flex-shrink: 0;
   flex-direction: column; gap: 5px; padding: 4px;
 }
 .nav-hamburger span {
@@ -398,7 +398,8 @@ nav {
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
-.hero-visual { flex: 1; position: relative; height:78vh; min-height:720px; }
+.hero-visual { flex: 1; position: relative; height:78vh; min-height:720px; margin-bottom: 0 !important;
+  padding-bottom: 0 !important; }
 .hero-slider {
   display: flex !important; /* Force flex instead of grid */
   flex-direction: row;
@@ -470,6 +471,7 @@ nav {
   display: inline-flex; align-items: center; gap: 0.75rem;
   font-size: 0.68rem; font-weight: 600; letter-spacing: 0.25em;
   text-transform: uppercase; color: var(--gold); margin-bottom: 0.85rem;
+  margin-bottom: 20px !important;
 }
 .section-label::before { content: ''; display: block; width: 14px; height: 1px; background: var(--gold); }
 .section-title {
@@ -482,7 +484,12 @@ nav {
 .section-sub { color: var(--text-mid); font-size: 0.97rem; line-height: 1.75; max-width: 540px; }
 
 /* ─── DRESS GRID ─── */
-.dresses-section { background: var(--ivory); }
+.dresses-section { 
+   background: var(--ivory); padding-top: 10px !important;
+   padding-bottom: 30px !important;
+   min-height: auto !important; 
+   overflow: hidden;
+}
 .dresses-header {
   display: flex; justify-content: space-between; align-items: flex-end;
   margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;
@@ -617,8 +624,8 @@ nav {
 
 /* ─── ARTISANS SECTION ─── */
 .artisans-section { background: var(--white);
-                    padding-top: 40px !important;
-                    padding-bottom: 30px !important;
+                    padding-top: 10px !important;
+                    padding-bottom: 10px !important;
                     min-height: auto !important;}
 .artisans-inner {
   display: grid; grid-template-columns: 1fr 1.8fr; gap: 5rem; align-items: center; margin-bottom: 20px !important;
@@ -1172,7 +1179,7 @@ footer { background: var(--ink); color: var(--cream); padding: 5rem 2rem 2rem; }
 }
 .footer-links a:hover { color: var(--gold-light); }
 .footer-bottom {
-  border-top: 1px solid rgba(201,168,76,0.1); padding-top: 1.75rem;
+  border-top: 1px solid rgba(201,168,76,0.1); padding-top: 0.65rem;
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.85rem;
 }
 .footer-copy { font-size: 0.75rem; color: rgba(245,240,232,0.28); }
