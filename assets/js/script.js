@@ -262,8 +262,8 @@ function renderNavAuth(user) {
     `;
   } else {
     area.innerHTML = `
-      <a href="#" onclick="openAuthModal('signin')" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
-      <a href="#" onclick="openAuthModal('signup')" class="nav-cta">Join</a>
+      <a href="#" onclick="window.openAuthModal('signin');return false;" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
+      <a href="#" onclick="window.openAuthModal('signup');return false;" class="nav-cta">Join</a>
     `;
   }
 }
