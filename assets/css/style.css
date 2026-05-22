@@ -101,7 +101,7 @@ nav {
   white-space: nowrap;
   color: var(--gold-dim); letter-spacing: 0.08em;
   text-transform: uppercase; line-height: 1.4;
-  margin-left: 10px;
+  margin-right: 10px;
 }
 .nav-links {
   display: flex; gap: 1.75rem; list-style: none; align-items: center;
