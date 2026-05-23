@@ -1,567 +1,404 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tilf Habesha — Measured by you. Made in Ethiopia.</title>
-<meta name="description" content="Order custom-stitched Habesha dresses directly from Ethiopian artisans. Your exact measurements, 15% deposit, worldwide shipping.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Afacad:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="assets/css/style.css" rel="stylesheet">
-</head>
-<body>
+/* ═══════════════════════════════════════════════
+   TILF HABESHA — shop.js
+═══════════════════════════════════════════════ */
 
-<!-- TIBEB TOP ACCENT (fixed) -->
-<div class="nav-tibeb"></div>
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<!-- ─── NAV ─── -->
-<nav>
-  <div class="nav-inner">
-    <a href="#" class="logo" onclick="showPage('home')">
-      <span class="logo-sub">ጥልፍ ሀበሻ</span>
-    </a>
+import { db } from "./firebase.js";
 
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#" onclick="showPage('home'); goScrollTo('dresses')">Collections</a></li>
-      <li><a href="#" onclick="showPage('home'); goScrollTo('how')">How It Works</a></li>
-      <li><a href="how-it-works.html" target="_blank">Our Process</a></li>
-      <li><a href="#" onclick="showPage('home'); goScrollTo('track')">Track Order</a></li>
-      
-    </ul>
+/* ───────────────── STATE ───────────────── */
 
-    <div class="nav-right">
-      <!-- Wishlist -->
-      <a href="#" class="nav-icon-link" onclick="window.openWish(); return false;" title="Wishlist">
-        <span>❤️</span>
-        <span class="nav-badge" id="wishBadge" style="display:none">0</span>
-      </a>
-      <!-- Cart -->
-      <a href="#" class="nav-icon-link" onclick="window.openCart(); return false;" title="Cart">
-        <span>🛒</span>
-        <span class="nav-badge" id="cartBadge" style="display:none">0</span>
-      </a>
-      <!-- Auth -->
-      <div id="navAuthArea" style="display:flex;align-items:center;gap:0.65rem;">
-        <a href="#" onclick="window.openAuthModal('signin');return false;" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
-        <a href="#" onclick="window.openAuthModal('signup');return false;" class="nav-cta">Join</a>
-      </div>
-      <!-- Hamburger -->
-      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </div>
-  <div class="tibeb-border"></div>
-</nav>
+let PRODUCTS = [];
+let ARTISANS = {};
 
+let HERO_FILTER = "new fashion";
+let GRID_FILTER = "women";
 
-<!-- ══════════════════════════════════════
-     HOME PAGE
-══════════════════════════════════════ -->
-<div id="home" class="page active">
+/* ───────────────── HELPERS ───────────────── */
 
-  <!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-pattern"></div>
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
 
-  <div class="hero-content">
-    <div class="hero-text">
-      <div class="hero-eyebrow fade-up"></div>
-      <h1 class="hero-title fade-up-2">
-     Traditional dress,<br> to Your exact fit
-      </h1>
+function normalizeCats(cat) {
+  if (!cat) return [];
 
-      <p class="hero-tagline fade-up-3">
-        "Measured by you. Made in Ethiopia."
-      </p>
+  if (Array.isArray(cat)) {
+    return cat.map(x =>
+      String(x).toLowerCase().trim()
+    );
+  }
 
-      <div class="hero-actions fade-up-4">
-        <a href="#" class="btn-primary" onclick="goScrollTo('dresses')">
-          ✦ Browse Collections
-        </a>
-      </div>
-      <h1 class="hero-title fade-up-2">
-     Trending...
-      </h1>
-    </div>
+  return [String(cat).toLowerCase().trim()];
+}
 
-    <div class="tibeb-border"></div>
+/* ───────────────── FETCH ───────────────── */
 
-    <div class="hero-visual fade-up-3">
-    
-      <!-- NEW FASHION HERO -->
-      <div class="hero-discovery-wrapper">
+async function fetchArtisans() {
 
-        <div class="hero-slider" id="heroSlider">
-          <div class="hero-card"><div class="skeleton"></div></div>
-          <div class="hero-card"><div class="skeleton"></div></div>
-          <div class="hero-card"><div class="skeleton"></div></div>
+  if (Object.keys(ARTISANS).length) return;
+
+  const snap = await getDocs(collection(db, "artisans"));
+
+  snap.forEach(d => {
+    ARTISANS[d.id] = d.data();
+  });
+}
+
+async function fetchProducts() {
+
+  if (PRODUCTS.length) return;
+
+  await fetchArtisans();
+
+  const snap = await getDocs(
+    query(
+      collection(db, "products"),
+      orderBy("updatedAt", "desc")
+    )
+  );
+
+  PRODUCTS = snap.docs.map(d => {
+
+    const data = d.data();
+
+    const artisan = ARTISANS[data.artisanId] || {};
+
+    return {
+      id: d.id,
+      ...data,
+
+      categorySlugs: normalizeCats(data.categoryId),
+
+      supplierName:
+        artisan.brandName || "Tilf Artisan",
+
+      depositAmount:
+        data.depositAmount ||
+        parseFloat((data.price * 0.15).toFixed(2))
+    };
+  });
+}
+
+/* ───────────────── HERO ───────────────── */
+
+function renderHeroProducts() {
+
+  const slider = $("#heroSlider");
+
+  if (!slider) return;
+
+  let items = PRODUCTS.filter(p =>
+    p.inStock !== false &&
+    p.categorySlugs.includes(HERO_FILTER)
+  );
+
+  if (!items.length) {
+    slider.innerHTML =
+      `<div class="empty-state">
+        No new fashion products yet.
+      </div>`;
+    return;
+  }
+
+  slider.innerHTML = items.map(p => {
+
+    const wished =
+      (window._wishCache || []).includes(p.id);
+
+    return `
+      <div class="hero-card" data-id="${p.id}">
+
+        <img src="${p.images?.[0] || ""}"
+             alt="${p.title}"
+             loading="lazy">
+
+        <div class="card-actions">
+
+          <button class="wish-btn ${wished ? "wishlisted" : ""}"
+            data-wish="${p.id}"
+            data-wish-btn="${p.id}">
+            ${wished ? "♥" : "♡"}
+          </button>
+
+          <button class="cart-btn"
+            data-cart="${p.id}">
+            🛒
+          </button>
+
         </div>
 
-        <div id="swipeHint" class="swipe-hint">
-          <div class="hand-icon">☝️</div>
-          <span>Swipe to explore</span>
-        </div>
+        <div class="dress-overlay">
+          <div class="dress-overlay-name">
+            ${p.title}
+          </div>
 
-      </div>
-
-    </div>
-  </div>
-
-  <div class="tibeb-border"></div>
-</section>
-
-  
-  <!-- DRESS GRID -->
-<!-- DRESS GRID -->
-<section class="section dresses-section" id="dresses">
-
-  <div class="section-inner">
-
-    <div class="dresses-header">
-
-      <div>
-        <div class="section-label">Collections</div>
-        <h2 class="section-title">
-          Handcrafted for <em>every occasion</em>
-        </h2>
-      </div>
-
-      <!-- MAIN FILTERS -->
-      <div class="filter-bar fade-up-4" id="mainFilterBar">
-
-        <button class="filter-btn active" data-main-cat="women">
-          Women
-        </button>
-
-        <button class="filter-btn" data-main-cat="men">
-          Men
-        </button>
-
-        <button class="filter-btn" data-main-cat="wedding">
-          Wedding
-        </button>
-
-        <button class="filter-btn" data-main-cat="holiday">
-          Holiday
-        </button>
-
-        <button class="filter-btn" data-main-cat="events">
-          Events
-        </button>
-
-        <button class="filter-btn" data-main-cat="casual">
-          Casual
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- PRODUCTS -->
-    <div class="hero-discovery-wrapper">
-
-      <div class="hero-slider" id="productsGrid">
-
-        <div class="hero-card"><div class="skeleton"></div></div>
-        <div class="hero-card"><div class="skeleton"></div></div>
-        <div class="hero-card"><div class="skeleton"></div></div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-  <!-- MEET THE ARTISANS -->
-  <section class="section artisans-section">
-    <div class="section-inner artisans-inner">
-      <div class="artisans-text">
-        <!-- HOW IT WORKS BUTTON -->
-        <div style="text-align:center;padding:0 2rem 5rem;">
-          <a href="how-it-works.html" class="btn-ghost" target="_blank"> How It Works </a>
-        </div>
-        <div class="section-label">The Hands Behind Your Dress</div>
-        <h2 class="section-title">Meet the <em>artisans of Addis Ababa</em></h2>
-        <p class="section-sub">
-          Every dress on Tilf Habesha is stitched by a verified Ethiopian tailor.
-          Your order goes directly to the person who makes it — not a factory.
-        </p>
-      </div>
-      <div class="artisans-strip">
-        <div class="artisan-card">
-          <img src="assets/images/kb.jpg" alt="Kibrom Negasi"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            loading="lazy">
-          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#1e1850,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">M</div>
-          <div class="artisan-info">
-            <div class="artisan-name">Kibrom Negasi</div>
-            <div class="artisan-city">Addis Ababa · 12 years experience</div>
+          <div class="dress-overlay-price">
+            $${p.price}
           </div>
         </div>
-        <div class="artisan-card">
-          <img src="assets/images/teddy.jpg" alt="Teddy Arefayne"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            loading="lazy">
-          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#2a1a10,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">S</div>
-          <div class="artisan-info">
-            <div class="artisan-name">Teddy Arefayne</div>
-            <div class="artisan-city">Addis Ababa · Tibeb specialist</div>
+
+      </div>
+    `;
+
+  }).join("");
+}
+
+/* ───────────────── GRID ───────────────── */
+
+function renderGridProducts() {
+
+  const grid = $("#productsGrid");
+
+  if (!grid) return;
+
+  let items = PRODUCTS.filter(p =>
+    p.inStock !== false &&
+    p.categorySlugs.includes(GRID_FILTER)
+  );
+
+  if (!items.length) {
+
+    grid.innerHTML =
+      `<div class="empty-state">
+        No products found.
+      </div>`;
+
+    return;
+  }
+
+  grid.innerHTML = items.map(p => {
+
+    const wished =
+      (window._wishCache || []).includes(p.id);
+
+    return `
+      <div class="hero-card" data-id="${p.id}">
+
+        <img src="${p.images?.[0] || ""}"
+             alt="${p.title}"
+             loading="lazy">
+
+        <div class="card-actions">
+
+          <button class="wish-btn ${wished ? "wishlisted" : ""}"
+            data-wish="${p.id}"
+            data-wish-btn="${p.id}">
+            ${wished ? "♥" : "♡"}
+          </button>
+
+          <button class="cart-btn"
+            data-cart="${p.id}">
+            🛒
+          </button>
+
+        </div>
+
+        <div class="dress-overlay">
+          <div class="dress-overlay-name">
+            ${p.title}
+          </div>
+
+          <div class="dress-overlay-price">
+            $${p.price}
           </div>
         </div>
-        <div class="artisan-card">
-          <img src="assets/images/artisans/tigist.jpg" alt="Tigist Alemu"
-            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            loading="lazy">
-          <div style="display:none;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,#1a2535,#1a1535);align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold-light);">T</div>
-          <div class="artisan-info">
-            <div class="artisan-name">Tigist Alemu</div>
-            <div class="artisan-city">Addis Ababa · Wedding specialist</div>
-          </div>
-        </div>
+
       </div>
-    </div>
-  </section>
+    `;
 
-</div><!-- /#home -->
+  }).join("");
+}
 
-  <!-- ══════════════════════════════════════
-     PRODUCT PAGE
-══════════════════════════════════════ -->
-<div id="product" class="page product-page-wrap">
-  <div class="tibeb-border-thin"></div>
-  <div class="product-inner">
+/* ───────────────── PRODUCT PAGE ───────────────── */
 
-    <!-- Left: Images -->
-    <div class="product-images">
-      <div class="product-main-img">
-        <div class="skeleton" style="width:100%;aspect-ratio:3/4;border-radius:10px;"></div>
-      </div>
-      <div class="product-thumb-row" id="productGallery"></div>
-    </div>
+async function openProduct(id) {
 
-    <!-- Right: Info & Form -->
-    <div class="product-info">
-      <div class="product-breadcrumb">
-        <a href="#" onclick="showPage('home')" style="color:var(--gold-dim);text-decoration:none;">Home</a>
-        <span class="breadcrumb-sep">›</span>
-        <a href="#" onclick="showPage('home');goScrollTo('dresses')" style="color:var(--gold-dim);text-decoration:none;">Collections</a>
-        <span class="breadcrumb-sep">›</span>
-        <span id="productBreadName">Loading…</span>
-      </div>
+  window.showPage("product");
 
-      <h1 class="product-name">Loading…</h1>
+  const snap = await getDoc(
+    doc(db, "products", id)
+  );
 
-      <div class="product-supplier-row">
-        <div class="supplier-avatar">A</div>
-        <div class="supplier-info-small">
-          <div class="supplier-name-small">Artisan</div>
-          <div class="supplier-meta-small">
-            <span><span class="stars">★★★★★</span> 4.9</span>
-            <span>· 100+ dresses made</span>
-          </div>
+  if (!snap.exists()) return;
+
+  const p = {
+    id,
+    ...snap.data()
+  };
+
+  const set = (sel, val) => {
+    const el = $(sel);
+    if (el) el.textContent = val;
+  };
+
+  set(".product-name", p.title);
+  set(".product-price-main", `$${p.price}`);
+
+  set(
+    ".deposit-box-amount",
+    `$${p.depositAmount || (p.price * 0.15).toFixed(2)}`
+  );
+
+  const hero = $(".product-main-img");
+   
+   if (hero) {
+
+   hero.innerHTML = `
+    <img
+      id="mainProductImage"
+      src="${p.images?.[0] || ""}"
+      alt="${p.title}">
+    `;
+  }
+
+  const gallery = $("#productGallery");
+
+  if (gallery) {
+
+    gallery.innerHTML = "";
+
+    (p.images || []).slice(1).forEach(img => {
+
+      gallery.innerHTML += `
+        <div class="product-thumb">
+          <img src="${img}" alt="">
         </div>
-      </div>
+      `;
+    });
+  }
 
-      <div id="productDescription" style="margin-bottom:1.25rem;"></div>
+  const desc = $("#productDescription");
 
-      <div class="product-price-row">
-        <div class="product-price-main">$—</div>
-        <div class="product-price-note">USD · Custom stitched<br>to your measurements</div>
-      </div>
+  if (desc) {
+    desc.innerHTML = `<p>${p.description || ""}</p>`;
+  }
 
-      <div class="deposit-box">
-        <div>
-          <div class="deposit-box-amount">$—</div>
-          <div style="font-size:0.63rem;color:var(--text-light);letter-spacing:0.05em;text-transform:uppercase;">Deposit (15%)</div>
-        </div>
-        <div class="deposit-box-label">
-          Pay only <strong>a 15% deposit now</strong> to start your order.<br>
-          Balance due when your dress is complete and ready to ship.
-        </div>
-      </div>
+  window._currentProduct = {
+    ...p,
+    depositAmount:
+      p.depositAmount ||
+      parseFloat((p.price * 0.15).toFixed(2))
+  };
+}
 
-      <!-- Measurements -->
-      <div class="form-section-title">Your Measurements</div>
-      <div class="measure-guide">
-        <span>📏</span>
-        <span>All measurements in <strong>centimeters (cm)</strong>. Need help? <a href="#" style="color:var(--sage);">Watch guide →</a></span>
-      </div>
-      <div class="measure-grid">
-        <div class="form-group">
-          <label>Shoulder Width</label>
-          <div class="input-unit"><input type="number" id="mShoulder" placeholder="e.g. 38" min="20" max="80"><span class="unit-label">cm</span></div>
-        </div>
-        <div class="form-group">
-          <label>Bust / Chest</label>
-          <div class="input-unit"><input type="number" id="mBust" placeholder="e.g. 88" min="50" max="150"><span class="unit-label">cm</span></div>
-        </div>
-        <div class="form-group">
-          <label>Waist</label>
-          <div class="input-unit"><input type="number" id="mWaist" placeholder="e.g. 72" min="40" max="140"><span class="unit-label">cm</span></div>
-        </div>
-        <div class="form-group">
-          <label>Shoulder to Waist</label>
-          <div class="input-unit"><input type="number" id="mShoulderWaist" placeholder="e.g. 42" min="20" max="80"><span class="unit-label">cm</span></div>
-        </div>
-        <div class="form-group" style="grid-column:span 2">
-          <label>Dress Length (shoulder to hem)</label>
-          <div class="input-unit"><input type="number" id="mLength" placeholder="e.g. 138" min="60" max="200"><span class="unit-label">cm</span></div>
-        </div>
-        <div class="form-group" style="grid-column:span 2">
-          <label>Notes to Artisan (optional)</label>
-          <textarea id="mNotes" rows="2" placeholder="Sleeve preferences, occasion details, etc." style="resize:vertical;"></textarea>
-        </div>
-      </div>
+/* ───────────────── EVENTS ───────────────── */
 
-      <!-- Delivery -->
-      <div class="form-section-title">Delivery Address</div>
-      <div class="delivery-grid">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="dName" placeholder="Your full name">
-        </div>
-        <div class="form-group">
-          <label>Country</label>
-          <select id="dCountry">
-            <option>United States</option><option>United Kingdom</option>
-            <option>Canada</option><option>Germany</option><option>Sweden</option>
-            <option>Norway</option><option>Australia</option><option>Netherlands</option>
-            <option>France</option><option>Ethiopia</option><option>Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>City</label>
-          <input type="text" id="dCity" placeholder="City">
-        </div>
-        <div class="form-group">
-          <label>Zip / Postal Code</label>
-          <input type="text" id="dZip" placeholder="Postal code">
-        </div>
-        <div class="form-group" style="grid-column:span 2">
-          <label>Street Address</label>
-          <input type="text" id="dStreet" placeholder="Street, apartment, suite, etc.">
-        </div>
-        <div class="form-group">
-          <label>Phone (with country code)</label>
-          <input type="tel" id="dPhone" placeholder="+1 555 000 0000">
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="dEmail" placeholder="your@email.com">
-        </div>
-      </div>
+document.addEventListener("click", (e) => {
 
-      <!-- Payment -->
-      <div class="form-section-title">Pay Deposit</div>
-      <div class="payment-methods">
-        <div class="pay-badge pay-visa">VISA</div>
-        <div class="pay-badge pay-mc">Mastercard</div>
-        <div class="pay-badge pay-apple">Apple Pay</div>
-        <div class="pay-badge pay-google">G Pay</div>
-      </div>
-      <button class="btn-deposit" onclick="handleDepositPayment()">
-      <div class="btn-deposit-note">
-        🔒 Secure payment · Balance only charged when your dress is finished and approved
-      </div>
-    </div>
-  </div>
-</div>
+  /* OPEN PRODUCT */
 
-<!-- ─── FOOTER ─── -->
-<div id="footer-wrap">
-  <div class="tibeb-border"></div>
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-top">
-        <div>
-          <div class="footer-brand-name">Tilf Habesha</div>
-          <div class="footer-brand-tag">"Measured by you. Made in Ethiopia."</div>
-          <p class="footer-desc">A supplier-first marketplace connecting the Ethiopian diaspora with master artisans. Every dress is custom-stitched to your exact measurements.</p>
-        </div>
-        <div>
-          <div class="footer-col-title">Collections</div>
-          <ul class="footer-links">
-            <li><a href="#">Wedding Kemis</a></li>
-            <li><a href="#">Holiday Dress</a></li>
-            <li><a href="#">Everyday Habesha</a></li>
-            <li><a href="#">Netela Collection</a></li>
-            <li><a href="#">Mens Habesha</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Company</div>
-          <ul class="footer-links">
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Become a Supplier</a></li>
-            <li><a href="how-it-works.html">How It Works</a></li>
-            <li><a href="#">Track My Order</a></li>
-            <li><a href="#">Blog</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Support</div>
-          <ul class="footer-links">
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">Sizing Guide</a></li>
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">Returns Policy</a></li>
-            <li><a href="#">FAQ</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <div class="footer-copy">© 2024 Tilf Habesha. All rights reserved. Built with pride for the diaspora.</div>
-        <div class="footer-amharic">ጥልፍ ሀበሻ · ኢትዮጵያ</div>
-      </div>
-    </div>
-  </footer>
-</div>
+  const card =
+    e.target.closest(".hero-card[data-id]");
+
+  if (
+    card &&
+    !e.target.closest("[data-cart]") &&
+    !e.target.closest("[data-wish]")
+  ) {
+
+    openProduct(card.dataset.id);
+    return;
+  }
+
+  /* WISH */
+
+  const wish =
+    e.target.closest("[data-wish]");
+
+  if (wish) {
+
+    e.stopPropagation();
+
+    const pid = wish.dataset.wish;
+
+    const p = PRODUCTS.find(x => x.id === pid);
+
+    window.toggleWish(pid, p?.title);
+
+    return;
+  }
+
+  /* CART */
+
+  const cart =
+    e.target.closest("[data-cart]");
+
+  if (cart) {
+
+    e.stopPropagation();
+
+    const p =
+      PRODUCTS.find(
+        x => x.id === cart.dataset.cart
+      );
+
+    if (!p) return;
+
+    window.addToCart({
+      productId: p.id,
+      name: p.title,
+      price: p.price,
+      image: p.images?.[0] || "",
+      supplierName: p.supplierName
+    });
+
+    return;
+  }
+
+  /* GRID FILTERS */
+
+  const filter =
+    e.target.closest("[data-main-cat]");
+
+  if (filter) {
+
+    GRID_FILTER =
+      filter.dataset.mainCat
+        .toLowerCase()
+        .trim();
+
+    $$("[data-main-cat]").forEach(btn => {
+      btn.classList.remove("active");
+    });
+
+    filter.classList.add("active");
+
+    renderGridProducts();
+
+    return;
+  }
+});
+document.addEventListener("click", (e) => {
+
+  const thumb =
+    e.target.closest(".product-thumb img");
+
+  if (!thumb) return;
+
+  const main =
+    document.getElementById("mainProductImage");
+
+  if (!main) return;
+
+  main.src = thumb.src;
+});
+
+/* ───────────────── INIT ───────────────── */
+
+(async function initShop() {
+
+  await fetchProducts();
+
+  renderHeroProducts();
+
+  renderGridProducts();
 
 
-<!-- ─── DRAWERS (Cart & Wishlist) ─── -->
-<div class="drawer-overlay" id="drawerOverlay"></div>
-
-<!-- Cart Drawer -->
-<div class="drawer" id="cartDrawer">
-  <div class="drawer-tibeb"></div>
-  <div class="drawer-header">
-    <div class="drawer-title">Your Cart 🛒</div>
-    <button class="drawer-close" onclick="closeAllDrawers()">×</button>
-  </div>
-  <div class="drawer-body" id="cartDrawerBody">
-    <div class="drawer-empty">
-      <div style="font-size:2rem;margin-bottom:0.75rem;">🛒</div>
-      Your cart is empty.<br>Find a dress you love ✦
-    </div>
-  </div>
-  <div class="drawer-footer" id="cartDrawerFooter" style="display:none">
-    <div class="drawer-total">
-      <span class="drawer-total-label">Total</span>
-      <span class="drawer-total-amount" id="cartTotalAmount">$0</span>
-    </div>
-    <div id="cartDepositNote" class="drawer-deposit-note"></div>
-    <button id="cartCheckoutBtn" onclick="window.checkoutCart()">
-      🔒 Secure Checkout with Stripe
-    </button>
-    <div class="stripe-badge">
-      <svg width="40" height="16" viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="18" font-family="Arial" font-size="14" font-weight="bold" fill="white">stripe</text>
-      </svg>
-      Payments secured by Stripe · SSL encrypted
-    </div>
-  </div>
-</div>
-
-<!-- Wishlist Drawer -->
-<div class="drawer" id="wishDrawer">
-  <div class="drawer-tibeb"></div>
-  <div class="drawer-header">
-    <div class="drawer-title">Saved Favourites ♡</div>
-    <button class="drawer-close" onclick="closeAllDrawers()">×</button>
-  </div>
-  <div class="drawer-body" id="wishDrawerBody">
-    <div class="drawer-empty">No favourites saved yet ♡</div>
-  </div>
-</div>
-
-
-<!-- ─── AUTH MODAL (redesigned) ─── -->
-<div class="modal-overlay" id="authModal">
-  <div class="modal auth-modal-inner">
-    <div class="drawer-tibeb"></div>
-    <div class="modal-header">
-      <div class="modal-title" id="authModalTitle">Sign In</div>
-      <button class="modal-close" onclick="closeAuthModal()">×</button>
-    </div>
-    <div class="modal-body">
-
-      <!-- Google — prominent, primary action -->
-      <button class="btn-google" id="googleAuthBtn" onclick="window.doGoogleAuth()">
-        <!-- Google SVG logo -->
-        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="margin-right:10px;flex-shrink:0">
-          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
-          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
-          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
-          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/>
-        </svg>
-        Continue with Google
-      </button>
-
-      <!-- Divider -->
-      <div class="auth-divider">or continue with email</div>
-
-      <!-- Email / password -->
-      <div class="form-group" style="margin-bottom:0.65rem;">
-        <label>Email Address</label>
-        <input type="email" id="authEmail" placeholder="your@email.com" autocomplete="email">
-      </div>
-      <div class="form-group" style="margin-bottom:0.5rem;">
-        <label>Password</label>
-        <input type="password" id="authPass" placeholder="Your password" autocomplete="current-password">
-      </div>
-
-      <!-- Forgot password -->
-      <div style="text-align:right;margin-bottom:1rem;">
-        <a href="#" id="authForgotLink" onclick="window.doForgotPassword();return false;"
-          style="font-size:0.76rem;color:var(--gold-dim);text-decoration:none;letter-spacing:0.04em;">
-          Forgot password?
-        </a>
-      </div>
-
-      <button class="btn-deposit" id="authSubmitBtn" onclick="doAuth()" style="width:100%;">Sign In</button>
-
-      <div style="text-align:center;margin-top:0.85rem;">
-        <a href="#" onclick="switchAuthMode(); return false;" id="authSwitchLink"
-          style="font-size:0.82rem;color:var(--gold-dim);text-decoration:none;letter-spacing:0.04em;">
-          Don't have an account? Join
-        </a>
-      </div>
-
-      <div class="auth-trust-row">
-        🔒 Your data is encrypted and never shared
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- ─── ORDER SUCCESS MODAL ─── -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="drawer-tibeb"></div>
-    <div class="modal-header">
-      <div class="modal-title">Order Confirmed!</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="success-icon">✓</div>
-      <div class="success-title">Your dress is being made</div>
-      <p class="success-sub">Your artisan has received your measurements and will begin stitching right away.</p>
-      <div class="order-id-box">
-        <div class="order-id-label">Your Order ID</div>
-        <div class="order-id-num" id="generatedOrderId">TH-2024-XXXXX</div>
-      </div>
-      <p class="success-sub" style="font-size:0.82rem;">
-        You'll receive email updates as your dress progresses. The remaining 85% balance is requested only when your dress passes quality check and is ready to ship.
-      </p>
-      <button class="btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center;" onclick="closeModal();showPage('home');goScrollTo('track')">
-        Track My Order →
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast container -->
-<div class="toast-wrap" id="toastWrap"></div>
-
-<!-- Scripts -->
-<script type="module" src="assets/js/firebase.js"></script>
-<script type="module" src="assets/js/script.js"></script>
-<script type="module" src="assets/js/shop.js"></script>
-</body>
-</html>
+})();
