@@ -243,6 +243,10 @@ async function migrateLocalDataToFirestore(uid) {
 
 /* ─────────────────────────────────────────────
    NAV RENDER
+   FIX: Sign In / Join use data-auth attributes
+        so event delegation on #navAuthArea works
+        even after innerHTML is rewritten by this
+        function on every auth state change.
 ───────────────────────────────────────────── */
 function renderNavAuth(user) {
   const area = document.getElementById('navAuthArea');
@@ -261,9 +265,12 @@ function renderNavAuth(user) {
       <a href="#" onclick="window.doSignOut();return false;" style="font-size:0.78rem;color:rgba(245,240,232,0.4);text-decoration:none;letter-spacing:0.06em;">Sign Out</a>
     `;
   } else {
+    /* FIX: data-auth="signin" / data-auth="signup" instead of inline onclick.
+       The DOMContentLoaded listener delegates clicks from the stable
+       #navAuthArea parent, so these survive innerHTML replacement. */
     area.innerHTML = `
-      <a href="#" onclick="window.openAuthModal('signin');return false;" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
-      <a href="#" onclick="window.openAuthModal('signup');return false;" class="nav-cta">Join</a>
+      <a href="#" data-auth="signin" style="font-size:0.82rem;color:rgba(245,240,232,0.72);text-decoration:none;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">Sign In</a>
+      <a href="#" data-auth="signup" class="nav-cta">Join</a>
     `;
   }
 }
@@ -748,10 +755,38 @@ window.toast = function(msg, type = 'info') {
 
 /* ─────────────────────────────────────────────
    INIT
+   FIX: All 4 navbar buttons wired here via
+        addEventListener so they are guaranteed
+        to run after the ES module has fully
+        executed — no inline onclick races.
 ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+
+  /* Hamburger */
   document.getElementById('navHamburger')?.addEventListener('click', () => {
     document.getElementById('navLinks')?.classList.toggle('mobile-open');
+  });
+
+  /* ── Navbar: Wishlist ── */
+  document.getElementById('navWishBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.openWish();
+  });
+
+  /* ── Navbar: Cart ── */
+  document.getElementById('navCartBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.openCart();
+  });
+
+  /* ── Navbar: Sign In / Join ──
+     Delegated on the stable #navAuthArea parent so it keeps working
+     after renderNavAuth() rewrites the inner HTML on every auth change. */
+  document.getElementById('navAuthArea')?.addEventListener('click', (e) => {
+    const link = e.target.closest('a[data-auth]');
+    if (!link) return;
+    e.preventDefault();
+    window.openAuthModal(link.dataset.auth);
   });
 
   initFilterBars();
