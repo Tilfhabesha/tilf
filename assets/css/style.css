@@ -493,6 +493,7 @@ nav {
 .dresses-header {
   display: flex; justify-content: space-between; align-items: flex-end;
   margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;
+  background: var(--indigo);
 }
 .dress-grid {
   display: grid;
