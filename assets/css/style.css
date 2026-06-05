@@ -1273,3 +1273,32 @@ footer { background: var(--ink); color: var(--cream); padding: 5rem 2rem 2rem; }
 #navAuthArea a[data-auth="signin"] {
   white-space: nowrap; /* Prevents "Sign In" from splitting into two lines */
 }
+/* Products Grid Base Layout */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile like SHEIN */
+  gap: 16px; /* Space between rows and columns */
+  padding: 1.5rem 0;
+}
+
+/* Ensure the cards expand to fit the grid column safely */
+.products-grid .hero-card {
+  width: 100% !important; 
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
+/* Responsive adjustments for larger screens */
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr); /* Tablets */
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr); /* Desktops */
+    gap: 24px;
+  }
+}
