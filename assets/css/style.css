@@ -116,19 +116,23 @@ nav {
 
 /* Cart / Wishlist icon badges */
 .nav-icon-link {
-  position: relative; display: flex; align-items: center; gap: 0.3rem;
-  color: rgba(245,240,232,0.72) !important;
-  font-size: 1.05rem !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
+  position: relative; /* Crucial for positioning the badge */
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 .nav-badge {
-  position: absolute; top: -8px; right: -10px;
-  background: var(--terracotta); color: #fff;
-  font-size: 0.6rem; font-weight: 700; min-width: 16px; height: 16px;
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  padding: 0 3px; line-height: 1;
-  transition: transform 0.2s;
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: #E35D5D; /* A slightly softer red */
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 50px;
+  line-height: 1;
+  border: 2px solid #1a1535; /* Matches your dark background to create a cutout effect */
 }
 .nav-badge.bump { transform: scale(1.4); }
 
@@ -363,16 +367,19 @@ nav {
   display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 1.75rem;
 }
 .filter-btn {
-  padding: 0.38rem 1rem;
-  border: 1px solid rgba(201,168,76,0.4);
-  background: var(--indigo); cursor: pointer;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(26, 21, 53, 0.2);
+  border-radius: 20px;
+  background-color: transparent;  
   font-family: 'Afacad', sans-serif;
   font-size: 0.78rem; letter-spacing: 0.05em;
-  color: rgba(245,240,232,0.6); border-radius: 2rem;
-  transition: all 0.2s;
+  color: #1a1535; /* Dark blue text */  
+  transition: all 0.3s;
 }
 .filter-btn:hover, .filter-btn.active {
-  background: var(--gold); border-color: var(--gold); color: var(--ink);
+  background-color: #D4AF37; /* Gold */
+  color: #1a1535;
+  border-color: #D4AF37;
 }
 
 .hero-stats {
@@ -1254,4 +1261,8 @@ footer { background: var(--ink); color: var(--cream); padding: 5rem 2rem 2rem; }
   .footer-top { grid-template-columns: 1fr; }
   .steps-grid { grid-template-columns: 1fr; }
   .become-stat-grid { grid-template-columns: 1fr 1fr; }
+}
+/* Paste this at the bottom of style.css */
+#navAuthArea a[data-auth="signin"] {
+  white-space: nowrap; /* Prevents "Sign In" from splitting into two lines */
 }
