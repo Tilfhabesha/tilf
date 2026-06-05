@@ -375,6 +375,7 @@ nav {
   font-size: 0.78rem; letter-spacing: 0.05em;
   color: #1a1535; /* Dark blue text */  
   transition: all 0.3s;
+  flex-shrink: 0;
 }
 .filter-btn:hover, .filter-btn.active {
   background-color: #D4AF37; /* Gold */
@@ -1301,4 +1302,27 @@ footer { background: var(--ink); color: var(--cream); padding: 5rem 2rem 2rem; }
     grid-template-columns: repeat(4, 1fr); /* Desktops */
     gap: 24px;
   }
+}
+#mainFilterBar {
+  display: flex;
+  overflow-x: auto; /* Enables horizontal swiping */
+  white-space: nowrap; /* Forces buttons to stay on a single line */
+  gap: 10px;
+  padding: 0.5rem 0 1rem 0;
+  scrollbar-width: none; /* Hides scrollbars on Firefox */
+  -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
+}
+
+/* Hides scrollbars on Chrome, Safari, and Opera */
+#mainFilterBar::-webkit-scrollbar {
+  display: none;
+}
+.trending-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #F5F0E8;
+  margin-top: 3.5rem; /* Generous spacing below the button */
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
 }
