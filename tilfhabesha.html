@@ -11,6 +11,8 @@
 </head>
 <body>
 
+<a href="#dresses" class="skip-link">Skip to collections</a>
+
 <!-- TIBEB TOP ACCENT (fixed) -->
 <div class="nav-tibeb"></div>
 
@@ -30,14 +32,14 @@
 
     <div class="nav-right">
       <!-- Wishlist — id added, inline onclick removed -->
-      <a href="#" class="nav-icon-link" id="navWishBtn" title="Wishlist">
-        <span>❤️</span>
-        <span class="nav-badge" id="wishBadge" style="display:none">0</span>
+      <a href="#" class="nav-icon-link" id="navWishBtn" title="Wishlist" aria-label="Open wishlist">
+        <span aria-hidden="true">❤️</span>
+        <span class="nav-badge" id="wishBadge" style="display:none" aria-hidden="true">0</span>
       </a>
       <!-- Cart — id added, inline onclick removed -->
-      <a href="#" class="nav-icon-link" id="navCartBtn" title="Cart">
-        <span>🛒</span>
-        <span class="nav-badge" id="cartBadge" style="display:none">0</span>
+      <a href="#" class="nav-icon-link" id="navCartBtn" title="Cart" aria-label="Open cart">
+        <span aria-hidden="true">🛒</span>
+        <span class="nav-badge" id="cartBadge" style="display:none" aria-hidden="true">0</span>
       </a>
       <!-- Auth — inline onclicks removed; event-delegated via #navAuthArea in script.js -->
       <div id="navAuthArea" style="display:flex;align-items:center;gap:0.65rem;">
@@ -45,7 +47,7 @@
         <a href="#" data-auth="signup" class="nav-cta">Join</a>
       </div>
       <!-- Hamburger -->
-      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+      <button class="nav-hamburger" id="navHamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -66,9 +68,9 @@
 
   <div class="hero-content">
     <div class="hero-text">
-      <div class="hero-eyebrow fade-up"></div>
+      <div class="hero-eyebrow fade-up">Ethiopian Craftsmanship, Custom-Fit</div>
       <h1 class="hero-title fade-up-2">
-     Traditional dress,<br> to Your exact fit
+        Traditional dress,<br><em>to your exact fit</em>
       </h1>
 
       <p class="hero-tagline fade-up-3">
@@ -76,10 +78,20 @@
       </p>
 
       <div class="hero-actions fade-up-4">
-        <a href="#" class="btn-primary" onclick="goScrollTo('dresses')">
+        <a href="#dresses" class="btn-primary" onclick="goScrollTo('dresses'); return false;">
           ✦ Browse Collections
         </a>
+        <a href="how-it-works.html" class="btn-ghost" target="_blank">
+          How It Works
+        </a>
       </div>
+
+      <div class="hero-trust-bar fade-up-4">
+        <div class="hero-trust-item"><span class="trust-ico" aria-hidden="true">🧵</span> Made by verified artisans</div>
+        <div class="hero-trust-item"><span class="trust-ico" aria-hidden="true">🔒</span> Only 15% deposit upfront</div>
+        <div class="hero-trust-item"><span class="trust-ico" aria-hidden="true">🌍</span> Ships worldwide</div>
+      </div>
+
       <h3 class="trending-title">Trending Now</h3>
     </div>
 
@@ -172,16 +184,15 @@
   <section class="section artisans-section">
     <div class="section-inner artisans-inner">
       <div class="artisans-text">
-        <!-- HOW IT WORKS BUTTON -->
-        <div style="text-align:center;padding:0 2rem 5rem;">
-          <a href="how-it-works.html" class="btn-ghost" target="_blank"> How It Works </a>
-        </div>
         <div class="section-label">The Hands Behind Your Dress</div>
         <h2 class="section-title">Meet the <em>artisans of Addis Ababa</em></h2>
         <p class="section-sub">
           Every dress on Tilf Habesha is stitched by a verified Ethiopian tailor.
           Your order goes directly to the person who makes it — not a factory.
         </p>
+        <div style="margin-top:2rem;">
+          <a href="how-it-works.html" class="btn-ghost" target="_blank">Our Process →</a>
+        </div>
       </div>
       <div class="artisans-strip">
         <div class="artisan-card">
@@ -355,13 +366,42 @@
         <div class="pay-badge pay-apple">Apple Pay</div>
         <div class="pay-badge pay-google">G Pay</div>
       </div>
-      <button class="btn-deposit" onclick="handleDepositPayment()">
+      <button class="btn-deposit" id="depositPayBtn" onclick="handleDepositPayment()">
+        <span aria-hidden="true">💳</span> Pay Deposit
+      </button>
       <div class="btn-deposit-note">
         🔒 Secure payment · Balance only charged when your dress is finished and approved
       </div>
+
+      <div class="product-trust-row">
+        <div class="product-trust-item"><span aria-hidden="true">🧵</span> Hand-stitched by a verified Ethiopian artisan</div>
+        <div class="product-trust-item"><span aria-hidden="true">↩️</span> Free remake if measurements don't match</div>
+        <div class="product-trust-item"><span aria-hidden="true">📦</span> Tracked worldwide shipping</div>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Related products -->
+  <section class="related-section">
+    <div class="related-inner">
+      <div class="section-label">You Might Also Like</div>
+      <h2 class="section-title" style="margin-bottom:2rem;">More from this <em>collection</em></h2>
+      <div class="products-grid" id="relatedProductsGrid"></div>
+    </div>
+  </section>
+
+  <!-- Sticky mobile purchase bar -->
+  <div class="mobile-buy-bar" id="mobileBuyBar">
+    <div class="mobile-buy-bar-price">
+      <span class="mb-label">Deposit</span>
+      <span class="mb-amount" id="mobileBuyAmount">$—</span>
+    </div>
+    <button class="btn-deposit" onclick="handleDepositPayment()">
+      <span aria-hidden="true">💳</span> Pay Deposit
+    </button>
+  </div>
+
+</div><!-- /#product -->
 
 <!-- ─── FOOTER ─── -->
 <div id="footer-wrap">
@@ -406,7 +446,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <div class="footer-copy">© 2024 Tilf Habesha. All rights reserved. Built with pride for the diaspora.</div>
+        <div class="footer-copy">© <span id="footerYear">2026</span> Tilf Habesha. All rights reserved. Built with pride for the diaspora.</div>
         <div class="footer-amharic">ጥልፍ ሀበሻ · ኢትዮጵያ</div>
       </div>
     </div>
