@@ -84,6 +84,96 @@ async function fetchProducts() {
         parseFloat((data.price * 0.15).toFixed(2))
     };
   });
+
+  // Expose to other modules (script.js) so the wishlist drawer can look up
+  // full product details for saved items without a second Firestore round-trip.
+  window._productsCache = PRODUCTS;
+}
+
+window.getProductById = function (id) {
+  return PRODUCTS.find(p => p.id === id) || null;
+};
+
+window.ensureProductsLoaded = fetchProducts;
+window.openProduct = openProduct;
+
+/* ───────────────── FORMAT HELPERS ───────────────── */
+
+function fmtPrice(n) {
+  const num = Number(n) || 0;
+  return num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function isNewProduct(p) {
+  const ts = p.createdAt?.toMillis ? p.createdAt.toMillis() : (p.createdAt?.seconds ? p.createdAt.seconds * 1000 : null);
+  if (!ts) return false;
+  return (Date.now() - ts) < (14 * 24 * 60 * 60 * 1000); // 14 days
+}
+
+/* ───────────────── CARD BUILDER (shared by hero + grid) ───────────────── */
+
+function buildProductCard(p) {
+
+  const wished = (window._wishCache || []).includes(p.id);
+  const soldOut = p.inStock === false;
+  const title = escapeHtml(p.title || "Untitled");
+  const img = escapeHtml(p.images?.[0] || "");
+
+  let badge = "";
+  if (p.popular) {
+    badge = `<div class="card-badge badge-popular">Popular</div>`;
+  } else if (isNewProduct(p)) {
+    badge = `<div class="card-badge badge-new">New</div>`;
+  }
+
+  return `
+    <div class="hero-card${soldOut ? " sold-out" : ""}" data-id="${p.id}">
+
+      <div class="card-img-wrap">
+        <img src="${img}"
+             alt="${title}${p.supplierName ? " — " + escapeHtml(p.supplierName) : ""}"
+             loading="lazy">
+        ${badge}
+        ${soldOut ? `<div class="sold-out-tag"><span>Sold Out</span></div>` : ""}
+      </div>
+
+      <div class="card-actions">
+
+        <button class="wish-btn ${wished ? "wishlisted" : ""}"
+          data-wish="${p.id}"
+          data-wish-btn="${p.id}"
+          aria-label="${wished ? "Remove from wishlist" : "Add to wishlist"}"
+          aria-pressed="${wished}">
+          ${wished ? "♥" : "♡"}
+        </button>
+
+        ${soldOut ? "" : `
+        <button class="cart-btn"
+          data-cart="${p.id}"
+          aria-label="Add ${title} to cart">
+          🛒
+        </button>`}
+
+      </div>
+
+      <div class="dress-overlay">
+        <div class="dress-overlay-name">
+          ${title}
+        </div>
+        <div class="dress-overlay-price">
+          $${fmtPrice(p.price)}
+        </div>
+        <div class="dress-overlay-delivery">Made to order · ships in 2–3 weeks</div>
+      </div>
+
+    </div>
+  `;
 }
 
 /* ───────────────── HERO ───────────────── */
@@ -95,59 +185,19 @@ function renderHeroProducts() {
   if (!slider) return;
 
   let items = PRODUCTS.filter(p =>
-    p.inStock !== false &&
     p.categorySlugs.includes(HERO_FILTER)
   );
 
   if (!items.length) {
     slider.innerHTML =
       `<div class="empty-state">
-        No new fashion products yet.
+        <span class="empty-icon">✦</span>
+        No new fashion products yet. Check back soon.
       </div>`;
     return;
   }
 
-  slider.innerHTML = items.map(p => {
-
-    const wished =
-      (window._wishCache || []).includes(p.id);
-
-    return `
-      <div class="hero-card" data-id="${p.id}">
-
-        <img src="${p.images?.[0] || ""}"
-             alt="${p.title}"
-             loading="lazy">
-
-        <div class="card-actions">
-
-          <button class="wish-btn ${wished ? "wishlisted" : ""}"
-            data-wish="${p.id}"
-            data-wish-btn="${p.id}">
-            ${wished ? "♥" : "♡"}
-          </button>
-
-          <button class="cart-btn"
-            data-cart="${p.id}">
-            🛒
-          </button>
-
-        </div>
-
-        <div class="dress-overlay">
-          <div class="dress-overlay-name">
-            ${p.title}
-          </div>
-
-          <div class="dress-overlay-price">
-            $${p.price}
-          </div>
-        </div>
-
-      </div>
-    `;
-
-  }).join("");
+  slider.innerHTML = items.map(buildProductCard).join("");
 }
 
 /* ───────────────── GRID ───────────────── */
@@ -159,7 +209,6 @@ function renderGridProducts() {
   if (!grid) return;
 
   let items = PRODUCTS.filter(p =>
-    p.inStock !== false &&
     p.categorySlugs.includes(GRID_FILTER)
   );
 
@@ -167,53 +216,41 @@ function renderGridProducts() {
 
     grid.innerHTML =
       `<div class="empty-state">
-        No products found.
+        <span class="empty-icon">✦</span>
+        No products found in this category yet.
+        <br>
+        <a href="#" class="empty-action" data-main-cat="women">Browse Women's Collection</a>
       </div>`;
 
     return;
   }
 
-  grid.innerHTML = items.map(p => {
+  grid.innerHTML = items.map(buildProductCard).join("");
+}
 
-    const wished =
-      (window._wishCache || []).includes(p.id);
+/* ───────────────── RELATED PRODUCTS ───────────────── */
 
-    return `
-      <div class="hero-card" data-id="${p.id}">
+function renderRelatedProducts(currentProduct) {
 
-        <img src="${p.images?.[0] || ""}"
-             alt="${p.title}"
-             loading="lazy">
+  const grid = $("#relatedProductsGrid");
+  if (!grid) return;
 
-        <div class="card-actions">
+  const cats = currentProduct.categorySlugs || normalizeCats(currentProduct.categoryId);
 
-          <button class="wish-btn ${wished ? "wishlisted" : ""}"
-            data-wish="${p.id}"
-            data-wish-btn="${p.id}">
-            ${wished ? "♥" : "♡"}
-          </button>
+  let items = PRODUCTS
+    .filter(p => p.id !== currentProduct.id && p.categorySlugs.some(c => cats.includes(c)))
+    .slice(0, 4);
 
-          <button class="cart-btn"
-            data-cart="${p.id}">
-            🛒
-          </button>
+  if (!items.length) {
+    items = PRODUCTS.filter(p => p.id !== currentProduct.id).slice(0, 4);
+  }
 
-        </div>
+  if (!items.length) {
+    grid.innerHTML = `<div class="empty-state"><span class="empty-icon">✦</span>More arrivals coming soon.</div>`;
+    return;
+  }
 
-        <div class="dress-overlay">
-          <div class="dress-overlay-name">
-            ${p.title}
-          </div>
-
-          <div class="dress-overlay-price">
-            $${p.price}
-          </div>
-        </div>
-
-      </div>
-    `;
-
-  }).join("");
+  grid.innerHTML = items.map(buildProductCard).join("");
 }
 
 /* ───────────────── PRODUCT PAGE ───────────────── */
@@ -221,41 +258,64 @@ function renderGridProducts() {
 async function openProduct(id) {
 
   window.showPage("product");
+  window.scrollTo(0, 0);
 
-  const snap = await getDoc(
-    doc(db, "products", id)
-  );
-
-  if (!snap.exists()) return;
-
-  const p = {
-    id,
-    ...snap.data()
-  };
-
+  // Reset to loading state so stale data from a previous product never lingers
   const set = (sel, val) => {
     const el = $(sel);
     if (el) el.textContent = val;
   };
+  set(".product-name", "Loading…");
+  set("#productBreadName", "Loading…");
 
-  set(".product-name", p.title);
-  set(".product-price-main", `$${p.price}`);
+  let snap;
+  try {
+    snap = await getDoc(doc(db, "products", id));
+  } catch (err) {
+    set(".product-name", "Couldn't load this product");
+    const desc = $("#productDescription");
+    if (desc) desc.innerHTML = `<p class="error-state" style="padding:0;text-align:left;">Something went wrong loading this item. Please try again.</p>`;
+    return;
+  }
 
-  set(
-    ".deposit-box-amount",
-    `$${p.depositAmount || (p.price * 0.15).toFixed(2)}`
-  );
+  if (!snap.exists()) {
+    set(".product-name", "Product not found");
+    const desc = $("#productDescription");
+    if (desc) desc.innerHTML = `<p class="error-state" style="padding:0;text-align:left;">This dress may have been removed or sold out. <a href="#" onclick="showPage('home');goScrollTo('dresses');return false;">Browse the collection →</a></p>`;
+    return;
+  }
+
+  await fetchProducts(); // ensure PRODUCTS/ARTISANS are populated for related items
+
+  const raw = snap.data();
+  const artisan = ARTISANS[raw.artisanId] || {};
+
+  const p = {
+    id,
+    ...raw,
+    categorySlugs: normalizeCats(raw.categoryId),
+    supplierName: artisan.brandName || "Tilf Artisan",
+    depositAmount: raw.depositAmount || parseFloat((raw.price * 0.15).toFixed(2))
+  };
+
+  set(".product-name", p.title || "Untitled");
+  set("#productBreadName", p.title || "");
+  set(".product-price-main", `$${fmtPrice(p.price)}`);
+  set(".deposit-box-amount", `$${fmtPrice(p.depositAmount)}`);
+  set("#mobileBuyAmount", `$${fmtPrice(p.depositAmount)}`);
+
+  const supplierNameEl = $(".supplier-name-small");
+  if (supplierNameEl) supplierNameEl.textContent = p.supplierName;
 
   const hero = $(".product-main-img");
-   
-   if (hero) {
 
-   hero.innerHTML = `
-    <img
-      id="mainProductImage"
-      src="${p.images?.[0] || ""}"
-      alt="${p.title}">
-    `;
+  if (hero) {
+    hero.innerHTML = `
+      <img
+        id="mainProductImage"
+        src="${escapeHtml(p.images?.[0] || "")}"
+        alt="${escapeHtml(p.title || "")}">
+      `;
   }
 
   const gallery = $("#productGallery");
@@ -268,7 +328,7 @@ async function openProduct(id) {
 
       gallery.innerHTML += `
         <div class="product-thumb">
-          <img src="${img}" alt="">
+          <img src="${escapeHtml(img)}" alt="${escapeHtml(p.title || "")} — additional view" loading="lazy">
         </div>
       `;
     });
@@ -277,15 +337,12 @@ async function openProduct(id) {
   const desc = $("#productDescription");
 
   if (desc) {
-    desc.innerHTML = `<p>${p.description || ""}</p>`;
+    desc.innerHTML = `<p>${escapeHtml(p.description || "")}</p>`;
   }
 
-  window._currentProduct = {
-    ...p,
-    depositAmount:
-      p.depositAmount ||
-      parseFloat((p.price * 0.15).toFixed(2))
-  };
+  window._currentProduct = p;
+
+  renderRelatedProducts(p);
 }
 
 /* ───────────────── EVENTS ───────────────── */
