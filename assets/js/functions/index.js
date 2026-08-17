@@ -1,7 +1,10 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
-const stripe = require("stripe")("sk_test_YOUR_STRIPE_SECRET_KEY"); // Replace with actual key
+// NOTE: never hardcode a live secret key here. Set it via Firebase config/secrets
+// (`firebase functions:secrets:set STRIPE_SECRET_KEY`) and read it from the
+// environment instead, e.g. process.env.STRIPE_SECRET_KEY.
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY || "sk_test_YOUR_STRIPE_SECRET_KEY");
 
 admin.initializeApp();
 const db = admin.firestore();
