@@ -202,10 +202,65 @@ function attachWishListener(uid) {
       window._wishCache = wishlistIds;
       updateWishBadge();
       document.querySelectorAll('[data-wish-btn]').forEach(btn => {
-        btn.classList.toggle('wishlisted', wishlistIds.includes(btn.dataset.wishBtn));
+        const isWished = wishlistIds.includes(btn.dataset.wishBtn);
+        btn.classList.toggle('wishlisted', isWished);
+        btn.setAttribute('aria-pressed', isWished);
       });
+      renderWishDrawer();
     }
   );
+}
+
+/* ─────────────────────────────────────────────
+   WISHLIST DRAWER — renders saved products
+───────────────────────────────────────────── */
+async function renderWishDrawer() {
+  const body = document.getElementById('wishDrawerBody');
+  if (!body) return;
+
+  if (!wishlistIds.length) {
+    body.innerHTML = `<div class="drawer-empty">
+      No favourites saved yet ♡
+      <div style="margin-top:1.5rem;">
+        <a href="#" class="btn-ghost" style="background:transparent;color:var(--gold-dim);border-color:var(--border-strong);"
+           onclick="closeAllDrawers();showPage('home');goScrollTo('dresses');return false;">Continue Shopping</a>
+      </div>
+    </div>`;
+    return;
+  }
+
+  // Product details live in shop.js's cache; make sure it's loaded.
+  if (typeof window.ensureProductsLoaded === 'function') {
+    await window.ensureProductsLoaded();
+  }
+
+  const items = wishlistIds
+    .map(id => (typeof window.getProductById === 'function' ? window.getProductById(id) : null))
+    .filter(Boolean);
+
+  if (!items.length) {
+    body.innerHTML = `<div class="drawer-empty">Loading your favourites…</div>`;
+    return;
+  }
+
+  body.innerHTML = items.map(p => `
+    <div class="drawer-item">
+      <img class="drawer-item-img" src="${p.images?.[0] || ''}" alt="${p.title || ''}"
+        loading="lazy" onerror="this.style.background='var(--deep)'">
+      <div class="drawer-item-info">
+        <div class="drawer-item-name">${p.title || 'Untitled'}</div>
+        <div class="drawer-item-supplier">${p.supplierName || ''}</div>
+        <div class="drawer-item-price">$${p.price}</div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <button class="btn-ghost" style="padding:0.4rem 0.85rem;font-size:0.7rem;background:transparent;color:var(--gold-dim);border-color:var(--border-strong);"
+            onclick="closeAllDrawers();window.location.hash='';document.dispatchEvent(new CustomEvent('th-open-product',{detail:'${p.id}'}))">View</button>
+          <button class="btn-ghost" style="padding:0.4rem 0.85rem;font-size:0.7rem;background:transparent;color:var(--gold-dim);border-color:var(--border-strong);"
+            onclick="window.addToCart({productId:'${p.id}',name:${JSON.stringify(p.title||'')},price:${p.price||0},image:${JSON.stringify(p.images?.[0]||'')},supplierName:${JSON.stringify(p.supplierName||'')}})">Add to cart</button>
+        </div>
+      </div>
+      <button class="drawer-item-remove" onclick="window.toggleWish('${p.id}')" title="Remove from wishlist">×</button>
+    </div>
+  `).join('');
 }
 
 /* ─────────────────────────────────────────────
@@ -367,8 +422,9 @@ window.handleDepositPayment = async function() {
     email:   document.getElementById('dEmail')?.value   || currentUser.email
   };
 
-  const depBtn = document.querySelector('.btn-deposit:not(#cartDrawerFooter .btn-deposit)');
-  if (depBtn) { depBtn.disabled = true; depBtn.innerHTML = '🔒 Connecting to Stripe…'; }
+  // Both the sticky mobile bar and the desktop form each have their own deposit button — keep them in sync.
+  const depBtns = document.querySelectorAll('#depositPayBtn, .mobile-buy-bar .btn-deposit');
+  depBtns.forEach(btn => { btn.disabled = true; btn.innerHTML = '🔒 Connecting to Stripe…'; });
 
   try {
     toast('Connecting to secure payment…', 'info');
@@ -378,7 +434,7 @@ window.handleDepositPayment = async function() {
   } catch (err) {
     console.error('Checkout error:', err);
     toast('Checkout error. Please try again.', 'error');
-    if (depBtn) { depBtn.disabled = false; depBtn.innerHTML = `<span>💳</span> Pay Deposit · $${p.depositAmount}`; }
+    depBtns.forEach(btn => { btn.disabled = false; btn.innerHTML = `<span>💳</span> Pay Deposit · $${p.depositAmount}`; });
   }
 };
 
@@ -480,6 +536,10 @@ function renderCartDrawer() {
     body.innerHTML = `<div class="drawer-empty">
       <div style="font-size:2rem;margin-bottom:0.75rem;">🛒</div>
       Your cart is empty.<br><span style="color:var(--gold-dim);">Find a dress you love ✦</span>
+      <div style="margin-top:1.5rem;">
+        <a href="#" class="btn-ghost" style="background:transparent;color:var(--gold-dim);border-color:var(--border-strong);"
+           onclick="closeAllDrawers();showPage('home');goScrollTo('dresses');return false;">Continue Shopping</a>
+      </div>
     </div>`;
     if (footer) footer.style.display = 'none';
     return;
@@ -762,9 +822,15 @@ window.toast = function(msg, type = 'info') {
 ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* Footer year */
+  const fy = document.getElementById('footerYear');
+  if (fy) fy.textContent = new Date().getFullYear();
+
   /* Hamburger */
-  document.getElementById('navHamburger')?.addEventListener('click', () => {
-    document.getElementById('navLinks')?.classList.toggle('mobile-open');
+  document.getElementById('navHamburger')?.addEventListener('click', (e) => {
+    const links = document.getElementById('navLinks');
+    const open = links?.classList.toggle('mobile-open');
+    e.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
 
   /* ── Navbar: Wishlist ── */
